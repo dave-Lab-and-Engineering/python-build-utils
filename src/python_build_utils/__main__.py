@@ -1,4 +1,5 @@
 import glob
+import os
 import sys
 import sysconfig
 
@@ -29,7 +30,7 @@ def rename_wheel_files(dist_dir, python_version_tag, platform_tag, wheel_tag):
     for wheel_file in glob.glob(f"{dist_dir}/*py3-none-any.whl"):
         new_file = wheel_file.replace("py3-none-any.whl", f"{build_version_tag}.whl")
         try:
-            click.echo(f"Trying to rename {wheel_file} -> {new_file}")
+            os.rename(wheel_file, new_file)
         except FileExistsError as e:
             click.echo(f"{e}")
         else:
