@@ -10,9 +10,6 @@ build-backend = "setuptools.build_meta"
 version_scheme = "post-release"
 local_scheme = "node-and-date"
 
-source = "vcs"
-
-
 # ========================================================================================
 # 🔹 PROJECT METADATA
 # ========================================================================================
