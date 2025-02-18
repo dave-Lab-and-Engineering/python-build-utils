@@ -18,4 +18,4 @@ ADD . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "python", "python_build_utils/foo.py"]
+CMD [ "python", "python_build_utils/__main__.py"]

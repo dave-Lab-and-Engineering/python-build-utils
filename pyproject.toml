@@ -45,7 +45,13 @@ requires = ["hatchling>=1.0.0"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-rename-wheel-files = "python_build_utils.cli:rename_wheel_files"
+# this script can be called as `python-build-utils rename-wheel-files [args]` and
+# python-build-utils remove-tarballs [args]
+python-build-utils = "python_build_utils.cli_tools:cli"
+# or, alternatively, you can functions  directly as `rename-wheel-files [args]`
+# and ´remove-tarballs [args]´
+rename-wheel-files = "python_build_utils.cli_tools:rename_wheel_files"
+remove-tarballs = "python_build_utils.cli_tools:remove_tarballs"
 
 [tool.mypy]
 files = ["src"]

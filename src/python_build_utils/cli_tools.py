@@ -14,6 +14,10 @@ import sysconfig
 
 import click
 
+@click.group()
+def cli():
+    """A collection of CLI tools for Python build utilities."""
+    pass
 
 @click.command()
 @click.option("--dist_dir", default="dist", help="Directory containing wheel files. Default is 'dist'")
@@ -68,7 +72,36 @@ def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str
     if not found_files:
         click.echo(f"No wheel files found in {dist_dir}")
 
+@click.command()
+@click.option("--dist_dir", default="dist", help="Directory containing wheel files. Default is 'dist'")
+def remove_tarballs(dist_dir: str) -> None:
+    """Remove tarball files from the specified distribution directory.
+
+    This function removes tarball files from the given distribution directory.
+    Args:
+        dist_dir (str): The directory containing the tarball files to be removed.
+    Returns:
+        None
+    Example:
+        remove_tarballs("dist")
+    """
+
+    dist_dir = dist_dir.rstrip("/")
+
+    found_files = False
+
+    for tarball_file in glob.glob(f"{dist_dir}/*.tar.gz"):
+        found_files = True
+        try:
+            os.remove(tarball_file)
+        except FileNotFoundError as e:
+            click.echo(f"Error {e}")
+        else:
+            click.echo(f"Removed {tarball_file}")
+
+    if not found_files:
+        click.echo(f"No tarball files found in {dist_dir}")
+
 
 if __name__ == "__main__":
-    # pylint: disable=no-value-for-parameter
-    rename_wheel_files()
+    cli()
