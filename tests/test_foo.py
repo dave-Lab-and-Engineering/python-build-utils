@@ -1,4 +1,4 @@
-from python_build_utils.foo import foo
+from python_build_utils.__main__ import foo
 
 
 def test_foo():

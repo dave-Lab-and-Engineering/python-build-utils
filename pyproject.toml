@@ -17,6 +17,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "click>=8.1.8",
+]
 
 [project.urls]
 Homepage = "https://eelcovv.github.io/python-build-utils/"
@@ -113,4 +116,3 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["src"]
-
