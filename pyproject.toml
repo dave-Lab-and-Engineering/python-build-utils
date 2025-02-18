@@ -41,10 +41,11 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools >= 61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.0.0"]
+build-backend = "hatchling.build"
 
-
+[project.scripts]
+rename-wheel-files = "python_build_utils.cli:rename_wheel_files"
 
 [tool.mypy]
 files = ["src"]
