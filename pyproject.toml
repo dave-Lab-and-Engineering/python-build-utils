@@ -1,6 +1,23 @@
+# ========================================================================================
+# 🔹 Build System
+# ========================================================================================
+[build-system]
+requires = ["setuptools>=61", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+
+
+# ========================================================================================
+# 🔹 PROJECT METADATA
+# ========================================================================================
 [project]
 name = "python-build-utils"
-version = "0.0.1"
+dynamic = ["version"]
+
 description = "Small collection of command line utilities to assist with building your python wheels"
 authors = [{ name = "Eelco van Vliet", email = "eelco@davelab.nl" }]
 readme = "README.md"
@@ -40,10 +57,6 @@ dev = [
     "mkdocstrings[python]>=0.26.1",
 ]
 
-[build-system]
-requires = ["hatchling>=1.0.0"]
-build-backend = "hatchling.build"
-
 [project.scripts]
 # this script can be called as `python-build-utils rename-wheel-files [args]` and
 # python-build-utils remove-tarballs [args]
@@ -52,6 +65,28 @@ python-build-utils = "python_build_utils.cli_tools:cli"
 # and ´remove-tarballs [args]´
 rename-wheel-files = "python_build_utils.cli_tools:rename_wheel_files"
 remove-tarballs = "python_build_utils.cli_tools:remove_tarballs"
+
+# ========================================================================================
+# 🔹 PUBLICATION using UV
+# ========================================================================================
+
+# === uv  ===
+[tool.uv]
+publish-url = "https://pypi.davelab.eu"
+
+[[tool.uv.index]]
+name = "davepypi"
+url = "https://pypi.davelab.eu"
+default = true
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+
+# ========================================================================================
+# 🔹 FORMATTING & LINTING
+# ========================================================================================
+
+# === mypy ===
 
 [tool.mypy]
 files = ["src"]
@@ -63,8 +98,16 @@ warn_return_any = true
 warn_unused_ignores = true
 show_error_codes = true
 
+# === ruff ===
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.pylint."MESSAGES CONTROL"]
+max-line-length = 120
 
 [tool.ruff]
 target-version = "py39"

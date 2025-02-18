@@ -14,10 +14,12 @@ import sysconfig
 
 import click
 
+
 @click.group()
 def cli():
     """A collection of CLI tools for Python build utilities."""
-    pass
+    return
+
 
 @click.command()
 @click.option("--dist_dir", default="dist", help="Directory containing wheel files. Default is 'dist'")
@@ -25,8 +27,7 @@ def cli():
 @click.option("--platform_tag", help="Explicitly specify the platform tag. Default is sysconfig.get_platform()")
 @click.option(
     "--wheel_tag",
-    help="Explicitly specify the total wheel tag. Default is {python_version_tag}-{python_version_tag}-{platform_tag}",
-)
+    help="Explicitly specify the total wheel tag. Default is {python_version_tag}-{python_version_tag}-{platform_tag}")
 def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str, wheel_tag: str) -> None:
     """Rename wheel files in the specified distribution directory to include the specified tags.
 
