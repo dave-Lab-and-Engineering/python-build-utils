@@ -1,3 +1,15 @@
+"""
+This module contains tests for the `rename_wheel_files` function from the `python_build_utils` package.
+Fixtures:
+    setup_wheel_files: Creates a temporary directory with a sample wheel file for testing.
+Tests:
+    test_rename_wheel_files_default_tags: Tests renaming wheel files with default tags based on the current
+                                        Python-version and platform.
+    test_rename_wheel_files_custom_tags: Tests renaming wheel files with custom Python version and platform tags.
+    test_rename_wheel_files_custom_wheel_tag: Tests renaming wheel files with a custom wheel tag.
+    test_rename_wheel_files_no_files_found: Tests the behavior when no wheel files are found in the specified directory.
+"""
+
 import os
 import sys
 import sysconfig
