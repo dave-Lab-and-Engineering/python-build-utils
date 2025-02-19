@@ -76,12 +76,11 @@ Options:
   --dist_dir TEXT            Directory containing wheel files. Default is
                              'dist'
   --python_version_tag TEXT  Explicitly specify the python version tag.
-                             Default is cp{major}{minor}
+                             Default is cp{major}{minor}.
   --platform_tag TEXT        Explicitly specify the platform tag. Default is
-                             sysconfig.get_platform()
-  --wheel_tag TEXT           Explicitly specify the total wheel tag. Default
-                             is {python_version_tag}-{python_version_tag}-{pla
-                             tform_tag}
+                             sysconfig.get_platform().
+  --wheel_tag TEXT           Explicitly specify the total wheel tag. Default is
+                             {python_version_tag}-{python_version_tag}-{platform_tag}.
   --help                     Show this message and exit.
 ```
 
