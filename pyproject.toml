@@ -192,7 +192,7 @@ env_list = ["py39", "py310", "py311",  "py312", "py313", "fix"]
 description = "Invoke pytest to run automated tests under {env_name} with coverage"
 changedir = "{toxinidir}"
 allowlist_externals = ["pytest", "uv"]
-dependency_groups = ["test"]
+dependency_groups = ["dev"]
 commands = [["pytest", { replace = "posargs", default = ["tests"], extend = true }]]
 
 [tool.tox.testenv.build]
@@ -220,9 +220,6 @@ commands = [["mypy {posargs:src}"]]
 runner = "uv-venv-lock-runner"
 description = "dev environment"
 dependency_groups = [
-    "test",
     "dev",
-    "lint",
-    "uv"
 ]
 commands = "uv pip tree"
