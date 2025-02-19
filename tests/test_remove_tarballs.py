@@ -40,9 +40,9 @@ def setup_test_environment(tmp_path):
     return dist_dir
 
 
-def test_remove_tarballs(setup_test_env=setup_test_environment):
+def test_remove_tarballs(setup_test_environment):  # pylint: disable=redefined-outer-name
     """Tests the removal of tarball files in the specified directory."""
-    dist_dir = setup_test_env
+    dist_dir = setup_test_environment
     runner = CliRunner()
     result = runner.invoke(remove_tarballs, ["--dist_dir", str(dist_dir)])
 
