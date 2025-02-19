@@ -163,3 +163,67 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["src"]
+
+# ========================================================================================
+# 🔹 TOX
+# ========================================================================================
+
+[tool.tox]
+requires = ["tox>=4.19"]
+env_list = ["py39", "py310", "py311",  "py312", "py313", "build", "fix", "type", "dev"]
+
+# === testenv to run pytest over all your environment ===
+[tool.tox.env_run_base]
+# this section runs the python tests using pytest, and coverage fo the python version given in your env_list
+# to run one of the environments, use `tox -e py39` for example
+# to run all environments, use `tox`
+# to run a specific test, use `tox -e py39 -- -k test_name`
+# to run a specific test file, use `tox -e py39 -- tests/test_file.py`
+# to run a specific test class, use `tox -e py39 -- tests/test_file.py::TestClass`
+# only uncomment pkg if you want to pass environment variables
+# pkg = { pass_env = ["PYTHONPATH", "USERNAME", "USER"] }
+description = "Invoke pytest to run automated tests under {env_name} with coverage"
+changedir = "{toxinidir}"
+allowlist_externals = ["pytest", "uv"]
+dependency_groups = ["dev"]
+deps = [
+    "pytest-cov>=6.0.0",
+    "coverage[toml]>=7.6.1",
+    "pytest-pretty>=1.2.0",
+]
+commands = [
+    ["pytest"]
+]
+
+[tool.tox.testenv.build]
+description = "Build the package using uv"
+changedir = "{toxinidir}"
+commands = [["uv build"]]
+allowlist_externals = ["uv"]
+
+[tool.tox.testenv.fix]
+runner = "uv-venv-runner"
+description = "run code formatter and linter (auto-fix)"
+skip_install = true
+deps = ["pre-commit-uv >= 4.1.1"]
+commands = [["pre-commit run --all-files --show-diff-on-failure"]]
+
+[tool.tox.testenv.type]
+runner = "uv-venv-lock-runner"
+description = "run type checker via mypy"
+dependency_groups = [
+    "test",
+    "dev",
+    "lint"
+]
+commands = [["mypy {posargs:src}"]]
+
+[tool.tox.testenv.dev]
+runner = "uv-venv-lock-runner"
+description = "dev environment"
+dependency_groups = [
+    "test",
+    "dev",
+    "lint"
+]
+commands = [["uv pip tree"]]
