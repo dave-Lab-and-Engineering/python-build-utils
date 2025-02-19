@@ -6,8 +6,11 @@ import textwrap
 
 import click
 
+from . import __version__
+
 
 @click.command(name="remove-tarballs")
+@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
     "--dist_dir",
     default="dist",

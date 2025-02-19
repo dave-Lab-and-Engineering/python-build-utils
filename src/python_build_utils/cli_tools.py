@@ -13,14 +13,15 @@ Commands:
 
 import click
 
+from . import __version__
 from .remove_tarballs import remove_tarballs
 from .rename_wheel_files import rename_wheel_files
 
 
 @click.group()
+@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 def cli() -> None:
     """A collection of CLI tools for Python build utilities."""
-    return
 
 
 cli.add_command(rename_wheel_files)

@@ -8,8 +8,11 @@ import textwrap
 
 import click
 
+from . import __version__
+
 
 @click.command(name="rename-wheel-files")
+@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option("--dist_dir", default="dist", help="Directory containing wheel files. Default is 'dist'")
 @click.option("--python_version_tag", help="Explicitly specify the python version tag. Default is cp{major}{minor}")
 @click.option("--platform_tag", help="Explicitly specify the platform tag. Default is sysconfig.get_platform()")
