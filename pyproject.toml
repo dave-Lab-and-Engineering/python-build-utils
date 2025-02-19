@@ -182,7 +182,7 @@ isolated_build = true
 # (inherit from env_run_base), in stead of overriding with the command
 # as an example, only the 'fix' environment is added here, but in stead of running pre-commit
 # as defined in the commands, it is just running pytest with python version 3.13 (the default)
-env_list = ["py39", "py310", "py311",  "py312", "py313", "fix"]
+env_list = ["py39", "py310", "py311",  "py312", "py313", "fix", "dev", "type", "build"]
 
 # === testenv to run pytest over all your environment ===
 [tool.tox.env_run_base]
@@ -195,10 +195,10 @@ allowlist_externals = ["pytest", "uv"]
 dependency_groups = ["dev"]
 commands = [["pytest"]]
 
-[tool.tox.testenv.build]
+[tool.tox.env.build]
 description = "Build the package using uv"
 changedir = "{toxinidir}"
-commands = [["uv build"]]
+commands = [["uv",  "build"]]
 allowlist_externals = ["uv"]
 
 [tool.tox.env.fix]
@@ -207,20 +207,20 @@ description = "run code formatter and linter (auto-fix)"
 skip_install = true
 dependency_groups = ["dev"]
 deps = ["pre-commit-uv >= 4.1.1"]
-commands = [["pre-commit run --all-files --show-diff-on-failure"]]
+commands = [["pre-commit", "run", "--all-files", "--show-diff-on-failure"]]
 
-[tool.tox.testenv.type]
+[tool.tox.env.type]
 runner = "uv-venv-lock-runner"
 description = "run type checker via mypy"
 dependency_groups = [
     "dev",
 ]
-commands = [["mypy {posargs:src}"]]
+commands = [["mypy",  "{posargs:src}"]]
 
-[tool.tox.testenv.dev]
+[tool.tox.env.dev]
 runner = "uv-venv-lock-runner"
 description = "dev environment"
 dependency_groups = [
     "dev",
 ]
-commands = "uv pip tree"
+commands = [["uv", "pip", "tree"]]
