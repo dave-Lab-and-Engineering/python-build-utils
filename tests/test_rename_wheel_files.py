@@ -29,9 +29,9 @@ def setup_wheel_files(tmpdir):
     return str(dist_dir)
 
 
-def test_rename_wheel_files_default_tags(setup_wheel_files_fixture):
+def test_rename_wheel_files_default_tags(setup_wheel=setup_wheel_files):
     """Tests renaming wheel files with default tags based on the current Python version and platform."""
-    dist_dir = setup_wheel_files_fixture
+    dist_dir = setup_wheel
     runner = CliRunner()
     result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}"])
 
@@ -43,9 +43,9 @@ def test_rename_wheel_files_default_tags(setup_wheel_files_fixture):
     assert os.path.exists(os.path.join(dist_dir, f"example-1.0.0-{expected_tag}.whl"))
 
 
-def test_rename_wheel_files_custom_tags(setup_wheel_files3):
+def test_rename_wheel_files_custom_tags(setup_wheel=setup_wheel_files):
     """Tests renaming wheel files with custom Python version and platform tags."""
-    dist_dir = setup_wheel_files3
+    dist_dir = setup_wheel
     runner = CliRunner()
     result = runner.invoke(
         rename_wheel_files, [f"--dist_dir={dist_dir}", "--python_version_tag=cp39", "--platform_tag=win_amd64"]
@@ -57,9 +57,9 @@ def test_rename_wheel_files_custom_tags(setup_wheel_files3):
     assert os.path.exists(os.path.join(dist_dir, f"example-1.0.0-{expected_tag}.whl"))
 
 
-def test_rename_wheel_files_custom_wheel_tag(setup_wheel_files2):
+def test_rename_wheel_files_custom_wheel_tag(setup_wheel=setup_wheel_files):
     """Tests renaming wheel files with a custom wheel tag."""
-    dist_dir = setup_wheel_files2
+    dist_dir = setup_wheel
     runner = CliRunner()
     result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}", "--wheel_tag=custom_tag"])
 
