@@ -193,7 +193,7 @@ description = "Invoke pytest to run automated tests under {env_name} with covera
 changedir = "{toxinidir}"
 allowlist_externals = ["pytest", "uv"]
 dependency_groups = ["dev"]
-commands = [["pytest", { replace = "posargs", default = ["tests"], extend = true }]]
+commands = [["pytest"]]
 
 [tool.tox.testenv.build]
 description = "Build the package using uv"
