@@ -11,64 +11,110 @@ Small collection of command line utilities to assist with building your python w
 - **Github repository**: <https://github.com/eelcovv/python-build-utils/>
 - **Documentation** <https://eelcovv.github.io/python-build-utils/>
 
-## Getting started with your project
+## Instruction
 
-### 1. Create a New Repository
+### python-build-utils
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+```shell
+(python-build-utils) PS> python-build-utils.exe --help
+Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
 
-```bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:eelcovv/python-build-utils.git
-git push -u origin main
+  A collection of CLI tools for Python build utilities.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  remove-tarballs     Remove tarball files from dist
+  rename-wheel-files  Rename wheel files in the dist folder.
+(python-build-utils) PS> python-build-utils.exe --help
+Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
+
+  A collection of CLI tools for Python build utilities.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  remove-tarballs     Remove tarball files from dist.
+  rename-wheel-files  Rename wheel files in the dist folder.
 ```
 
-### 2. Set Up Your Development Environment
+### rename-wheel-files
 
-Then, install the environment and the pre-commit hooks with
+```shell
+(python-build-utils) PS> rename-wheel-files.exe --help
+Usage: rename-wheel-files [OPTIONS]
 
-```bash
-make install
+  Rename wheel files in the dist folder.
+
+  This function renames wheel files in the given distribution directory by
+  replacing the "py3-none-any" tag with a custom build version tag. The build
+  version tag is constructed using the provided `python_version_tag`,
+  `platform_tag`, and `wheel_tag`. If `wheel_tag` is provided, it is used
+  directly as the build version tag. Otherwise, the build version tag is
+  constructed using the `python_version_tag` and `platform_tag`.
+
+  Args:
+
+      dist_dir (str): The directory containing the wheel files to be renamed.
+      Default is 'dist'.
+
+      python_version_tag (str): The Python version tag to be included in the
+      new file name. Default is cp{major}{minor}.
+
+      platform_tag (str): The platform tag to be included in the new file
+      name. Default is sysconfig.get_platform().
+
+      wheel_tag (str): The custom wheel tag to be used as the build version
+      tag. If this is provided, it is used directly as the build version tag
+      and the other tags are ignored. If this is not provided, the build
+      tag is constructed using the `python_version_tag` and `platform_tag` as
+      described above.
+
+Options:
+  --dist_dir TEXT            Directory containing wheel files. Default is
+                             'dist'
+  --python_version_tag TEXT  Explicitly specify the python version tag.
+                             Default is cp{major}{minor}
+  --platform_tag TEXT        Explicitly specify the platform tag. Default is
+                             sysconfig.get_platform()
+  --wheel_tag TEXT           Explicitly specify the total wheel tag. Default
+                             is {python_version_tag}-{python_version_tag}-{pla
+                             tform_tag}
+  --help                     Show this message and exit.
 ```
 
-This will also generate your `uv.lock` file
+#### Example of using rename-wheel-file
 
-### 3. Run the pre-commit hooks
+From your project root folder, just run
 
-Initially, the CI/CD pipeline might be failing due to formatting issues. To resolve those run:
-
-```bash
-uv run pre-commit run -a
+```shell
+rename-wheel-files
 ```
 
-### 4. Commit the changes
+### remove-tarballs
 
-Lastly, commit the changes made by the two steps above to your repository.
+```shell
+(python-build-utils) PS> remove-tarballs.exe --help
+Usage: remove-tarballs [OPTIONS]
 
-```bash
-git add .
-git commit -m 'Fix formatting issues'
-git push origin main
+  Remove tarball files from dist.
+
+  This function removes tarball files from the given distribution directory.
+
+  Args:     dist_dir (str): The directory containing the tarball files to be
+  removed.
+
+Options:
+  --dist_dir TEXT  Directory containing wheel the files. Default is 'dist'
+  --help           Show this message and exit.
 ```
 
-You are now ready to start development on your project!
-The CI/CD pipeline will be triggered when you open a pull request, merge to main, or when you create a new release.
+#### Example of using remove-tarballs
 
-To finalize the set-up for publishing to PyPI, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/codecov/).
+From your project root folder, just run
 
-## Releasing a new version
-
-- Create an API Token on [PyPI](https://pypi.org/).
-- Add the API Token to your projects secrets with the name `PYPI_TOKEN` by visiting [this page](https://github.com/eelcovv/python-build-utils/settings/secrets/actions/new).
-- Create a [new release](https://github.com/eelcovv/python-build-utils/releases/new) on Github.
-- Create a new tag in the form `*.*.*`.
-
-For more details, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/cicd/#how-to-trigger-a-release).
-
----
-
-Repository initiated with [dave-Lab-and-Engineering/cookiecutter-dave](https://github.com/dave-Lab-and-Engineering/cookiecutter-dave.git).
+```shell
+remove-tarballs
+```

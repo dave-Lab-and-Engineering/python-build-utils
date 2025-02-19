@@ -9,7 +9,7 @@ import textwrap
 import click
 
 
-@click.command()
+@click.command(name="rename-wheel-files")
 @click.option("--dist_dir", default="dist", help="Directory containing wheel files. Default is 'dist'")
 @click.option("--python_version_tag", help="Explicitly specify the python version tag. Default is cp{major}{minor}")
 @click.option("--platform_tag", help="Explicitly specify the platform tag. Default is sysconfig.get_platform()")
@@ -21,8 +21,7 @@ import click
     """),
 )
 def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str, wheel_tag: str) -> None:
-    """Rename wheel files in the dist folder of your python build directory to
-    include platform and python version tags.
+    """Rename wheel files in the dist folder.
 
     This function renames wheel files in the given distribution directory by
     replacing the "py3-none-any" tag with a custom build version tag. The

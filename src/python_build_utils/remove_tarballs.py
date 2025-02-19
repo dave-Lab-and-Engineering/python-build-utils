@@ -7,7 +7,7 @@ import textwrap
 import click
 
 
-@click.command()
+@click.command(name="remove-tarballs")
 @click.option(
     "--dist_dir",
     default="dist",
@@ -17,7 +17,7 @@ import click
 """),
 )
 def remove_tarballs(dist_dir: str) -> None:
-    """Remove tarball files from the specified distribution directory.
+    """Remove tarball files from dist.
 
     This function removes tarball files from the given distribution directory.
 

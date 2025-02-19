@@ -13,7 +13,8 @@ Commands:
 
 import click
 
-from . import remove_tarballs, rename_wheel_files
+from .remove_tarballs import remove_tarballs
+from .rename_wheel_files import rename_wheel_files
 
 
 @click.group()
