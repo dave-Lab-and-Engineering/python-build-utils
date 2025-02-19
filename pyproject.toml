@@ -201,10 +201,11 @@ changedir = "{toxinidir}"
 commands = [["uv build"]]
 allowlist_externals = ["uv"]
 
-[tool.tox.testenv.fix]
+[tool.tox.env.fix]
 runner = "uv-venv-runner"
 description = "run code formatter and linter (auto-fix)"
 skip_install = true
+dependency_groups = ["dev"]
 deps = ["pre-commit-uv >= 4.1.1"]
 commands = [["pre-commit run --all-files --show-diff-on-failure"]]
 
