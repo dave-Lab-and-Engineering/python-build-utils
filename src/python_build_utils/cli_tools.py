@@ -1,3 +1,16 @@
+"""
+This module provides a command-line interface (CLI) for Python build utilities.
+It uses the `click` library to create a CLI group and add commands for renaming
+wheel files and removing tarballs.
+
+Functions:
+    cli(): Defines the CLI group and adds commands for renaming wheel files and
+           removing tarballs.
+Commands:
+    rename_wheel_files: Command to rename wheel files.
+    remove_tarballs: Command to remove tarballs.
+"""
+
 import click
 
 from . import remove_tarballs, rename_wheel_files

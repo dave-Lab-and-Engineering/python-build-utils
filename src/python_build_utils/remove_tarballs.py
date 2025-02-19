@@ -1,3 +1,5 @@
+"""Remove the tar.gz files from the dist build folder."""
+
 import glob
 import os
 import textwrap
