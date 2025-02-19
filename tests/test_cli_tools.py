@@ -8,6 +8,7 @@ Functions:
 
 from click.testing import CliRunner
 
+from python_build_utils import __version__
 from python_build_utils.cli_tools import cli
 
 
@@ -18,6 +19,14 @@ def test_cli_help():
     assert result.exit_code == 0
     assert "Usage" in result.output
     assert "Commands" in result.output
+
+
+def test_cli_version():
+    """Tests the version command of the CLI."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["--version"])
+    assert result.exit_code == 0
+    assert __version__ in result.output
 
 
 def test_rename_wheel_files_command():

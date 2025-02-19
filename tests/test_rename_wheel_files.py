@@ -17,6 +17,7 @@ import sysconfig
 import pytest
 from click.testing import CliRunner
 
+from python_build_utils import __version__
 from python_build_utils.rename_wheel_files import rename_wheel_files
 
 
@@ -27,6 +28,15 @@ def setup_wheel_files(tmpdir):
     wheel_file = dist_dir.join("example-1.0.0-py3-none-any.whl")
     wheel_file.write("")
     return str(dist_dir)
+
+
+def test_rename_wheel_files_version():
+    """Tests the version option of the rename_wheel_files_version command."""
+    runner = CliRunner()
+    result = runner.invoke(rename_wheel_files, ["--version"])
+
+    assert result.exit_code == 0
+    assert __version__ in result.output
 
 
 def test_rename_wheel_files_default_tags(setup_wheel_files):  # pylint: disable=redefined-outer-name

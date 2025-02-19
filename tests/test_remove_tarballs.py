@@ -18,7 +18,17 @@ import glob
 import pytest
 from click.testing import CliRunner
 
+from python_build_utils import __version__
 from python_build_utils.remove_tarballs import remove_tarballs
+
+
+def test_remove_tarballs_version():
+    """Tests the version option of the remove_tarballs command."""
+    runner = CliRunner()
+    result = runner.invoke(remove_tarballs, ["--version"])
+
+    assert result.exit_code == 0
+    assert __version__ in result.output
 
 
 @pytest.fixture
