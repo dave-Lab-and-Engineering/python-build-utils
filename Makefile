@@ -6,6 +6,7 @@ install: ## Install the virtual environment and install the pre-commit hooks
 
 .PHONY: check
 check: ## Run code quality tools.
+	@uv sync --group dev
 	@echo "🚀 Checking lock file consistency with 'pyproject.toml'"
 	@uv lock --locked
 	@echo "🚀 Linting code: Running pre-commit"
@@ -18,6 +19,7 @@ check: ## Run code quality tools.
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
+	@uv sync --group dev
 	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
 
 .PHONY: build
