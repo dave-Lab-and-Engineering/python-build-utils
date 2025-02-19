@@ -1,3 +1,5 @@
+"""Rename wheel files in the dist folder of your python build directory to include platform and python version tags."""
+
 import glob
 import os
 import sys
@@ -19,8 +21,8 @@ import click
     """),
 )
 def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str, wheel_tag: str) -> None:
-    """Rename wheel files in the specified distribution directory to include
-    the specified tags.
+    """Rename wheel files in the dist folder of your python build directory to
+    include platform and python version tags.
 
     This function renames wheel files in the given distribution directory by
     replacing the "py3-none-any" tag with a custom build version tag. The
