@@ -5,6 +5,7 @@ Fixtures:
 Tests:
     test_rename_wheel_files_default_tags: Tests renaming wheel files with default tags based on the current
                                         Python-version and platform.
+    test_rename_wheel_files_version: Test the version option of the rename_wheel_files command.
     test_rename_wheel_files_custom_tags: Tests renaming wheel files with custom Python version and platform tags.
     test_rename_wheel_files_custom_wheel_tag: Tests renaming wheel files with a custom wheel tag.
     test_rename_wheel_files_no_files_found: Tests the behavior when no wheel files are found in the specified directory.

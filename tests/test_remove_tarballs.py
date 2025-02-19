@@ -7,6 +7,7 @@ and click.testing for invoking the command-line interface.
 Functions:
     setup_test_environment(tmp_path): Sets up a test environment by creating
         a temporary directory structure and a dummy tarball file.
+    test_remove_tarballs_version: Tests if the version option is working
     test_remove_tarballs(setup_test_environment): Tests the removal of tarball
         files in the specified directory.
     test_remove_tarballs_no_files(tmp_path): Tests the behavior when no tarball
@@ -20,15 +21,6 @@ from click.testing import CliRunner
 
 from python_build_utils import __version__
 from python_build_utils.remove_tarballs import remove_tarballs
-
-
-def test_remove_tarballs_version():
-    """Tests the version option of the remove_tarballs command."""
-    runner = CliRunner()
-    result = runner.invoke(remove_tarballs, ["--version"])
-
-    assert result.exit_code == 0
-    assert __version__ in result.output
 
 
 @pytest.fixture
@@ -48,6 +40,15 @@ def setup_test_environment(tmp_path):
     tarball_file = dist_dir / "test.tar.gz"
     tarball_file.write_text("dummy content")
     return dist_dir
+
+
+def test_remove_tarballs_version():
+    """Tests the version option of the remove_tarballs command."""
+    runner = CliRunner()
+    result = runner.invoke(remove_tarballs, ["--version"])
+
+    assert result.exit_code == 0
+    assert __version__ in result.output
 
 
 def test_remove_tarballs(setup_test_environment):  # pylint: disable=redefined-outer-name

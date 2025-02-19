@@ -2,6 +2,7 @@
 This module contains tests for the CLI tools provided by the python_build_utils package.
 Functions:
     test_cli_help: Tests the help command of the CLI.
+    test_cli_version: Tests the version option of the CLI.
     test_rename_wheel_files_command: Tests the help command for the rename-wheel-files command.
     test_remove_tarballs_command: Tests the help command for the remove-tarballs command.
 """
