@@ -38,9 +38,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://eelcovv.github.io/python-build-utils/"
 Repository = "https://github.com/eelcovv/python-build-utils"
-Documentation = "https://eelcovv.github.io/python-build-utils/"
 
 [dependency-groups]
 dev = [
