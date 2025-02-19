@@ -22,6 +22,7 @@ from python_build_utils.rename_wheel_files import rename_wheel_files
 
 @pytest.fixture
 def setup_wheel_files(tmpdir):
+    """Set upt the fixtures for the test cases."""
     dist_dir = tmpdir.mkdir("dist")
     wheel_file = dist_dir.join("example-1.0.0-py3-none-any.whl")
     wheel_file.write("")
@@ -29,6 +30,7 @@ def setup_wheel_files(tmpdir):
 
 
 def test_rename_wheel_files_default_tags(setup_wheel_files):
+    """Tests renaming wheel files with default tags based on the current Python version and platform."""
     dist_dir = setup_wheel_files
     runner = CliRunner()
     result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}"])
@@ -42,6 +44,7 @@ def test_rename_wheel_files_default_tags(setup_wheel_files):
 
 
 def test_rename_wheel_files_custom_tags(setup_wheel_files):
+    """Tests renaming wheel files with custom Python version and platform tags."""
     dist_dir = setup_wheel_files
     runner = CliRunner()
     result = runner.invoke(
@@ -55,6 +58,7 @@ def test_rename_wheel_files_custom_tags(setup_wheel_files):
 
 
 def test_rename_wheel_files_custom_wheel_tag(setup_wheel_files):
+    """Tests renaming wheel files with a custom wheel tag."""
     dist_dir = setup_wheel_files
     runner = CliRunner()
     result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}", "--wheel_tag=custom_tag"])
@@ -66,6 +70,7 @@ def test_rename_wheel_files_custom_wheel_tag(setup_wheel_files):
 
 
 def test_rename_wheel_files_no_files_found(tmpdir):
+    """Tests the behavior when no wheel files are found in the specified directory."""
     dist_dir = tmpdir.mkdir("dist")
     runner = CliRunner()
     result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}"])

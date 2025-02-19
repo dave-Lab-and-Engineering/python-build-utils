@@ -13,7 +13,7 @@ Small collection of command line utilities to assist with building your python w
 
 ## Instruction
 
-### python-build-utils
+### Cli-tool `python-build-utils`
 
 ```shell
 (python-build-utils) PS> python-build-utils.exe --help
