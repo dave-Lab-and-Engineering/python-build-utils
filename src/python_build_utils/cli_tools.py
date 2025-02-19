@@ -18,7 +18,7 @@ from .rename_wheel_files import rename_wheel_files
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """A collection of CLI tools for Python build utilities."""
     return
 
