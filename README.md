@@ -8,10 +8,28 @@
 
 Small collection of command line utilities to assist with building your python wheels
 
-- **Github repository**: <https://github.com/eelcovv/python-build-utils/>
+- **Github repository**: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
 - **Documentation** <https://eelcovv.github.io/python-build-utils/>
 
 ## Instruction
+
+### pyd2wheel tool
+
+This is a tool to convert bare .pyd files to a wheel file such that they can be installed.
+
+```shell
+pyd2wheel .\mybinary.cp310-win_amd64.pyd --version=1.0.0
+````
+
+or from python:
+
+```python
+from python_build_utils import pyd2wheel
+pyd2wheel("mybinary.cp310-win_amd64.pyd", version="1.0.0")
+```
+
+This will create a wheel file named in the same directory as the input file.
+Note: The version argument is used only if the version is not already present in the filename (like in the example above).
 
 ### Cli-tool `python-build-utils`
 
