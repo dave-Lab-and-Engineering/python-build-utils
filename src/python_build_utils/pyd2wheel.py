@@ -45,7 +45,34 @@ class PydFileFormatError(Exception):
 @click.option("--package_version", help="The version of the package.", default=None)
 @click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default="none")
 def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
-    """Cli interface of pyd2wheel function."""
+    """Create a wheel from a compiled python *.pyd file.
+
+    The *.pyd file should be named according to the following formats:
+    - {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.pyd
+    - {distribution}.{python tag}-{platform tag}.pyd
+
+    Example 1:
+
+        pyd2wheel path_to_your_pdy_file/dummy-0.1.0-py311-win_amd64.pdy"
+
+        Output:
+
+            path_to_your_pdy_file/dummy-0.1.0-py311-win_amd64.wheel"
+
+    Example 1:
+
+        pyd2wheel path_to_your_pdy_file/ DAVEcore.cp310-win_amd64 --package_version 0.1.0
+
+        Output:
+
+            path_to_your_pdy_file/DAVEcore.cp310-win_amd64 --package_version 0.1.0
+
+
+
+
+
+
+    """
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
 
@@ -136,9 +163,11 @@ def _extract_pyd_file_info(pyd_file: Path) -> tuple:
 
     bare_file_name = pyd_file.stem
 
-    # Assume the base_file_name is like: dummy-0.1.0-py311-win_amd64"
+    # Assume the base_file_name is like:
+    #   dummy-0.1.0-py311-win_amd64"  or
+    #   dummy-0.1.0.py311-win_amd64"  or
     # where the version can be 0, 0.1, or 0.1.1 and at least a python version and a platform are provided
-    match = re.match(r"(.*?)-((?:\d\.){0,2}\d)-(.*)-(.*)", bare_file_name)
+    match = re.match(r"(.*?)-((?:\d\.){0,2}\d)[.-](.*)-(.*)", bare_file_name)
     if match:
         name, package_version, python_version, platform = match.groups()
         return name, package_version, python_version, platform
@@ -169,13 +198,14 @@ def _get_package_version(package_version: str | None, version_from_filename: str
 
 def _display_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> None:
     """Display the wheel information."""
-    click.echo(f"{'Field':<15}{'Value'}")
+    field_width = 15
+    click.echo(f"{'Field':<{field_width}}{'Value'}")
     click.echo(f"{'-' * 30}")
-    click.echo(f"{'Name:':<15}{name}")
-    click.echo(f"{'Version:':<15}{package_version}")
-    click.echo(f"{'Python Version:':<15}{python_version}")
-    click.echo(f"{'Platform:':<15}{platform}")
-    click.echo(f"{'ABI Tag:':<15}{abi_tag}")
+    click.echo(f"{'Name:':<{field_width}}{name}")
+    click.echo(f"{'Version:':<{field_width}}{package_version}")
+    click.echo(f"{'Python Version:':<{field_width}}{python_version}")
+    click.echo(f"{'Platform:':<{field_width}}{platform}")
+    click.echo(f"{'ABI Tag:':<{field_width}}{abi_tag}")
 
 
 def create_temp_directory(pyd_file: Path) -> Path:
