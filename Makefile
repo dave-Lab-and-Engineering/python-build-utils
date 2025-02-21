@@ -48,6 +48,19 @@ docs-test: ## Test if documentation can be built without warnings or errors
 docs: ## Build and serve the documentation
 	@uv run mkdocs serve
 
+.PHONY: examples
+examples: ## Run the examples
+	@echo "🚀 Example 1: converting dummy-0.1.1.py310-win_amd64.pyd"
+	pyd2wheel examples/dummy-0.1.1.py310-win_amd64.pyd 
+	@echo
+	@echo "🚀 Example 2: converting DAVEcore.cp310-win_amd64.pyd"
+	pyd2wheel examples/DAVEcore.cp310-win_amd64.pyd --package_version 0.1.2.3
+
+.PHONY: clean_examples
+clean_examples: ## Clean the examples directory
+	@echo "🚀 Cleaning whl files in examples directory."
+	@uv run rm -v examples/*.whl
+
 .PHONY: help
 help:
 	@uv run python -c "import re; \
