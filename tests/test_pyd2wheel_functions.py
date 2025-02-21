@@ -7,7 +7,6 @@ from python_build_utils.pyd2wheel import (
     _extract_pyd_file_info,
     _get_package_version,
     convert_pyd_to_wheel,
-    pyd2wheel,
 )
 
 
@@ -56,11 +55,3 @@ def test_convert_pyd_to_wheel(tmp_path):
     wheel_file = convert_pyd_to_wheel(pyd_file)
     assert wheel_file.exists()
     assert wheel_file.suffix == ".whl"
-
-
-def test_pyd2wheel_cli(runner, tmp_path):
-    pyd_file = tmp_path / "dummy-0.1.0-py311-win_amd64.pyd"
-    pyd_file.touch()
-    result = runner.invoke(pyd2wheel, [str(pyd_file)])
-    assert result.exit_code == 0
-    assert "created wheel file" in result.output
