@@ -16,7 +16,6 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Optional
 
 import click
 
@@ -45,7 +44,7 @@ class PydFileFormatError(Exception):
 @click.argument("pyd_file", type=click.Path(exists=True))
 @click.option("--package_version", help="The version of the package.", default=None)
 @click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default="none")
-def pyd2wheel(pyd_file: Path, package_version: Optional[str] = None, abi_tag: Optional[str] = None) -> Path:
+def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
     """Cli interface of pyd2wheel function."""
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
