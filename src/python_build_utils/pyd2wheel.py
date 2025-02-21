@@ -63,6 +63,12 @@ def make_record_content(root_folder: Path) -> str:
 @click.argument("pyd_file", type=click.Path(exists=True))
 @click.option("--version", help="The version of the package.", default=None)
 @click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default="none")
+def pyd2wheel_cli(pyd_file: Path | str, version: str | None = None, abi_tag="none"):
+    """CLI wrapper for the pyd2wheel function."""
+    # why we need a wrapper?
+    pyd2wheel(Path(pyd_file), version, abi_tag)
+
+
 def pyd2wheel(pyd_file: Path | str, version: str | None = None, abi_tag="none"):
     """This function creates a wheel from a pyd file.
 
@@ -93,19 +99,26 @@ def pyd2wheel(pyd_file: Path | str, version: str | None = None, abi_tag="none"):
     """
     pyd_file = Path(pyd_file)
 
+    version_from_filename = None
+
     # extract the name, version, python version, and platform from the pyd file name
     try:
+        name, version_from_filename, python_version, platform = pyd_file.stem.split("-")
+    except ValueError as err:
         try:
-            name, version, python_version, platform = pyd_file.stem.split("-")
-        except AttributeError:
             # assume filename like DAVEcore.cp310-win_amd64.pyd
             name, python_version, platform = pyd_file.stem.replace(".", "-").split("-")
-    except AttributeError as err:
-        message = "The pyd file name should be one of these formats: "
-        message += "\n - " + "\n - ".join(PYD_FILE_FORMATS.values())
-        message += f"\nGot pyd_file: {pyd_file}"
-        click.echo(message, err=True)
-        raise AttributeError from err
+        except ValueError as err2:
+            message = "The pyd file name should be one of these formats: "
+            message += "\n - " + "\n - ".join(PYD_FILE_FORMATS.values())
+            message += f"\nGot pyd_file: {pyd_file}"
+            click.echo(err, err=True)
+            click.echo(err2, err=True)
+            click.echo(message, err=True)
+            raise ValueError(message) from err2
+
+    if version is None and version_from_filename is not None:
+        version = version_from_filename
 
     if version is None:
         # try to extract the version from the pyd file name
@@ -114,11 +127,13 @@ def pyd2wheel(pyd_file: Path | str, version: str | None = None, abi_tag="none"):
         click.echo(message, err=True)
         raise ValueError(message)
 
-    click.echo("name:", name)
-    click.echo("version:", version)
-    click.echo("python_version:", python_version)
-    click.echo("platform:", platform)
-    click.echo("abi_tag:", abi_tag)
+    click.echo(f"{'Field':<15}{'Value'}")
+    click.echo(f"{'-' * 30}")
+    click.echo(f"{'Name:':<15}{name}")
+    click.echo(f"{'Version:':<15}{version}")
+    click.echo(f"{'Python Version:':<15}{python_version}")
+    click.echo(f"{'Platform:':<15}{platform}")
+    click.echo(f"{'ABI Tag:':<15}{abi_tag}")
 
     wheel_file_name = f"{name}-{version}-{python_version}-{abi_tag}-{platform}.whl"
 

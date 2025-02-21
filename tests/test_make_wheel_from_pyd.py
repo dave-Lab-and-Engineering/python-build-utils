@@ -1,51 +1,42 @@
+"""Test the pyd2wheel function."""
+
+from pathlib import Path
+
+import pytest
+
 from python_build_utils.pyd2wheel import pyd2wheel
 
 
-def test_make_wheel(tmpdir):
-    # create a simple pyd file to test
-    #
-    # the name should follow the python conventions for naming
-    #
-    # name ["-" version ["-py" pyver ["-" required_platform]]] "." ext
-    #
-    # ref: https://setuptools.pypa.io/en/latest/deprecated/python_eggs.html
-    #
-    # example: DAVEcore.cp311-win_amd64.pyd
+@pytest.fixture
+def setup_wheel_files(tmpdir):
+    """Factory fixture to create a simple pyd file for testing."""
 
-    filename = "dummy-0.1.0-py311-win_amd64.pyd"
+    def _create_pyd_file(dummy_file_name):
+        pyd_file_name = tmpdir / dummy_file_name
 
-    pyd = tmpdir / filename
+        with open(pyd_file_name, "w", encoding="utf-8") as f:
+            f.write('print("hello")')
 
-    with open(pyd, "w") as f:
-        f.write('print("hello")')
+        return str(pyd_file_name)
 
-    # create a wheel from the pyd file
-    # the wheel should be created in the same directory as the pyd file
-
-    result = pyd2wheel(pyd_file=pyd)
-
-    assert result.exists()
+    return _create_pyd_file
 
 
-def test_make_wheel_format2(tmpdir):
-    # create a simple pyd file to test
-    # different name convention
+def test_if_wheel_pyd_file_exists(setup_wheel_files):
+    """Test if the wheel file is created from the pyd file."""
 
-    filename = "DAVEcore.cp310-win_amd64.pyd"
+    pyd_file = setup_wheel_files("dummy-0.1.0-py311-win_amd64.pyd")
 
-    pyd = tmpdir / filename
-
-    with open(pyd, "w") as f:
-        f.write('print("hello")')
-
-    # create a wheel from the pyd file
-    # the wheel should be created in the same directory as the pyd file
-
-    result = pyd2wheel(pyd_file=pyd, version="1.2.3")
+    result = pyd2wheel(pyd_file=pyd_file)
 
     assert result.exists()
 
 
-if __name__ == "__main__":
-    filename = r"C:\data\vf\DAVEcore\x64\Release\DAVEcore.cp311-win_amd64.pyd"
-    pyd2wheel(pyd_file=filename, version="2025.1.0")
+@pytest.mark.parametrize("dummy_file_name", ["DAVEcore.cp310-win_amd64.pyd"])
+def test_make_wheel_format2(setup_wheel_files, dummy_file_name):
+    """Test different naming conventions."""
+    pyd_file = Path(setup_wheel_files(dummy_file_name))  # Call the factory with the parameter
+
+    result = pyd2wheel(pyd_file=pyd_file, version="1.2.3")
+
+    assert result.exists()
