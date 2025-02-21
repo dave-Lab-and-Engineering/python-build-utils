@@ -27,32 +27,11 @@ from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundE
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.argument("pyd_file", type=click.Path(exists=True))
 @click.option("--package_version", help="The version of the package.", default=None)
-@click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default="none")
-def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
-    """Create a wheel from a compiled python *.pyd file.
+@click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default=None)
+@click.option("--long_help", is_flag=True, help="Show longer help and exit")
+def pyd2wheel(ctx, pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
+    """Create a wheel from a compiled python *.pyd file."""
 
-    The *.pyd file should be named according to the following formats:
-
-
-    - {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.pyd
-    - {distribution}.{python tag}-{platform tag}.pyd
-
-    Example 1:
-
-        pyd2wheel path_to_your_pdy_file/dummy-0.1.0-py311-win_amd64.pdy"
-
-        Output:
-
-            path_to_your_pdy_file/dummy-0.1.0-py311-win_amd64.wheel"
-
-    Example 1:
-
-        pyd2wheel path_to_your_pdy_file/ DAVEcore.cp310-win_amd64 --package_version 0.1.0
-
-        Output:
-
-            path_to_your_pdy_file/DAVEcore.cp310-win_amd64 --package_version 0.1.0
-    """
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
 
@@ -62,7 +41,8 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
 
     Args:
         pyd_file (Path): The path to the .pyd file.
-        package_version (str | None, optional): The version of the package. If not provided, it will be extracted from the filename. Defaults to None.
+        package_version (str | None, optional): The version of the package. If not provided, it will be extracted
+            from the filename. Defaults to None.
         abi_tag (str | None, optional): The ABI tag for the wheel. If not provided, defaults to "none".
 
     Returns:
@@ -81,7 +61,8 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
         click.echo(e, err=True)
         return
 
-    abi_tag = abi_tag or "none"
+    if abi_tag is None:
+        abi_tag = "none"
 
     _display_wheel_info(name, package_version, python_version, platform, abi_tag)
 
