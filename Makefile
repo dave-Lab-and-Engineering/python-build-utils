@@ -54,7 +54,7 @@ examples: ## Run the examples
 	pyd2wheel examples/dummy-0.1.1.py310-win_amd64.pyd 
 	@echo
 	@echo "🚀 Example 2: converting DAVEcore.cp310-win_amd64.pyd"
-	pyd2wheel examples/DAVEcore.cp310-win_amd64.pyd --package_version 0.1.2.3
+	pyd2wheel examples/DAVEcore.cp310-win_amd64.pyd --package_version 1.2.3
 
 .PHONY: clean_examples
 clean_examples: ## Clean the examples directory
