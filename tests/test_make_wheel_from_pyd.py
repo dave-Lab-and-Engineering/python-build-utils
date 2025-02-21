@@ -22,7 +22,7 @@ def setup_wheel_files(tmpdir):
     return _create_pyd_file
 
 
-def test_if_wheel_pyd_file_exists(setup_wheel_files):
+def test_if_wheel_pyd_file_exists(setup_wheel_files):  # pylint: disable=redefined-outer-name
     """Test if the wheel file is created from the pyd file."""
 
     pyd_file = setup_wheel_files("dummy-0.1.0-py311-win_amd64.pyd")
@@ -33,7 +33,7 @@ def test_if_wheel_pyd_file_exists(setup_wheel_files):
 
 
 @pytest.mark.parametrize("dummy_file_name", ["DAVEcore.cp310-win_amd64.pyd"])
-def test_make_wheel_format2(setup_wheel_files, dummy_file_name):
+def test_make_wheel_format2(setup_wheel_files, dummy_file_name):  # pylint: disable=redefined-outer-name
     """Test different naming conventions."""
     pyd_file = Path(setup_wheel_files(dummy_file_name))  # Call the factory with the parameter
 
