@@ -22,6 +22,21 @@ test: ## Test the code with pytest
 	@uv sync --group dev
 	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
 
+.PHONY: tox
+tox: ## Test the code with tox
+	@echo "🚀 Testing code: Running tox"
+	@uv sync --group dev
+	@uv run tox 
+
+.PHONY: tox-parallel
+tox-parallel: ## Test the code with tox in parallel
+	@echo "🚀 Testing code: Running tox"
+	@uv sync --group dev
+	@uv run tox run-parallel -p 10
+
+.PHONY: all_tests
+all_tests: check test tox-parallel ## Test the code using all the testts
+
 .PHONY: build
 build: clean-build ## Build wheel file
 	@echo "🚀 Creating wheel file"
