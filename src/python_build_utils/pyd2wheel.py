@@ -1,4 +1,15 @@
-"""This module creates a wheel from a pyd file."""
+"""
+This module provides functionality to create a wheel file from a .pyd file.
+
+Classes:
+    PydFileFormatError: Exception raised for errors in the .pyd file format.
+
+Functions:
+    pyd2wheel(pyd_file: Path, package_version: Optional[str | None] = None, abi_tag=Optional[str | None]) -> Path:
+        CLI interface for converting a .pyd file to a wheel file.
+
+    convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
+"""
 
 import hashlib
 import os
@@ -40,30 +51,40 @@ def pyd2wheel(pyd_file: Path, package_version: Optional[str | None] = None, abi_
 
 
 def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
-    """Creates a wheel from a pyd file."""
+    """
+    Creates a wheel from a .pyd file.
+
+    Args:
+        pyd_file (Path): The path to the .pyd file.
+        package_version (str | None, optional): The version of the package. If not provided, it will be extracted from the filename. Defaults to None.
+        abi_tag (str | None, optional): The ABI tag for the wheel. If not provided, defaults to "none".
+
+    Returns:
+        Path: The path to the created wheel file.
+    """
     pyd_file = Path(pyd_file)
-    name, version_from_filename, python_version, platform = extract_pyd_file_info(pyd_file)
-    package_version = get_package_version(package_version, version_from_filename)
+    name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
+    package_version = _get_package_version(package_version, version_from_filename)
     abi_tag = abi_tag or "none"
 
-    display_wheel_info(name, package_version, python_version, platform, abi_tag)
+    _display_wheel_info(name, package_version, python_version, platform, abi_tag)
 
     wheel_file_name = f"{name}-{package_version}-{python_version}-{abi_tag}-{platform}.whl"
     root_folder = create_temp_directory(pyd_file)
     dist_info = create_dist_info_directory(root_folder, name, package_version)
 
-    create_metadata_file(dist_info, name, package_version)
-    create_wheel_file(dist_info, python_version, abi_tag, platform)
-    create_record_file(root_folder, dist_info)
+    _create_metadata_file(dist_info, name, package_version)
+    _create_wheel_file(dist_info, python_version, abi_tag, platform)
+    _create_record_file(root_folder, dist_info)
 
-    wheel_file_path = create_wheel_archive(pyd_file, wheel_file_name, root_folder)
+    wheel_file_path = _create_wheel_archive(pyd_file, wheel_file_name, root_folder)
     click.echo(f"created wheel file: {wheel_file_path}")
 
     shutil.rmtree(root_folder)
     return wheel_file_path
 
 
-def make_metadata_content(name: str, version: str) -> str:
+def _make_metadata_content(name: str, version: str) -> str:
     """Create the metadata for the wheel file."""
     meta_data = "Metadata-Version: 2.1\n"
     meta_data += f"Name: {name}\n"
@@ -71,7 +92,7 @@ def make_metadata_content(name: str, version: str) -> str:
     return meta_data
 
 
-def make_wheel_content(python_version: str, abi_tag: str, platform: str) -> str:
+def _make_wheel_content(python_version: str, abi_tag: str, platform: str) -> str:
     """Create the wheel data for the wheel file."""
     wheel_data = "Wheel-Version: 1.0\n"
     wheel_data += "Generator: bdist_wheel 1.0\n"
@@ -81,7 +102,7 @@ def make_wheel_content(python_version: str, abi_tag: str, platform: str) -> str:
     return wheel_data
 
 
-def make_record_content(root_folder: Path) -> str:
+def _make_record_content(root_folder: Path) -> str:
     """Create the RECORD file content for the wheel.
 
     RECORD is a list of (almost) all the files in the wheel and their secure hashes.
@@ -110,7 +131,7 @@ def make_record_content(root_folder: Path) -> str:
     return record_content
 
 
-def extract_pyd_file_info(pyd_file: Path) -> tuple:
+def _extract_pyd_file_info(pyd_file: Path) -> tuple:
     """Extract the name, version, python version, and platform from the pyd file name."""
     # remove suffix and split the filename on the hyphens
 
@@ -134,7 +155,7 @@ def extract_pyd_file_info(pyd_file: Path) -> tuple:
     raise PydFileFormatError(bare_file_name)
 
 
-def get_package_version(package_version: str | None, version_from_filename: str | None) -> str:
+def _get_package_version(package_version: str | None, version_from_filename: str | None) -> str:
     """Get the package version from the provided version or the pyd file name."""
     if package_version is None and version_from_filename is not None:
         return version_from_filename
@@ -147,7 +168,7 @@ def get_package_version(package_version: str | None, version_from_filename: str 
     return package_version
 
 
-def display_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> None:
+def _display_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> None:
     """Display the wheel information."""
     click.echo(f"{'Field':<15}{'Value'}")
     click.echo(f"{'-' * 30}")
@@ -173,30 +194,30 @@ def create_dist_info_directory(root_folder: Path, name: str, package_version: st
     return dist_info
 
 
-def create_metadata_file(dist_info: Path, name: str, package_version: str) -> None:
+def _create_metadata_file(dist_info: Path, name: str, package_version: str) -> None:
     """Create the METADATA file."""
     metadata_filename = dist_info / "METADATA"
-    metadata_content = make_metadata_content(name, package_version)
+    metadata_content = _make_metadata_content(name, package_version)
     with open(metadata_filename, "w", encoding="utf-8") as f:
         f.write(metadata_content)
 
 
-def create_wheel_file(dist_info: Path, python_version: str, abi_tag: str, platform: str) -> None:
+def _create_wheel_file(dist_info: Path, python_version: str, abi_tag: str, platform: str) -> None:
     """Create the WHEEL file."""
-    wheel_content = make_wheel_content(python_version, abi_tag, platform)
+    wheel_content = _make_wheel_content(python_version, abi_tag, platform)
     with open(dist_info / "WHEEL", "w", encoding="utf-8") as f:
         f.write(wheel_content)
 
 
-def create_record_file(root_folder: Path, dist_info: Path) -> None:
+def _create_record_file(root_folder: Path, dist_info: Path) -> None:
     """Create the RECORD file."""
-    record_content = make_record_content(root_folder)
+    record_content = _make_record_content(root_folder)
     record_filename = dist_info / "RECORD"
     with open(record_filename, "w", encoding="utf-8") as f:
         f.write(record_content)
 
 
-def create_wheel_archive(pyd_file: Path, wheel_file_name: str, root_folder: Path) -> Path:
+def _create_wheel_archive(pyd_file: Path, wheel_file_name: str, root_folder: Path) -> Path:
     """Create the .whl file by zipping the contents of the temporary directory."""
     wheel_file_path = pyd_file.parent / wheel_file_name
     result_file = wheel_file_path.with_suffix(".zip")
