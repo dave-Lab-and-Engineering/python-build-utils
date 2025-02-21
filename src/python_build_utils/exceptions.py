@@ -9,7 +9,7 @@ PYD_FILE_FORMATS = {
 class PydFileSuffixError(Exception):
     """Exception raised for errors in the pyd file format."""
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
         message = f"The file {filename} does not of type '.pyd'.\nQuitting now."
         super().__init__(message)
 
@@ -17,7 +17,7 @@ class PydFileSuffixError(Exception):
 class PydFileFormatError(Exception):
     """Exception raised for errors in the pyd file format."""
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
         message = (
             f"File information could not be extracted from file {filename}.\n"
             f"Two formats are supported:\n -- {PYD_FILE_FORMATS['long']}\n -- {PYD_FILE_FORMATS['short']}"
@@ -28,7 +28,7 @@ class PydFileFormatError(Exception):
 class VersionNotFoundError(Exception):
     """Exception raised if no version was found or given."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         message = (
             "The version of the package should be provided\nIt can not be extracted from the pyd file.\n"
             "Please run with the --package_version <version> option."

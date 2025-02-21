@@ -28,14 +28,13 @@ from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundE
 @click.argument("pyd_file", type=click.Path(exists=True))
 @click.option("--package_version", help="The version of the package.", default=None)
 @click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default=None)
-@click.option("--long_help", is_flag=True, help="Show longer help and exit")
-def pyd2wheel(ctx, pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
+def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path | None:
     """Create a wheel from a compiled python *.pyd file."""
 
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
 
-def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
+def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path | None:
     """
     Creates a wheel from a .pyd file.
 
@@ -53,13 +52,13 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
         name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
     except (PydFileFormatError, PydFileSuffixError) as e:
         click.echo(e, err=True)
-        return
+        return None
 
     try:
         package_version = _get_package_version(package_version, version_from_filename)
     except VersionNotFoundError as e:
         click.echo(e, err=True)
-        return
+        return None
 
     if abi_tag is None:
         abi_tag = "none"
