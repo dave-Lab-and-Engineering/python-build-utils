@@ -21,12 +21,11 @@ description = "Small collection of command line utilities to assist with buildin
 authors = [{ name = "Eelco van Vliet", email = "eelco@davelab.nl" }]
 readme = "README.md"
 keywords = ['python']
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.10,<4.0"
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -183,7 +182,7 @@ isolated_build = true
 # (inherit from env_run_base), in stead of overriding with the command
 # as an example, only the 'fix' environment is added here, but in stead of running pre-commit
 # as defined in the commands, it is just running pytest with python version 3.13 (the default)
-env_list = ["py39", "py310", "py311",  "py312", "py313", "fix", "dev", "type", "build"]
+env_list = ["py310", "py311",  "py312", "py313", "fix", "dev", "type", "build"]
 
 # === testenv to run pytest over all your environment ===
 [tool.tox.env_run_base]
