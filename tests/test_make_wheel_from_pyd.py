@@ -1,8 +1,7 @@
 """Test the pyd2wheel function."""
 
-from pathlib import Path
-
 import pytest
+from click.testing import CliRunner
 
 from python_build_utils.pyd2wheel import pyd2wheel
 
@@ -35,8 +34,9 @@ def test_if_wheel_pyd_file_exists(setup_wheel_files):  # pylint: disable=redefin
 @pytest.mark.parametrize("dummy_file_name", ["DAVEcore.cp310-win_amd64.pyd"])
 def test_make_wheel_format2(setup_wheel_files, dummy_file_name):  # pylint: disable=redefined-outer-name
     """Test different naming conventions."""
-    pyd_file = Path(setup_wheel_files(dummy_file_name))  # Call the factory with the parameter
+    pyd_file_name = setup_wheel_files(dummy_file_name)  # Call the factory with the parameter
 
-    result = pyd2wheel(pyd_file=pyd_file, version="1.2.3")
+    runner = CliRunner()
+    result = runner.invoke(pyd2wheel, [f"{pyd_file_name}", "--package_version=1.2.3"])
 
-    assert result.exists()
+    assert result

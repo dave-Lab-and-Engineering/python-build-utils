@@ -4,13 +4,50 @@ import hashlib
 import os
 import shutil
 from pathlib import Path
+from typing import Optional
 
 import click
+
+from . import __version__
 
 PYD_FILE_FORMATS = {
     "long": "{distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.pyd",
     "short": "{distribution}.{python tag}-{platform tag}.pyd",
 }
+
+
+@click.command(name="pyd2wheel")
+@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
+@click.argument("pyd_file", type=click.Path(exists=True))
+@click.option("--package_version", help="The version of the package.", default=None)
+@click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default="none")
+def pyd2wheel(pyd_file: Path, package_version: Optional[str | None] = None, abi_tag=Optional[str | None]) -> Path:
+    """Cli interface of pyd2wheel function."""
+    return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
+
+
+def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path:
+    """Creates a wheel from a pyd file."""
+    pyd_file = Path(pyd_file)
+    name, version_from_filename, python_version, platform = extract_pyd_file_info(pyd_file)
+    package_version = get_package_version(package_version, version_from_filename, pyd_file)
+    abi_tag = abi_tag or "none"
+
+    display_wheel_info(name, package_version, python_version, platform, abi_tag)
+
+    wheel_file_name = f"{name}-{package_version}-{python_version}-{abi_tag}-{platform}.whl"
+    root_folder = create_temp_directory(pyd_file)
+    dist_info = create_dist_info_directory(root_folder, name, package_version)
+
+    create_metadata_file(dist_info, name, package_version)
+    create_wheel_file(dist_info, python_version, abi_tag, platform)
+    create_record_file(root_folder, dist_info)
+
+    wheel_file_path = create_wheel_archive(pyd_file, wheel_file_name, root_folder)
+    click.echo(f"created wheel file: {wheel_file_path}")
+
+    shutil.rmtree(root_folder)
+    return wheel_file_path
 
 
 def make_metadata_content(name: str, version: str) -> str:
@@ -60,143 +97,92 @@ def make_record_content(root_folder: Path) -> str:
     return record_content
 
 
-@click.command(name="pyd2wheel")
-@click.argument("pyd_file", type=click.Path(exists=True))
-@click.option("--version", help="The version of the package.", default=None)
-@click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default="none")
-def pyd2wheel_cli(pyd_file: Path | str, version: str | None = None, abi_tag="none"):
-    """CLI wrapper for the pyd2wheel function."""
-    # why we need a wrapper?
-    pyd2wheel(Path(pyd_file), version, abi_tag)
-
-
-def pyd2wheel(pyd_file: Path | str, version: str | None = None, abi_tag="none"):
-    """This function creates a wheel from a pyd file.
-
-    The wheel is created in the same directory as the pyd file.
-
-    Args:
-        pyd_file (Path or str): The path to the pyd file.
-        version (str): The version of the package.
-        abi_tag (str): The ABI tag of the package. Default is 'none'.
-
-    Notes:
-    * The binary format of a wheel is described [here]
-    (https://packaging.python.org/en/latest/specifications/binary-distribution-format/#binary-distribution-format)
-
-    * Wheel .dist-info directories include at a minimum METADATA, WHEEL, and RECORD.
-
-        - METADATA is the package metadata, the same format as PKG-INFO as found at the root of sdists.
-        - WHEEL is the wheel metadata specific to a build of the package.
-        - RECORD is a list of (almost) all the files in the wheel and their secure hashes and file-size in bytes
-
-    File Format:
-
-        File name convention
-        The wheel filename is {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
-        For example, distribution-1.0-1-py27-none-any.whl is the first build of a package called *distribution*,
-        and is compatible with Python 2.7 (any Python 2.7 implementation), with no ABI (pure Python), on any CPU
-        architecture.
-    """
-    pyd_file = Path(pyd_file)
-
-    version_from_filename = None
-
-    # extract the name, version, python version, and platform from the pyd file name
+def extract_pyd_file_info(pyd_file: Path) -> tuple:
+    """Extract the name, version, python version, and platform from the pyd file name."""
     try:
-        name, version_from_filename, python_version, platform = pyd_file.stem.split("-")
-    except ValueError as err:
+        return pyd_file.stem.split("-")
+    except ValueError:
         try:
-            # assume filename like DAVEcore.cp310-win_amd64.pyd
-            name, python_version, platform = pyd_file.stem.replace(".", "-").split("-")
-        except ValueError as err2:
+            return pyd_file.stem.replace(".", "-").split("-")
+        except ValueError as err:
             message = "The pyd file name should be one of these formats: "
             message += "\n - " + "\n - ".join(PYD_FILE_FORMATS.values())
             message += f"\nGot pyd_file: {pyd_file}"
-            click.echo(err, err=True)
-            click.echo(err2, err=True)
             click.echo(message, err=True)
-            raise ValueError(message) from err2
+            raise ValueError(message) from err
 
-    if version is None and version_from_filename is not None:
-        version = version_from_filename
 
-    if version is None:
-        # try to extract the version from the pyd file name
-        version = pyd_file.stem.split("-")[1]
+def get_package_version(package_version: str | None, version_from_filename: str | None, pyd_file: Path) -> str:
+    """Get the package version from the provided version or the pyd file name."""
+    if package_version is None and version_from_filename is not None:
+        return version_from_filename
+
+    if package_version is None:
+        package_version = pyd_file.stem.split("-")[1]
         message = "The version of the package should be provided as it can not be extracted from the pyd file name."
         click.echo(message, err=True)
         raise ValueError(message)
 
+    return package_version
+
+
+def display_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> None:
+    """Display the wheel information."""
     click.echo(f"{'Field':<15}{'Value'}")
     click.echo(f"{'-' * 30}")
     click.echo(f"{'Name:':<15}{name}")
-    click.echo(f"{'Version:':<15}{version}")
+    click.echo(f"{'Version:':<15}{package_version}")
     click.echo(f"{'Python Version:':<15}{python_version}")
     click.echo(f"{'Platform:':<15}{platform}")
     click.echo(f"{'ABI Tag:':<15}{abi_tag}")
 
-    wheel_file_name = f"{name}-{version}-{python_version}-{abi_tag}-{platform}.whl"
 
-    # create a temporary directory to store the contents of the wheel file
-
+def create_temp_directory(pyd_file: Path) -> Path:
+    """Create a temporary directory to store the contents of the wheel file."""
     root_folder = pyd_file.parent / "wheel_temp"
     root_folder.mkdir(exist_ok=True)
-
-    # File contents
-    #   The contents of a wheel file,
-    #   the root of the archive, contains all files to be installed in purelib or platlib as specified in WHEEL.
-
-    # copy the pyd file to the root of the archive
     shutil.copy(pyd_file, root_folder / pyd_file.name)
+    return root_folder
 
-    # we need a dist folder
-    # ERROR: dummy has an invalid wheel, .dist-info directory not found
 
-    #
-    # # {distribution}-{version}.dist-info/ contains metadata.
-    dist_info = root_folder / f"{name}-{version}.dist-info"
+def create_dist_info_directory(root_folder: Path, name: str, package_version: str) -> Path:
+    """Create the .dist-info directory."""
+    dist_info = root_folder / f"{name}-{package_version}.dist-info"
     dist_info.mkdir(exist_ok=True)
-    #
-    # ERROR: dummy has an invalid wheel, could not read 'dummy-0.1.0.dist-info/WHEEL'
-    # file: KeyError("There is no item named 'dummy-0.1.0.dist-info/WHEEL' in the archive")
+    return dist_info
 
-    # {distribution}-{version}.dist-info/METADATA is Metadata version 1.1 or greater format metadata.
+
+def create_metadata_file(dist_info: Path, name: str, package_version: str) -> None:
+    """Create the METADATA file."""
     metadata_filename = dist_info / "METADATA"
-    metadata_content = make_metadata_content(name, version)
-
+    metadata_content = make_metadata_content(name, package_version)
     with open(metadata_filename, "w", encoding="utf-8") as f:
         f.write(metadata_content)
 
-    # {distribution}-{version}.dist-info/WHEEL is metadata about the archive itself in the same basic key: value format:
+
+def create_wheel_file(dist_info: Path, python_version: str, abi_tag: str, platform: str) -> None:
+    """Create the WHEEL file."""
     wheel_content = make_wheel_content(python_version, abi_tag, platform)
     with open(dist_info / "WHEEL", "w", encoding="utf-8") as f:
         f.write(wheel_content)
 
+
+def create_record_file(root_folder: Path, dist_info: Path) -> None:
+    """Create the RECORD file."""
     record_content = make_record_content(root_folder)
     record_filename = dist_info / "RECORD"
-
     with open(record_filename, "w", encoding="utf-8") as f:
         f.write(record_content)
 
-    # create the .whl file by zipping the contents of the temporary directory
-    wheel_file_path = pyd_file.parent / wheel_file_name
 
-    # remove the existing wheel file if it exists
+def create_wheel_archive(pyd_file: Path, wheel_file_name: str, root_folder: Path) -> Path:
+    """Create the .whl file by zipping the contents of the temporary directory."""
+    wheel_file_path = pyd_file.parent / wheel_file_name
     result_file = wheel_file_path.with_suffix(".zip")
     if result_file.exists():
         result_file.unlink()
-
     created_name = shutil.make_archive(str(wheel_file_path), "zip", root_folder)
-
-    # rename the zip file to a .whl file
     if wheel_file_path.exists():
         wheel_file_path.unlink()
     os.rename(created_name, wheel_file_path)
-
-    click.echo(f"created wheel file: {wheel_file_path}")
-
-    # remove the temporary directory
-    shutil.rmtree(root_folder)
-
     return wheel_file_path
