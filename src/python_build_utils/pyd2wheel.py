@@ -43,9 +43,10 @@ def make_record_content(root_folder: Path) -> str:
             # get the hash of the file using sha256
             sha256_hash = hashlib.sha256()
 
-            with open(os.path.join(root, file), "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(byte_block)
+            file_path = os.path.join(root, file)
+            with open(file_path, "rb") as f:
+                while chunk := f.read(4096):  # Read in 4KB chunks
+                    sha256_hash.update(chunk)
 
             sha256_digest = sha256_hash.hexdigest()
 
