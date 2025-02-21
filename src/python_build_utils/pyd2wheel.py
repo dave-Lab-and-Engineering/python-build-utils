@@ -20,23 +20,7 @@ from pathlib import Path
 import click
 
 from . import __version__
-
-PYD_FILE_FORMATS = {
-    "long": "{distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.pyd",
-    "short": "{distribution}.{python tag}-{platform tag}.pyd",
-}
-
-
-class PydFileFormatError(Exception):
-    """Exception raised for errors in the pyd file format."""
-
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.message = (
-            f"File information could not be extracted from file {filename}. "
-            f"Two formats are supported: {PYD_FILE_FORMATS['long']} or {PYD_FILE_FORMATS['short']}"
-        )
-        super().__init__(self.message)
+from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundError
 
 
 @click.command(name="pyd2wheel")
@@ -48,6 +32,8 @@ def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str |
     """Create a wheel from a compiled python *.pyd file.
 
     The *.pyd file should be named according to the following formats:
+
+
     - {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.pyd
     - {distribution}.{python tag}-{platform tag}.pyd
 
@@ -66,12 +52,6 @@ def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str |
         Output:
 
             path_to_your_pdy_file/DAVEcore.cp310-win_amd64 --package_version 0.1.0
-
-
-
-
-
-
     """
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
@@ -89,8 +69,18 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
         Path: The path to the created wheel file.
     """
     pyd_file = Path(pyd_file)
-    name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
-    package_version = _get_package_version(package_version, version_from_filename)
+    try:
+        name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
+    except (PydFileFormatError, PydFileSuffixError) as e:
+        click.echo(e, err=True)
+        return
+
+    try:
+        package_version = _get_package_version(package_version, version_from_filename)
+    except VersionNotFoundError as e:
+        click.echo(e, err=True)
+        return
+
     abi_tag = abi_tag or "none"
 
     _display_wheel_info(name, package_version, python_version, platform, abi_tag)
@@ -105,6 +95,7 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
 
     wheel_file_path = _create_wheel_archive(pyd_file, wheel_file_name, root_folder)
     click.echo(f"created wheel file: {wheel_file_path}")
+    click.echo(f"{'-' * 80}")
 
     shutil.rmtree(root_folder)
     return wheel_file_path
@@ -161,6 +152,9 @@ def _extract_pyd_file_info(pyd_file: Path) -> tuple:
     """Extract the name, version, python version, and platform from the pyd file name."""
     # remove suffix and split the filename on the hyphens
 
+    if pyd_file.suffix != ".pyd":
+        raise PydFileSuffixError(pyd_file.name)
+
     bare_file_name = pyd_file.stem
 
     # Assume the base_file_name is like:
@@ -189,23 +183,23 @@ def _get_package_version(package_version: str | None, version_from_filename: str
         return version_from_filename
 
     if package_version is None:
-        message = "The version of the package should be provided as it can not be extracted from the pyd file name."
-        click.echo(message, err=True)
-        raise ValueError(message)
+        raise VersionNotFoundError
 
     return package_version
 
 
 def _display_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> None:
     """Display the wheel information."""
-    field_width = 15
+    field_width = 25
+    click.echo(f"{'=' * 80}")
     click.echo(f"{'Field':<{field_width}}{'Value'}")
-    click.echo(f"{'-' * 30}")
+    click.echo(f"{'-' * 80}")
     click.echo(f"{'Name:':<{field_width}}{name}")
     click.echo(f"{'Version:':<{field_width}}{package_version}")
     click.echo(f"{'Python Version:':<{field_width}}{python_version}")
     click.echo(f"{'Platform:':<{field_width}}{platform}")
     click.echo(f"{'ABI Tag:':<{field_width}}{abi_tag}")
+    click.echo(f"{'-' * 80}")
 
 
 def create_temp_directory(pyd_file: Path) -> Path:
