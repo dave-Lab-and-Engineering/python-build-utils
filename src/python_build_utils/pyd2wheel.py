@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import re
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -14,6 +15,18 @@ PYD_FILE_FORMATS = {
     "long": "{distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.pyd",
     "short": "{distribution}.{python tag}-{platform tag}.pyd",
 }
+
+
+class PydFileFormatError(Exception):
+    """Exception raised for errors in the pyd file format."""
+
+    def __init__(self, filename: str):
+        self.filename = filename
+        self.message = (
+            f"File information could not be extracted from file {filename}. "
+            f"Two formats are supported: {PYD_FILE_FORMATS['long']} or {PYD_FILE_FORMATS['short']}"
+        )
+        super().__init__(self.message)
 
 
 @click.command(name="pyd2wheel")
@@ -30,7 +43,7 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
     """Creates a wheel from a pyd file."""
     pyd_file = Path(pyd_file)
     name, version_from_filename, python_version, platform = extract_pyd_file_info(pyd_file)
-    package_version = get_package_version(package_version, version_from_filename, pyd_file)
+    package_version = get_package_version(package_version, version_from_filename)
     abi_tag = abi_tag or "none"
 
     display_wheel_info(name, package_version, python_version, platform, abi_tag)
@@ -99,26 +112,34 @@ def make_record_content(root_folder: Path) -> str:
 
 def extract_pyd_file_info(pyd_file: Path) -> tuple:
     """Extract the name, version, python version, and platform from the pyd file name."""
-    try:
-        return pyd_file.stem.split("-")
-    except ValueError:
-        try:
-            return pyd_file.stem.replace(".", "-").split("-")
-        except ValueError as err:
-            message = "The pyd file name should be one of these formats: "
-            message += "\n - " + "\n - ".join(PYD_FILE_FORMATS.values())
-            message += f"\nGot pyd_file: {pyd_file}"
-            click.echo(message, err=True)
-            raise ValueError(message) from err
+    # remove suffix and split the filename on the hyphens
+
+    bare_file_name = pyd_file.stem
+
+    # Assume the base_file_name is like: dummy-0.1.0-py311-win_amd64"
+    # where the version can be 0, 0.1, or 0.1.1 and at least a python version and a platform are provided
+    match = re.match(r"(.*?)-((?:\d\.){0,2}\d)-(.*)-(.*)", bare_file_name)
+    if match:
+        name, package_version, python_version, platform = match.groups()
+        return name, package_version, python_version, platform
+
+    # Assume base_file_name is like  DAVEcore.cp310-win_amd64
+    # i.e. the version is not provided and the build version and platform are separated by a dot
+    match = re.match(r"(.*?)\.(.*)-(.*)", bare_file_name)
+    if match:
+        name, python_version, platform = match.groups()
+        package_version = None
+        return name, package_version, python_version, platform
+
+    raise PydFileFormatError(bare_file_name)
 
 
-def get_package_version(package_version: str | None, version_from_filename: str | None, pyd_file: Path) -> str:
+def get_package_version(package_version: str | None, version_from_filename: str | None) -> str:
     """Get the package version from the provided version or the pyd file name."""
     if package_version is None and version_from_filename is not None:
         return version_from_filename
 
     if package_version is None:
-        package_version = pyd_file.stem.split("-")[1]
         message = "The version of the package should be provided as it can not be extracted from the pyd file name."
         click.echo(message, err=True)
         raise ValueError(message)
