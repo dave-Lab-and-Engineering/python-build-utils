@@ -33,7 +33,7 @@ jobs:
 
       #- name: Deploy to GitHub Pages
       #  run: uv run mkdocs gh-deploy --force
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages git gh-pages branch
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
