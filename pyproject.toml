@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/eelcovv/python-build-utils"
+Repository = "https://github.com/dave-Lab-and-Engineering/python-build-utils"
 
 [dependency-groups]
 dev = [
@@ -178,7 +178,9 @@ description = "Invoke pytest to run automated tests under {env_name} with covera
 changedir = "{toxinidir}"
 allowlist_externals = ["pytest", "uv"]
 dependency_groups = ["dev"]
-commands = [["pytest"]]
+commands = [
+    ["pytest", "--cov={toxinidir}", "--cov-report=xml", "--cov-report=html"]
+]
 
 [tool.tox.env.build]
 description = "Build the package using uv"
