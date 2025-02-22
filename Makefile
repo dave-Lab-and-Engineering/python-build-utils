@@ -22,6 +22,21 @@ test: ## Test the code with pytest
 	@uv sync --group dev
 	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
 
+.PHONY: tox
+tox: ## Test the code with tox
+	@echo "🚀 Testing code: Running tox"
+	@uv sync --group dev
+	@uv run tox 
+
+.PHONY: tox-parallel
+tox-parallel: ## Test the code with tox in parallel
+	@echo "🚀 Testing code: Running tox"
+	@uv sync --group dev
+	@uv run tox run-parallel -p 10
+
+.PHONY: all_tests
+all_tests: check test tox-parallel ## Test the code using all the testts
+
 .PHONY: build
 build: clean-build ## Build wheel file
 	@echo "🚀 Creating wheel file"
@@ -35,7 +50,7 @@ clean-build: ## Clean build artifacts
 .PHONY: publish
 publish: ## Publish a release to PyPI.
 	@echo "🚀 Publishing."
-	@uvx twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+	@uvx twine upload dist/*
 
 .PHONY: build-and-publish
 build-and-publish: build publish ## Build and publish.
@@ -47,6 +62,19 @@ docs-test: ## Test if documentation can be built without warnings or errors
 .PHONY: docs
 docs: ## Build and serve the documentation
 	@uv run mkdocs serve
+
+.PHONY: examples
+examples: ## Run the examples
+	@echo "🚀 Example 1: converting dummy-0.1.1.py310-win_amd64.pyd"
+	pyd2wheel examples/dummy-0.1.1.py310-win_amd64.pyd 
+	@echo
+	@echo "🚀 Example 2: converting DAVEcore.cp310-win_amd64.pyd"
+	pyd2wheel examples/DAVEcore.cp310-win_amd64.pyd --package_version 1.2.3
+
+.PHONY: clean_examples
+clean_examples: ## Clean the examples directory
+	@echo "🚀 Cleaning whl files in examples directory."
+	@uv run rm -v examples/*.whl
 
 .PHONY: help
 help:

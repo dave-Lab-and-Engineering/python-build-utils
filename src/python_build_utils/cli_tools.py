@@ -14,6 +14,7 @@ Commands:
 import click
 
 from . import __version__
+from .pyd2wheel import pyd2wheel
 from .remove_tarballs import remove_tarballs
 from .rename_wheel_files import rename_wheel_files
 
@@ -26,6 +27,7 @@ def cli() -> None:
 
 cli.add_command(rename_wheel_files)
 cli.add_command(remove_tarballs)
+cli.add_command(pyd2wheel)
 
 if __name__ == "__main__":
     cli()
