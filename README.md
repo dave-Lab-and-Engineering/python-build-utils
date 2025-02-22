@@ -13,7 +13,7 @@ Small collection of command line utilities to assist with building your python w
 
 ### Cli-tool `python-build-utils --help`
 
-```shell
+```text
 Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
 
   A collection of CLI tools for Python build utilities.
@@ -30,7 +30,7 @@ Commands:
 
 ### Cli-tool `rename-wheel-files --help`
 
-```shell
+```text
 Usage: rename-wheel-files [OPTIONS]
 
   Rename wheel files in the dist folder.
@@ -86,7 +86,7 @@ rename-wheel-files
 
 ### Cli-tool `remove-tarballs --help`
 
-```shell
+```text
 Usage: remove-tarballs [OPTIONS]
 
   Remove tarball files from dist.
@@ -116,7 +116,7 @@ remove-tarballs
 
 ### Cli-tool `pyd2wheel --help`
 
-``` shell
+``` text
 Usage: pyd2wheel [OPTIONS] PYD_FILE
 
   Create a wheel from a compiled python *.pyd file.
