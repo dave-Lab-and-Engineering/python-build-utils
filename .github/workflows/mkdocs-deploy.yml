@@ -31,5 +31,13 @@ jobs:
       - name: Build MkDocs
         run: uv run mkdocs build --strict
 
+      #- name: Deploy to GitHub Pages
+      #  run: uv run mkdocs gh-deploy --force
       - name: Deploy to GitHub Pages
-        run: uv run mkdocs gh-deploy --force
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            uv run mkdocs gh-deploy --force --remote-branch gh-pages
+
