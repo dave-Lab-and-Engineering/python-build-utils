@@ -7,11 +7,6 @@
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commits/main)
 [![License](https://img.shields.io/github/license/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
 
-
-<!-- Codecov still gives 0%. need some fixtures -->
-# [![Codecov](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils/branch/main/graph/badge.svg)](https://app.codecov.io/gh/dave-Lab-and-Engineering/python-build-utils)
-<!-- End of comment -->
-
 Small collection of command line utilities to assist with building your python wheels
 
 - **Github repository**: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
