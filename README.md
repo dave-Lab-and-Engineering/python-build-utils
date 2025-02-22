@@ -1,36 +1,52 @@
 # python-build-utils
 
-[![GitHub Release](https://img.shields.io/github/v/release/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/releases/tag/0.1.1)
+[![GitHub Release](https://img.shields.io/github/v/release/eelcovv/python-build-utils)](https://github.com/eelcovv/python-build-utils/releases)
 [![PyPI Version](https://img.shields.io/pypi/v/python-build-utils)](https://pypi.org/project/python-build-utils/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/dave-Lab-and-Engineering/python-build-utils/main.yml?branch=main)](https://github.com/dave-Lab-and-Engineering/python-build-utils/actions/workflows/main.yml)
-[![Coverage Status](https://coveralls.io/repos/github/dave-Lab-and-Engineering/python-build-utils/badge.svg)](https://coveralls.io/github/dave-Lab-and-Engineering/python-build-utils)
-[![Commit Activity](https://img.shields.io/github/commit-activity/m/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commits/main)
-[![License](https://img.shields.io/github/license/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/eelcovv/python-build-utils/main.yml?branch=main)](https://github.com/eelcovv/python-build-utils/actions/workflows/main.yml)
+[![Codecov](https://codecov.io/gh/eelcovv/python-build-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/eelcovv/python-build-utils)
+[![Commit Activity](https://img.shields.io/github/commit-activity/m/eelcovv/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commit/main)
+[![License](https://img.shields.io/github/license/eelcovv/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
 
 Small collection of command line utilities to assist with building your python wheels
 
+- **Github repository**: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
+- **Documentation** <https://dave-lab-and-engineering.github.io/python-build-utils/>
+
 ## Description
 
-### Cli-tool `python-build-utils --help`
+### Cli-tool `python-build-utils`
 
-```text
+```shell
+(python-build-utils) PS> python-build-utils.exe --help
 Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
 
   A collection of CLI tools for Python build utilities.
 
 Options:
-  -v, --version  Show the version and exit.
-  --help         Show this message and exit.
+  --help  Show this message and exit.
 
 Commands:
-  pyd2wheel           Create a wheel from a compiled python *.pyd file.
+  remove-tarballs     Remove tarball files from dist
+  rename-wheel-files  Rename wheel files in the dist folder.
+  py2wheel            Rename wheel files in the dist folder.
+
+(python-build-utils) PS> python-build-utils.exe --help
+Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
+
+  A collection of CLI tools for Python build utilities.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
   remove-tarballs     Remove tarball files from dist.
   rename-wheel-files  Rename wheel files in the dist folder.
 ```
 
-### Cli-tool `rename-wheel-files --help`
+### rename-wheel-files
 
-```text
+```shell
+(python-build-utils) PS> rename-wheel-files.exe --help
 Usage: rename-wheel-files [OPTIONS]
 
   Rename wheel files in the dist folder.
@@ -59,20 +75,15 @@ Usage: rename-wheel-files [OPTIONS]
       tag is constructed using the `python_version_tag` and `platform_tag` as
       described above.
 
-  Returns:     None
-
-  Example:     rename_wheel_files("dist", "cp39", "win_amd64", "")
-
 Options:
-  -v, --version              Show the version and exit.
   --dist_dir TEXT            Directory containing wheel files. Default is
                              'dist'
   --python_version_tag TEXT  Explicitly specify the python version tag.
-                             Default is cp{major}{minor}
+                             Default is cp{major}{minor}.
   --platform_tag TEXT        Explicitly specify the platform tag. Default is
-                             sysconfig.get_platform()
+                             sysconfig.get_platform().
   --wheel_tag TEXT           Explicitly specify the total wheel tag. Default is
-                             {python_version_tag}-{python_version_tag}-{platform_tag}
+                             {python_version_tag}-{python_version_tag}-{platform_tag}.
   --help                     Show this message and exit.
 ```
 
@@ -84,9 +95,10 @@ From your project root folder, just run
 rename-wheel-files
 ```
 
-### Cli-tool `remove-tarballs --help`
+### remove-tarballs
 
-```text
+```shell
+(python-build-utils) PS> remove-tarballs.exe --help
 Usage: remove-tarballs [OPTIONS]
 
   Remove tarball files from dist.
@@ -96,12 +108,7 @@ Usage: remove-tarballs [OPTIONS]
   Args:     dist_dir (str): The directory containing the tarball files to be
   removed.
 
-  Returns:     None
-
-  Example:     remove_tarballs("dist")
-
 Options:
-  -v, --version    Show the version and exit.
   --dist_dir TEXT  Directory containing wheel the files. Default is 'dist'
   --help           Show this message and exit.
 ```
@@ -114,19 +121,7 @@ From your project root folder, just run
 remove-tarballs
 ```
 
-### Cli-tool `pyd2wheel --help`
-
-``` text
-Usage: pyd2wheel [OPTIONS] PYD_FILE
-
-  Create a wheel from a compiled python *.pyd file.
-
-Options:
-  -v, --version           Show the version and exit.
-  --package_version TEXT  The version of the package.
-  --abi_tag TEXT          The ABI tag of the package. Default is 'none'.
-  --help                  Show this message and exit.
-```
+### pyd2wheel tool
 
 This is a tool to convert bare .pyd files to a wheel file such that they can be installed.
 
@@ -142,5 +137,4 @@ pyd2wheel("mybinary.cp310-win_amd64.pyd", version="1.0.0")
 ```
 
 This will create a wheel file named in the same directory as the input file.
-
 Note: The version argument is used only if the version is not already present in the filename (like in the example above).

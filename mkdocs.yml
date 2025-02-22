@@ -1,11 +1,11 @@
 site_name: python-build-utils
 repo_url: https://github.com/dave-Lab-and-Engineering/python-build-utils 
-site_url: https://eelcovv.github.io/python-build-utils
+site_url: https://dave-lab-and-engineering.github.io/python-build-utils
 site_description: Small collection of command line utilities to assist with building your python wheels
 site_author: Eelco van Vliet
 edit_uri: edit/main/docs/
-repo_name: eelcovv/python-build-utils
-copyright: Maintained by <a href="https://eelcovv.com">eelcovv</a>.
+repo_name: dave-Lab-and-Engineering/python-build-utils 
+copyright: Maintained by <a href="https://github.com/eelcovv">Eelco van Vliet</a>.
 
 nav:
   - Home: index.md
