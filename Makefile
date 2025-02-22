@@ -61,8 +61,6 @@ coverage-upload:  ## Upload the coverage reports to Codecov
 	@uv run coveralls --merge coverage.json
 
 .PHONY: docs-test
-
-.PHONY: docs-test
 docs-test: ## Test if documentation can be built without warnings or errors
 	@uv run mkdocs build -s
 
