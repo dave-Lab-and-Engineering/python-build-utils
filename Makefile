@@ -72,10 +72,6 @@ docs: ## Build and serve the documentation
 docs-deploy: ## Build and serve the documentation
 	@uv run mkdocs gh-deploy --force --remote-branch gh-pages
 
-
-
-.PHONY: examples
-
 .PHONY: examples
 examples: ## Run the examples
 	@echo "🚀 Example 1: converting dummy-0.1.1.py310-win_amd64.pyd"
