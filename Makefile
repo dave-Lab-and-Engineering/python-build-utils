@@ -70,7 +70,8 @@ docs: ## Build and serve the documentation
 
 .PHONY: docs-deploy
 docs-deploy: ## Build and serve the documentation
-	@uv run mkdocs gh-deploy --force
+	@uv run mkdocs gh-deploy --force --remote-branch gh-pages
+
 
 
 .PHONY: examples
