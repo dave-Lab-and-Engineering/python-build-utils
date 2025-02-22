@@ -35,7 +35,7 @@ jobs:
 
         # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
-        run: uv run mkdocs gh-deploy --force --remote-branch gh-pages
+        run: echo uv run mkdocs gh-deploy --force --remote-branch gh-pages
 #
       #- name: Deploy to GitHub Pages
       #  run: mkdocs gh-deploy --force --remote-branch gh-pages
