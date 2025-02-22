@@ -14,39 +14,26 @@ Small collection of command line utilities to assist with building your python w
 
 ## Description
 
-### Cli-tool `python-build-utils`
+### Cli-tool `python-build-utils --help`
 
 ```shell
-(python-build-utils) PS> python-build-utils.exe --help
 Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
 
   A collection of CLI tools for Python build utilities.
 
 Options:
-  --help  Show this message and exit.
+  -v, --version  Show the version and exit.
+  --help         Show this message and exit.
 
 Commands:
-  remove-tarballs     Remove tarball files from dist
-  rename-wheel-files  Rename wheel files in the dist folder.
-  py2wheel            Convert python *.pyd files into a wheel file
-
-(python-build-utils) PS> python-build-utils.exe --help
-Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
-
-  A collection of CLI tools for Python build utilities.
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
+  pyd2wheel           Create a wheel from a compiled python *.pyd file.
   remove-tarballs     Remove tarball files from dist.
   rename-wheel-files  Rename wheel files in the dist folder.
 ```
 
-### rename-wheel-files
+### Cli-tool `rename-wheel-files --help`
 
 ```shell
-(python-build-utils) PS> rename-wheel-files.exe --help
 Usage: rename-wheel-files [OPTIONS]
 
   Rename wheel files in the dist folder.
@@ -75,15 +62,20 @@ Usage: rename-wheel-files [OPTIONS]
       tag is constructed using the `python_version_tag` and `platform_tag` as
       described above.
 
+  Returns:     None
+
+  Example:     rename_wheel_files("dist", "cp39", "win_amd64", "")
+
 Options:
+  -v, --version              Show the version and exit.
   --dist_dir TEXT            Directory containing wheel files. Default is
                              'dist'
   --python_version_tag TEXT  Explicitly specify the python version tag.
-                             Default is cp{major}{minor}.
+                             Default is cp{major}{minor}
   --platform_tag TEXT        Explicitly specify the platform tag. Default is
-                             sysconfig.get_platform().
+                             sysconfig.get_platform()
   --wheel_tag TEXT           Explicitly specify the total wheel tag. Default is
-                             {python_version_tag}-{python_version_tag}-{platform_tag}.
+                             {python_version_tag}-{python_version_tag}-{platform_tag}
   --help                     Show this message and exit.
 ```
 
@@ -95,10 +87,9 @@ From your project root folder, just run
 rename-wheel-files
 ```
 
-### remove-tarballs
+### Cli-tool `remove-tarballs --help`
 
 ```shell
-(python-build-utils) PS> remove-tarballs.exe --help
 Usage: remove-tarballs [OPTIONS]
 
   Remove tarball files from dist.
@@ -108,7 +99,12 @@ Usage: remove-tarballs [OPTIONS]
   Args:     dist_dir (str): The directory containing the tarball files to be
   removed.
 
+  Returns:     None
+
+  Example:     remove_tarballs("dist")
+
 Options:
+  -v, --version    Show the version and exit.
   --dist_dir TEXT  Directory containing wheel the files. Default is 'dist'
   --help           Show this message and exit.
 ```
@@ -121,7 +117,19 @@ From your project root folder, just run
 remove-tarballs
 ```
 
-### pyd2wheel tool
+### Cli-tool `pyd2wheel --help`
+
+``` shell
+Usage: pyd2wheel [OPTIONS] PYD_FILE
+
+  Create a wheel from a compiled python *.pyd file.
+
+Options:
+  -v, --version           Show the version and exit.
+  --package_version TEXT  The version of the package.
+  --abi_tag TEXT          The ABI tag of the package. Default is 'none'.
+  --help                  Show this message and exit.
+```
 
 This is a tool to convert bare .pyd files to a wheel file such that they can be installed.
 
@@ -137,4 +145,5 @@ pyd2wheel("mybinary.cp310-win_amd64.pyd", version="1.0.0")
 ```
 
 This will create a wheel file named in the same directory as the input file.
+
 Note: The version argument is used only if the version is not already present in the filename (like in the example above).
