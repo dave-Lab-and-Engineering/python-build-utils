@@ -54,6 +54,7 @@ dev = [
     "mkdocs>=1.4.2",
     "mkdocs-material>=8.5.10",
     "mkdocstrings[python]>=0.26.1",
+    "mkdocstrings-python>=1.16.0",
 ]
 uv = [
     "uv>=0.5.29",

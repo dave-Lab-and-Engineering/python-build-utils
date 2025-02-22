@@ -68,6 +68,13 @@ docs-test: ## Test if documentation can be built without warnings or errors
 docs: ## Build and serve the documentation
 	@uv run mkdocs serve
 
+.PHONY: docs-deploy
+docs-deploy: ## Build and serve the documentation
+	@uv run mkdocs gh-deploy --force
+
+
+.PHONY: examples
+
 .PHONY: examples
 examples: ## Run the examples
 	@echo "🚀 Example 1: converting dummy-0.1.1.py310-win_amd64.pyd"
