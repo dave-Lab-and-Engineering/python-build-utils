@@ -26,14 +26,15 @@ jobs:
       - name: Build MkDocs
         run: uv run mkdocs build --strict
 
+        # Create a GH_PAT secret in your repository with a Personal Access Token
+      - name: Configure Git for Deployment
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/dave-Lab-and-Engineering/python-build-utils.git
+
       - name: Deploy to GitHub Pages
         run: uv run mkdocs gh-deploy --force --remote-branch gh-pages
-
-#      - name: Configure Git for Deployment
-#        run: |
-##          git config --global user.name "github-actions[bot]"
-#          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-#          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/dave-Lab-and-Engineering/python-build-utils.git
 #
 #      - name: Deploy to GitHub Pages
 #        run: mkdocs gh-deploy --force --remote-branch gh-pages
