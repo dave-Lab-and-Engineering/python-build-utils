@@ -1,16 +1,18 @@
-# python-build-utils
+# python-build-utils: Command Line Utilities for Python Wheel Building
 
-[![GitHub Release](https://img.shields.io/github/v/release/eelcovv/python-build-utils)](https://github.com/eelcovv/python-build-utils/releases)
+
+[![GitHub Release](https://img.shields.io/github/v/release/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/releases)
 [![PyPI Version](https://img.shields.io/pypi/v/python-build-utils)](https://pypi.org/project/python-build-utils/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/eelcovv/python-build-utils/main.yml?branch=main)](https://github.com/eelcovv/python-build-utils/actions/workflows/main.yml)
-[![Codecov](https://codecov.io/gh/eelcovv/python-build-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/eelcovv/python-build-utils)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/dave-Lab-and-Engineering/python-build-utils/main.yml?branch=main)](https://github.com/dave-Lab-and-Engineering/python-build-utils/actions/workflows/main.yml)
+[![Codecov](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commits/main)
-[![License](https://img.shields.io/github/license/eelcovv/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
+
 
 Small collection of command line utilities to assist with building your python wheels
 
 - **Github repository**: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
-- **Documentation** <https://eelcovv.github.io/python-build-utils/>
+- **Documentation** <https://dave-Lab-and-Engineering.github.io/python-build-utils/>
 
 ## Description
 
