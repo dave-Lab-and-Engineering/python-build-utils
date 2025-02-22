@@ -27,7 +27,7 @@ Options:
 Commands:
   remove-tarballs     Remove tarball files from dist
   rename-wheel-files  Rename wheel files in the dist folder.
-  py2wheel            Rename wheel files in the dist folder.
+  py2wheel            Convert python *.pyd files into a wheel file
 
 (python-build-utils) PS> python-build-utils.exe --help
 Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
