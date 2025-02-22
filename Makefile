@@ -20,7 +20,7 @@ check: ## Run code quality tools.
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
 	@uv sync --group dev
-	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml --cov-report=html
+	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml --cov-report=html --cov-report=json --cov-report=term-missing
 
 .PHONY: tox
 tox: ## Test the code with tox
@@ -54,6 +54,13 @@ publish: ## Publish a release to PyPI.
 
 .PHONY: build-and-publish
 build-and-publish: build publish ## Build and publish.
+
+.PHONY: coverage-upload
+coverage-upload:  ## Upload the coverage reports to Codecov
+	@echo "🚀 Uploading coverage report to Codecov"
+	@uv run coveralls --merge coverage.json
+
+.PHONY: docs-test
 
 .PHONY: docs-test
 docs-test: ## Test if documentation can be built without warnings or errors

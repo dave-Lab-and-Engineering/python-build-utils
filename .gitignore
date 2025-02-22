@@ -142,3 +142,4 @@ cython_debug/
 
 !examples/*.pyd
 examples/*.whl
+coverage.json
