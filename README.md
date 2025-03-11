@@ -134,14 +134,14 @@ Options:
 This is a tool to convert bare .pyd files to a wheel file such that they can be installed.
 
 ```shell
-pyd2wheel .\mybinary.cp310-win_amd64.pyd --version=1.0.0
+pyd2wheel .\mybinary.cp310-win_amd64.pyd --package_version 1.0.0
 ```
 
 or from python:
 
 ```python
 from python_build_utils import pyd2wheel
-pyd2wheel("mybinary.cp310-win_amd64.pyd", version="1.0.0")
+pyd2wheel("mybinary.cp310-win_amd64.pyd", package_version="1.0.0")
 ```
 
 This will create a wheel file named in the same directory as the input file.
