@@ -24,7 +24,7 @@ from python_build_utils.rename_wheel_files import rename_wheel_files
 
 @pytest.fixture
 def setup_wheel_files(tmpdir):
-    """Set up the fixtures for the test cases."""
+    """Set upt the fixtures for the test cases."""
     dist_dir = tmpdir.mkdir("dist")
     wheel_file = dist_dir.join("example-1.0.0-py3-none-any.whl")
     wheel_file.write("")
