@@ -13,9 +13,10 @@ Commands:
 
 import click
 
-from . import __version__
-from .remove_tarballs import remove_tarballs
-from .rename_wheel_files import rename_wheel_files
+from python_build_utils import __version__
+from python_build_utils.collect_dep_modules import collect_dependencies
+from python_build_utils.remove_tarballs import remove_tarballs
+from python_build_utils.rename_wheel_files import rename_wheel_files
 
 
 @click.group()
@@ -24,6 +25,7 @@ def cli() -> None:
     """A collection of CLI tools for Python build utilities."""
 
 
+cli.add_command(collect_dependencies)
 cli.add_command(rename_wheel_files)
 cli.add_command(remove_tarballs)
 
