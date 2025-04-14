@@ -1,3 +1,20 @@
+"""
+This module provides a CLI tool to collect all dependencies of a given Python package
+using `pipdeptree`. The dependencies can be displayed in the console or written to an
+output file.
+Functions:
+    collect_dependencies(package: str, output: str | None) -> None:
+        CLI command to collect and display/write dependencies of a specified package.
+    run_safe_subprocess(command: list) -> str:
+        Runs a subprocess safely and returns the output. Handles errors gracefully.
+    get_dependency_tree() -> list:
+        Executes `pipdeptree` to retrieve the dependency tree in JSON format.
+    find_package_node(dep_tree: list, package: str) -> dict | None:
+        Searches for a specific package node in the dependency tree.
+    collect_dependency_names(dependencies: list, collected=None) -> list:
+        Recursively collects the names of all dependencies from a given dependency list.
+"""
+
 import json
 import subprocess
 import sys
