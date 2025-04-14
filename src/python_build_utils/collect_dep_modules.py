@@ -59,7 +59,8 @@ def get_dependency_tree() -> list:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
 
-    if any(arg.startswith("-") and not arg.startswith("--") for arg in command[1:]):
+    # check for unsafe short options starting from the 4rd argument, as the first 3 are python -m pipdeptree
+    if any(arg.startswith("-") and not arg.startswith("--") for arg in command[3:]):
         click.echo("Unsafe short option detected.")
         sys.exit(1)
 
