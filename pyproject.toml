@@ -90,9 +90,6 @@ show_error_codes = true
 
 # === ruff ===
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-
 [tool.flake8]
 max-line-length = 120
 
@@ -158,6 +155,28 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = [
+    "tests/*",  # Exclude all files in the tests directory
+]
+
+# === pytest  ===
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=python-build-utils",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--verbose",
+    "--import-mode=importlib",
+]
+testpaths = [
+    "tests",
+]
+norecursedirs = [
+    "dist",
+    "build",
+    ".tox",
+]
+
 
 # ========================================================================================
 # 🔹 TOX

@@ -55,7 +55,7 @@ from . import __version__
 @click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
 )
-def collect_pyd_submodules(output: str | None, regex: str | None = None, venv_path: str | None = None) -> None:
+def collect_pyd_submodules(venv_path: str | None = None, regex: str | None = None, output: str | None = None) -> None:
     """
     Collects  a list of `.pyd` submodules found in the venv
 
@@ -167,6 +167,9 @@ def extract_submodule_name(pyd_file: Path, venv_site_packages: Path) -> str:
 
     # Remove the platform-specific suffix (e.g., cp312-win_amd64.pyd)
     module_name = re.sub(r"\.cp\d+.*\.pyd$", "", str(relative_path))
+
+    # Remove the suffix .pyd if it exists
+    module_name = re.sub(r".pyd$", "", str(module_name))
 
     # Convert the path to a dotted module name
     return module_name.replace(os.sep, ".")

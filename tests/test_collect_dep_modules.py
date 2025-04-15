@@ -25,3 +25,12 @@ def test_get_dependency_tree_invalid_json():
         pytest.raises(json.JSONDecodeError),
     ):
         get_dependency_tree()
+
+
+def test_get_dependency_tree_empty_output():
+    """Test get_dependency_tree when pipdeptree returns an empty output."""
+    mock_output = "[]"
+    with mock.patch("python_build_utils.collect_dep_modules.run_safe_subprocess", return_value=mock_output):
+        result = get_dependency_tree()
+        assert isinstance(result, list)
+        assert len(result) == 0
