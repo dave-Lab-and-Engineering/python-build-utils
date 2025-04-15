@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.3] - 2025-04-15
 - Added new command line utility collect-dependencies in order to generate a list of all package dependencies
 - Added new command line utility collect-pyd-modules in order to generate a list of cythonized pyd dependencies:w
+- Added new command line utility clean-pyd-modules in order to remove all cythonized files in a venv
 
 ## [0.1.2] - 2025-02-22
 
