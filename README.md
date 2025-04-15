@@ -38,46 +38,23 @@ Commands:
 ```text
 Usage: rename-wheel-files [OPTIONS]
 
-  Rename wheel files in the dist folder.
-
-  This function renames wheel files in the given distribution directory by
-  replacing the "py3-none-any" tag with a custom build version tag. The build
-  version tag is constructed using the provided `python_version_tag`,
-  `platform_tag`, and `wheel_tag`. If `wheel_tag` is provided, it is used
-  directly as the build version tag. Otherwise, the build version tag is
-  constructed using the `python_version_tag` and `platform_tag`.
-
-  Args:
-
-      dist_dir (str): The directory containing the wheel files to be renamed.
-      Default is 'dist'.
-
-      python_version_tag (str): The Python version tag to be included in the
-      new file name. Default is cp{major}{minor}.
-
-      platform_tag (str): The platform tag to be included in the new file
-      name. Default is sysconfig.get_platform().
-
-      wheel_tag (str): The custom wheel tag to be used as the build version
-      tag. If this is provided, it is used directly as the build version tag
-      and the other tags are ignored. If this is not provided, the build
-      tag is constructed using the `python_version_tag` and `platform_tag` as
-      described above.
-
-  Returns:     None
-
-  Example:     rename_wheel_files("dist", "cp39", "win_amd64", "")
+  Rename wheel files in a distribution directory by replacing the default
+  'py3-none-any' tag with a custom one.
 
 Options:
   -v, --version              Show the version and exit.
-  --dist_dir TEXT            Directory containing wheel files. Default is
-                             'dist'
-  --python_version_tag TEXT  Explicitly specify the python version tag.
-                             Default is cp{major}{minor}
-  --platform_tag TEXT        Explicitly specify the platform tag. Default is
-                             sysconfig.get_platform()
-  --wheel_tag TEXT           Explicitly specify the total wheel tag. Default is
-                             {python_version_tag}-{python_version_tag}-{platform_tag}
+  --dist-dir TEXT            Directory containing wheel files. Defaults to
+                             'dist'.
+  --python-version-tag TEXT  Python version tag to include in the new file
+                             name (e.g., cp310). Defaults to
+                             'cp{major}{minor}' of the current Python.
+  --platform-tag TEXT        Platform tag to include in the new file name.
+                             Defaults to the current platform value from
+                             sysconfig.
+  --wheel-tag TEXT           Full custom wheel tag to replace 'py3-none-any'.
+                             If provided, this is used directly, ignoring the
+                             other tag options. Default format is: {python_ver
+                             sion_tag}-{python_version_tag}-{platform_tag}
   --help                     Show this message and exit.
 ```
 
@@ -124,12 +101,13 @@ remove-tarballs
 ``` text
 Usage: pyd2wheel [OPTIONS] PYD_FILE
 
-  Create a wheel from a compiled python *.pyd file.
+  Create a Python wheel file from a compiled .pyd file.
 
 Options:
   -v, --version           Show the version and exit.
-  --package_version TEXT  The version of the package.
-  --abi_tag TEXT          The ABI tag of the package. Default is 'none'.
+  --package-version TEXT  Version of the package. If not provided, the version
+                          is extracted from the file name.
+  --abi-tag TEXT          ABI tag for the wheel. Defaults to 'none'.
   --help                  Show this message and exit.
 ```
 
