@@ -58,9 +58,48 @@ you can do
 clean-pyd-modules --regex dave 
 ```
 
-The regex can be used to filter the files using a regular expression. Matching is done with case.   
+This will clean all the *.pyd and *.c files in the src folder of the current directory, filtered by 'dave'
 
 
+### Cli-tool `collect-dependencies --help`
+
+```text
+Usage: collect-dependencies [OPTIONS]
+
+  Collect and display dependencies for one or more Python packages.
+
+Options:
+  -v, --version      Show the version and exit.
+  --package TEXT     Name of the Python package to collect dependencies for.
+                     Can be given multiple times. If omitted, dependencies for
+                     the entire environment are collected.
+  -o, --output PATH  Optional file path to write the list of dependencies to.
+  --help             Show this message and exit.
+```
+
+#### Example of using clean-pyd-modules
+
+```shell
+collect-dependencies 
+```
+
+### Cli-tool `collect-dependencies --help`
+
+```text
+Usage: collect-pyd-modules [OPTIONS]
+
+  Collect and display .pyd submodules from a virtual environment.
+
+Options:
+  -v, --version      Show the version and exit.
+  --venv-path TEXT   Path to the virtual environment to scan for .pyd modules.
+                     Defaults to the current environment.
+  -r, --regex TEXT   Optional regular expression to filter .pyd modules by
+                     name.
+  -o, --output PATH  Optional file path to write the list of found .pyd
+                     modules.
+  --help             Show this message and exit.
+```
 
 ### Cli-tool `rename-wheel-files --help`
 
