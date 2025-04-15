@@ -78,6 +78,7 @@ pyd2wheel = "python_build_utils.cli_tools:pyd2wheel"
 remove-tarballs = "python_build_utils.cli_tools:remove_tarballs"
 collect-dependencies = "python_build_utils.cli_tools:collect_dependencies"
 collect-pyd-modules = "python_build_utils.cli_tools:collect_pyd_modules"
+clean-pyd-modules = "python_build_utils.cli_tools:clean_pyd_modules"
 
 
 # ========================================================================================
