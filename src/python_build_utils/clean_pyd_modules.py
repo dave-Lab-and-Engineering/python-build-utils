@@ -1,4 +1,35 @@
-""" """
+"""
+This script provides a command-line interface (CLI) tool to clean up `.pyd` and `.c` build modules
+from a Python virtual environment. It allows filtering of files to be removed using an optional
+regular expression.
+
+Functions:
+    clean_pyd_modules(venv_path: str | None, regex: str | None) -> None:
+        CLI command to clean `.pyd` and `.c` files from a virtual environment.
+        Accepts an optional virtual environment path and a regex filter for file names.
+    clean_by_extensions(venv_site_packages: Path, regex: str | None, extension: str) -> None:
+        Helper function to remove files with a specific extension from the virtual environment's
+        site-packages directory. Supports filtering by regex.
+
+CLI Options:
+    --venv-path: Path to the virtual environment to scan for `.pyd` modules. Defaults to the
+                 current environment if not specified.
+    --regex, -r: Optional regular expression to filter `.pyd` modules by name.
+    --version, -v: Displays the version of the tool and exits.
+    - Scans the specified virtual environment's `site-packages` directory for `.pyd` and `.c` files.
+    - Removes all matching files, optionally filtered by a regex pattern.
+    - Provides feedback on the cleaning process, including errors encountered during file removal.
+
+Dependencies:
+    - `click`: For building the CLI interface.
+    - `pathlib`: For filesystem path manipulations.
+    - `re`: For regular expression matching.
+
+Usage:
+    Run the script as a CLI tool to clean up `.pyd` and `.c` files from a virtual environment.
+    Example:
+        python clean_pyd_modules.py --venv-path /path/to/venv --regex "pattern"
+"""
 
 import re
 from pathlib import Path
@@ -24,7 +55,7 @@ from .collect_pyd_modules import get_venv_site_packages
 )
 def clean_pyd_modules(venv_path: str | None = None, regex: str | None = None) -> None:
     """
-    Collects a list of `.pyd` submodules found in a virtual environment.
+    Clean all  *.pyd/.c files in a virtual environment. A regex filter can be applied.
 
     Args:
         venv_path (str | None): Path to the virtual environment. If None, the current environment is used.
@@ -46,6 +77,26 @@ def clean_pyd_modules(venv_path: str | None = None, regex: str | None = None) ->
 
 
 def clean_by_extensions(venv_site_packages: Path, regex: str | None, extension: str) -> None:
+    """
+    Removes files with a specified extension from a virtual environment's site-packages directory,
+    optionally filtering them by a regex pattern.
+    Args:
+        venv_site_packages (Path): The path to the virtual environment's site-packages directory.
+        regex (str | None): A regular expression pattern to filter files by their relative paths.
+                            If None, all files with the specified extension are considered.
+        extension (str): The file extension to search for (e.g., '*.pyd').
+    Returns:
+        None: This function does not return a value.
+    Side Effects:
+        - Deletes matching files from the file system.
+        - Outputs messages to the console using `click.echo`.
+    Raises:
+        Exception: If an error occurs while attempting to delete a file, an error message is displayed.
+    Notes:
+        - If no files with the specified extension are found, a message is displayed and the function exits.
+        - If a regex filter is provided, only files matching the regex are removed.
+    """
+
     file_candidates = list(venv_site_packages.rglob(extension))
 
     if not file_candidates:
