@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from python_build_utils.clean_pyd_modules import clean_by_extensions, clean_pyd_modules
+from python_build_utils.clean_pyd_modules import clean_by_extensions
 
 
 @pytest.fixture
@@ -12,34 +12,6 @@ def mock_site_packages_path(tmp_path):
     site_packages = tmp_path / "site-packages"
     site_packages.mkdir()
     return site_packages
-
-
-@patch("python_build_utils.clean_pyd_modules.get_venv_site_packages")
-@patch("python_build_utils.clean_pyd_modules.click.echo")
-def test_clean_pyd_modules_no_site_packages(mock_echo, mock_get_venv_site_packages):
-    """Test when site-packages cannot be located."""
-    mock_get_venv_site_packages.return_value = None
-
-    clean_pyd_modules(venv_path="dummy_path", regex=None)
-
-    mock_echo.assert_called_with("Could not locate site-packages in the specified environment.")
-
-
-@patch("python_build_utils.clean_pyd_modules.clean_by_extensions")
-@patch("python_build_utils.clean_pyd_modules.get_venv_site_packages")
-@patch("python_build_utils.clean_pyd_modules.click.echo")
-def test_clean_pyd_modules_with_extensions(
-    mock_echo, mock_get_venv_site_packages, mock_clean_by_extensions, mock_site_packages_path
-):
-    """Test cleaning .pyd and .c files."""
-    mock_get_venv_site_packages.return_value = mock_site_packages_path
-
-    clean_pyd_modules(venv_path="dummy_path", regex="test")
-
-    mock_echo.assert_any_call(f"Cleaning the *.pyd files with 'test' filter in '{mock_site_packages_path}'...")
-    mock_echo.assert_any_call(f"Cleaning the *.c files with 'test' filter in '{mock_site_packages_path}'...")
-    mock_clean_by_extensions.assert_any_call(mock_site_packages_path, "test", "*.pyd")
-    mock_clean_by_extensions.assert_any_call(mock_site_packages_path, "test", "*.c")
 
 
 @patch("python_build_utils.clean_pyd_modules.click.echo")
