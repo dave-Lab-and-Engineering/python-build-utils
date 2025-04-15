@@ -26,21 +26,28 @@ from . import __version__
 
 @click.command(name="collect-package-dependencies")
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
-@click.option("--package", help="Name of the python package to collect all dependencies")
+@click.option(
+    "--package",
+    multiple=True,
+    help="Name of the python package to collect all dependencies. "
+    "Can be given multiple times. If not provided, all dependencies of the current venv will be collected.",
+)
 @click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
 )
-def collect_dependencies(package: str, output: str | None) -> None:
+def collect_dependencies(package: tuple[str] | None, output: str | None) -> None:
     """
     Collects and processes the dependencies of a specified package.
 
     Args:
-        package (str): The name of the package for which dependencies are to be collected.
+        package (tuple[str]): A tuple of package names for which dependencies are to be collected.
+                              If empty, dependencies for all packages in the current environment are collected.
         output (str | None): The file path to write the dependencies to. If None, dependencies are not written to a file.
     Returns:
         None: This function does not return a value. It outputs information to the console and optionally writes to a file.
     Behavior:
-        - If the `package` argument is not provided, the function prompts the user to specify a package.
+        - If the `package` argument is not provided, all the package of the current environment are collected.
+        - If the `package` argument is provided, it collects dependencies for the specified package(s).
         - Retrieves the dependency tree of the current environment and identifies the specified package.
         - If the package is not found, a message is displayed to the user.
         - Collects the names of all dependencies for the specified package.
@@ -48,33 +55,29 @@ def collect_dependencies(package: str, output: str | None) -> None:
         - If the `output` argument is provided, writes the list of dependencies to the specified file.
     """
 
-    if not package:
-        click.echo("Please provide a package name using --package.")
-        return
-
-    click.echo(f"Collecting dependencies for '{package}'...")
-
     dep_tree = get_dependency_tree()
-    package_node = find_package_node(dep_tree, package)
+    package_nodes = find_package_node(dep_tree, package)
 
-    if not package_node:
+    if not package_nodes:
         click.echo(f"Package '{package}' not found in the environment.")
         return
 
-    dependencies = collect_dependency_names(package_node["dependencies"])
-
-    click.echo(f"Dependencies for {package}:")
-    if not dependencies:
-        click.echo(" (No dependencies found)")
-    else:
+    all_dependencies = []
+    for package_node in package_nodes:
+        package_dependencies = package_node.get("dependencies", [])
+        dependencies = collect_dependency_names(package_dependencies)
+        all_dependencies.extend(dependencies)
         # print dependencies in a tree format to screen
-        print_deps(package_node["dependencies"])
+        print_deps(package_dependencies)
 
+    if not all_dependencies:
+        click.echo("No dependencies found")
+    else:
         # write dependencies to file if output is provided
         if output:
             with open(output, "w") as f:
-                f.write("\n".join(dependencies))
-            click.echo(f"Dependencies written s float list so {output}")
+                f.write("\n".join(all_dependencies))
+            click.echo(f"Dependencies written as plain list to  {output}")
 
 
 def print_deps(deps: list, level=1):
@@ -119,9 +122,21 @@ def get_dependency_tree() -> list:
     return json.loads(stdout)
 
 
-def find_package_node(dep_tree: list, package: str) -> dict | None:
+def find_package_node(dep_tree: list, package: tuple[str] | None) -> dict | None:
     """Find the package node in the dependency tree."""
-    return next((pkg for pkg in dep_tree if pkg["key"].lower() == package.lower()), None)
+    package_nodes = []
+    if not package:
+        package_nodes = dep_tree
+    else:
+        if isinstance(package, str):
+            package = [package]
+
+        for package_name in package:
+            for pkg in dep_tree:
+                if pkg["key"].lower() == package_name.lower():
+                    package_nodes.append(pkg)
+
+    return package_nodes
 
 
 def collect_dependency_names(dependencies: list, collected=None) -> list:
