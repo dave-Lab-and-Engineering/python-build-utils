@@ -41,15 +41,7 @@ from . import __version__
 def collect_pyd_submodules(output: str | None, regex: str | None = None, venv_path: str | None = None) -> None:
     """Collect all the dependencies of a given package using pipdeptree."""
 
-    if venv_path is not None:
-        venv_path = Path(venv_path).resolve()
-        if not venv_path.exists() or not venv_path.is_dir():
-            click.echo(f"Path '{venv_path}' does not exist or is not a directory.")
-            return
-        venv_site_packages = venv_path / "Lib" / "site-packages"
-    else:
-        # get the site-packages directory from current venv
-        venv_site_packages = next((p for p in sys.path if "site-packages" in p), None)
+    venv_site_packages = get_venv_site_packages(venv_path)
 
     if not venv_site_packages:
         click.echo("Could not locate site-packages in the current environment.")
@@ -72,6 +64,27 @@ def collect_pyd_submodules(output: str | None, regex: str | None = None, venv_pa
             click.echo(f"Dependencies written to {output}")
 
 
+def get_venv_site_packages(venv_path: str | None = None) -> Path | None:
+    """
+    Get the site-packages directory for the given virtual environment path or the current environment.
+
+    Args:
+        venv_path (str | None): Path to the virtual environment. If None, uses the current environment.
+
+    Returns:
+        Path | None: The path to the site-packages directory, or None if not found.
+    """
+    if venv_path is not None:
+        venv_path = Path(venv_path).resolve()
+        if not venv_path.exists() or not venv_path.is_dir():
+            click.echo(f"Path '{venv_path}' does not exist or is not a directory.")
+            return None
+        return venv_path / "Lib" / "site-packages"
+    else:
+        # Get the site-packages directory from the current virtual environment
+        return next((Path(p) for p in sys.path if "site-packages" in p), None)
+
+
 def collect_all_pyd_modules(venv_site_packages, regex: str | None = None) -> list:
     """Collect all .pyd submodules for a given dependency in the current virtual environment."""
 
@@ -81,7 +94,14 @@ def collect_all_pyd_modules(venv_site_packages, regex: str | None = None) -> lis
     for file in pyd_files:
         module_name = extract_submodule_name(pyd_file=file, venv_site_packages=venv_site_packages)
 
-        submodules.append(module_name)
+        if regex is not None and not re.search(regex, module_name, re.IGNORECASE):
+            continue
+
+        # remove the .__init__ part of the module name if it exists
+        module_name = re.sub(r"\.__init__", "", module_name)
+
+        if module_name not in submodules:
+            submodules.append(module_name)
 
     return submodules
 
