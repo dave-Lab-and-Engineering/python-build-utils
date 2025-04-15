@@ -24,7 +24,7 @@ import click
 from . import __version__
 
 
-@click.command(name="collect-dep-modules")
+@click.command(name="collect-package-dependencies")
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option("--package", help="Name of the python package to collect all dependencies")
 @click.option(
@@ -33,6 +33,7 @@ from . import __version__
 def collect_dependencies(package: str, output: str | None) -> None:
     """
     Collects and processes the dependencies of a specified package.
+
     Args:
         package (str): The name of the package for which dependencies are to be collected.
         output (str | None): The file path to write the dependencies to. If None, dependencies are not written to a file.

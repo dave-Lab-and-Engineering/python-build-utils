@@ -40,7 +40,9 @@ import click
 from . import __version__
 
 
-@click.command(name="collect-pyd-modules")
+@click.command(
+    name="collect-pyd-modules",
+)
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
     "--venv_path",
@@ -55,7 +57,10 @@ from . import __version__
 )
 def collect_pyd_submodules(output: str | None, regex: str | None = None, venv_path: str | None = None) -> None:
     """
+    Collects  a list of `.pyd` submodules found in the venv
+
     Collects and optionally writes a list of `.pyd` submodules found in the specified virtual environment.
+
     Args:
         output (str | None): The file path where the list of `.pyd` submodules will be written.
                              If None, the list will not be written to a file.
