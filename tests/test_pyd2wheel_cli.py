@@ -35,6 +35,6 @@ def test_cli_make_wheels(setup_wheel_files, dummy_file_name):  # pylint: disable
     pyd_file_name = setup_wheel_files(dummy_file_name)  # Call the factory with the parameter
 
     runner = CliRunner()
-    result = runner.invoke(pyd2wheel, [f"{pyd_file_name}", "--package_version=1.2.3"])
+    result = runner.invoke(pyd2wheel, [f"{pyd_file_name}", "--package-version=1.2.3"])
 
     assert result.exit_code == 0

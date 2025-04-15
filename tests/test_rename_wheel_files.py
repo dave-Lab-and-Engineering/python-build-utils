@@ -44,7 +44,7 @@ def test_rename_wheel_files_default_tags(setup_wheel_files):  # pylint: disable=
     """Tests renaming wheel files with default tags based on the current Python version and platform."""
     dist_dir = setup_wheel_files
     runner = CliRunner()
-    result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}"])
+    result = runner.invoke(rename_wheel_files, [f"--dist-dir={dist_dir}"])
 
     python_version_tag = f"cp{sys.version_info.major}{sys.version_info.minor}"
     platform_tag = sysconfig.get_platform().replace("-", "_")
@@ -59,7 +59,7 @@ def test_rename_wheel_files_custom_tags(setup_wheel_files):  # pylint: disable=r
     dist_dir = setup_wheel_files
     runner = CliRunner()
     result = runner.invoke(
-        rename_wheel_files, [f"--dist_dir={dist_dir}", "--python_version_tag=cp39", "--platform_tag=win_amd64"]
+        rename_wheel_files, [f"--dist-dir={dist_dir}", "--python-version-tag=cp39", "--platform-tag=win_amd64"]
     )
 
     expected_tag = "cp39-cp39-win_amd64"
@@ -72,7 +72,7 @@ def test_rename_wheel_files_custom_wheel_tag(setup_wheel_files):  # pylint: disa
     """Tests renaming wheel files with a custom wheel tag."""
     dist_dir = setup_wheel_files
     runner = CliRunner()
-    result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}", "--wheel_tag=custom_tag"])
+    result = runner.invoke(rename_wheel_files, [f"--dist-dir={dist_dir}", "--wheel-tag=custom_tag"])
 
     expected_tag = "custom_tag"
 
@@ -84,7 +84,7 @@ def test_rename_wheel_files_no_files_found(tmpdir):
     """Tests the behavior when no wheel files are found in the specified directory."""
     dist_dir = tmpdir.mkdir("dist")
     runner = CliRunner()
-    result = runner.invoke(rename_wheel_files, [f"--dist_dir={dist_dir}"])
+    result = runner.invoke(rename_wheel_files, [f"--dist-dir={dist_dir}"])
 
     assert result.exit_code == 0
-    assert "No wheel files found" in result.output
+    assert "No matching wheel files found in" in result.output
