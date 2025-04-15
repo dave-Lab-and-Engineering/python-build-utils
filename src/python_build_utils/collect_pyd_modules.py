@@ -40,63 +40,56 @@ import click
 from . import __version__
 
 
-@click.command(
-    name="collect-pyd-modules",
-)
+@click.command(name="collect-pyd-modules", help="Collect and display .pyd submodules from a virtual environment.")
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
-    "--venv_path",
+    "--venv-path",
     default=None,
-    help="Path to the virtual environment where you want to collect all pyd modules. Default is the current environment.",
+    help="Path to the virtual environment to scan for .pyd modules. Defaults to the current environment.",
 )
 @click.option(
-    "--regex", default=None, help="regular expression to filter on modules for which you want to collect pyd files."
+    "--regex",
+    "-r",
+    default=None,
+    help="Optional regular expression to filter .pyd modules by name.",
 )
 @click.option(
-    "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
+    "--output", "-o", type=click.Path(writable=True), help="Optional file path to write the list of found .pyd modules."
 )
 def collect_pyd_modules(venv_path: str | None = None, regex: str | None = None, output: str | None = None) -> None:
     """
-    Collects  a list of `.pyd` submodules found in the venv
-
-    Collects and optionally writes a list of `.pyd` submodules found in the specified virtual environment.
+    Collects a list of `.pyd` submodules found in a virtual environment.
 
     Args:
-        output (str | None): The file path where the list of `.pyd` submodules will be written.
-                             If None, the list will not be written to a file.
-        regex (str | None): An optional regular expression to filter the `.pyd` submodules.
-        venv_path (str | None): The path to the virtual environment. If None, the current environment is used.
-    Returns:
-        None: This function does not return a value. It prints the results to the console and optionally writes them to a file.
-    Side Effects:
-        - Prints messages to the console about the progress and results of the operation.
-        - Writes the list of `.pyd` submodules to the specified output file if `output` is provided.
-    Notes:
-        - The function uses `get_venv_site_packages` to locate the `site-packages` directory of the virtual environment.
-        - If no `.pyd` submodules are found, a message is printed to the console.
-    """
+        venv_path (str | None): Path to the virtual environment. If None, the current environment is used.
+        regex (str | None): Optional regex pattern to filter module names.
+        output (str | None): File path to write the list of .pyd submodules. If None, output is printed only.
 
+    Behavior:
+        * Lists all .pyd submodules found under the specified virtual environment's site-packages.
+        * Applies regex filtering if provided.
+        * Prints results to the console.
+        * Optionally writes the list to the specified output file.
+    """
     venv_site_packages = get_venv_site_packages(venv_path)
 
     if not venv_site_packages:
-        click.echo("Could not locate site-packages in the current environment.")
+        click.echo("Could not locate site-packages in the specified environment.")
         return
 
-    click.echo(f"Collecting pyd in '{venv_site_packages}'")
+    click.echo(f"Collecting .pyd modules in '{venv_site_packages}'...")
     pyd_sub_modules = collect_all_pyd_modules(venv_site_packages=venv_site_packages, regex=regex)
 
     if not pyd_sub_modules:
-        click.echo(" (No dependencies found)")
+        click.echo("No .pyd modules found.")
     else:
-        # Print the list of pyd_sub_modules to the screen
         click.echo("Found the following .pyd submodules:")
         click.echo("\n".join(f"- {module}" for module in pyd_sub_modules))
 
-        # Write dependencies to file if output is provided
         if output:
             with open(output, "w") as f:
                 f.write("\n".join(pyd_sub_modules))
-            click.echo(f"Dependencies written to {output}")
+            click.echo(f"Module list written to {output}")
 
 
 def get_venv_site_packages(venv_path: str | None = None) -> Path | None:

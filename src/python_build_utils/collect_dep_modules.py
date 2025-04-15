@@ -26,37 +26,36 @@ import pipdeptree
 from . import __version__
 
 
-@click.command(name="collect-package-dependencies")
+@click.command(name="collect-dependencies", help="Collect and display dependencies for one or more Python packages.")
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
     "--package",
     multiple=True,
-    help="Name of the python package to collect all dependencies. "
-    "Can be given multiple times. If not provided, all dependencies of the current venv will be collected.",
+    help=(
+        "Name of the Python package to collect dependencies for. "
+        "Can be given multiple times. If omitted, dependencies for the entire environment are collected."
+    ),
 )
 @click.option(
-    "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
+    "--output", "-o", type=click.Path(writable=True), help="Optional file path to write the list of dependencies to."
 )
 def collect_dependencies(package: tuple[str] | None, output: str | None) -> None:
     """
-    Collects and processes the dependencies of a specified package.
+    CLI command to collect dependencies for specified packages or the entire environment.
 
     Args:
-        package (tuple[str]): A tuple of package names for which dependencies are to be collected.
-                              If empty, dependencies for all packages in the current environment are collected.
-        output (str | None): The file path to write the dependencies to. If None, dependencies are not written to a file.
-    Returns:
-        None: This function does not return a value. It outputs information to the console and optionally writes to a file.
-    Behavior:
-        - If the `package` argument is not provided, all the package of the current environment are collected.
-        - If the `package` argument is provided, it collects dependencies for the specified package(s).
-        - Retrieves the dependency tree of the current environment and identifies the specified package.
-        - If the package is not found, a message is displayed to the user.
-        - Collects the names of all dependencies for the specified package.
-        - Displays the dependencies in a tree format on the console.
-        - If the `output` argument is provided, writes the list of dependencies to the specified file.
-    """
+        package (tuple[str]): Names of packages to collect dependencies for. If empty, collects for all installed packages.
+        output (str | None): Optional path to write the dependency list.
 
+    Returns:
+        None
+
+    Behavior:
+        * If no package is provided, collects dependencies for all packages in the environment.
+        * If a package is not found, notifies the user.
+        * Displays dependencies in a tree format on the console.
+        * Writes a plain list of dependencies to the given file if --output is provided.
+    """
     dep_tree = get_dependency_tree()
     package_nodes = find_package_node(dep_tree, package)
 
@@ -69,17 +68,14 @@ def collect_dependencies(package: tuple[str] | None, output: str | None) -> None
         package_dependencies = package_node.get("dependencies", [])
         dependencies = collect_dependency_names(package_dependencies)
         all_dependencies.extend(dependencies)
-        # print dependencies in a tree format to screen
         print_deps(package_dependencies)
 
     if not all_dependencies:
-        click.echo("No dependencies found")
-    else:
-        # write dependencies to file if output is provided
-        if output:
-            with open(output, "w") as f:
-                f.write("\n".join(all_dependencies))
-            click.echo(f"Dependencies written as plain list to  {output}")
+        click.echo("No dependencies found.")
+    elif output:
+        with open(output, "w") as f:
+            f.write("\n".join(all_dependencies))
+        click.echo(f"Dependencies written as plain list to {output}")
 
 
 def print_deps(deps: list, level: int = 1) -> None:
