@@ -14,8 +14,8 @@ def test_collect_pyd_submodules_no_site_packages(monkeypatch):
     monkeypatch.setattr("python_build_utils.collect_pyd_modules.get_venv_site_packages", mock_get_venv_site_packages)
 
     runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, ["--venv_path", ""])
-    assert "Could not locate site-packages in the current environment." in result.output
+    result = runner.invoke(collect_pyd_modules, ["--venv-path", ""])
+    assert "Could not locate site-packages in the specified environment." in result.output
 
 
 def test_collect_pyd_submodules_with_pyd_files(monkeypatch, tmp_path):
@@ -34,8 +34,9 @@ def test_collect_pyd_submodules_with_pyd_files(monkeypatch, tmp_path):
     (tmp_path / "subdir" / "module2.pyd").touch()
 
     runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, ["--venv_path", str(tmp_path)])
-    assert "Collecting pyd in" in result.output
+    result = runner.invoke(collect_pyd_modules, ["--venv-path", str(tmp_path)])
+    assert "Collecting .pyd modules in" in result.output
+
     assert "Found the following .pyd submodules:" in result.output
     assert "- module1" in result.output
     assert "- subdir.module2" in result.output
