@@ -80,7 +80,7 @@ def collect_dependencies(package: tuple[str] | None, output: str | None) -> None
             click.echo(f"Dependencies written as plain list to  {output}")
 
 
-def print_deps(deps: list, level=1):
+def print_deps(deps: list, level=1) -> None:
     """
     Recursively prints a list of dependencies in a hierarchical format.
 

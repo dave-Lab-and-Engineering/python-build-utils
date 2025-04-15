@@ -80,7 +80,7 @@ def collect_pyd_submodules(venv_path: str | None = None, regex: str | None = Non
 
     if not venv_site_packages:
         click.echo("Could not locate site-packages in the current environment.")
-        return []
+        return
 
     click.echo(f"Collecting pyd in '{venv_site_packages}'")
     pyd_sub_modules = collect_all_pyd_modules(venv_site_packages=venv_site_packages, regex=regex)
@@ -110,17 +110,17 @@ def get_venv_site_packages(venv_path: str | None = None) -> Path | None:
         Path | None: The path to the site-packages directory, or None if not found.
     """
     if venv_path is not None:
-        venv_path = Path(venv_path).resolve()
-        if not venv_path.exists() or not venv_path.is_dir():
-            click.echo(f"Path '{venv_path}' does not exist or is not a directory.")
+        venv = Path(venv_path).resolve()
+        if not venv.exists() or not venv.is_dir():
+            click.echo(f"Path '{venv}' does not exist or is not a directory.")
             return None
-        return venv_path / "Lib" / "site-packages"
+        return venv / "Lib" / "site-packages"
     else:
         # Get the site-packages directory from the current virtual environment
         return next((Path(p) for p in sys.path if "site-packages" in p), None)
 
 
-def collect_all_pyd_modules(venv_site_packages, regex: str | None = None) -> list:
+def collect_all_pyd_modules(venv_site_packages: Path, regex: str | None = None) -> list:
     """
     Collects all `.pyd` modules from the specified virtual environment's site-packages directory.
     This function searches recursively for `.pyd` files within the given `venv_site_packages` directory,
