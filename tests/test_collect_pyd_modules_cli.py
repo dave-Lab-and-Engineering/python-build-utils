@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 
-from python_build_utils.collect_pyd_modules import collect_pyd_submodules
+from python_build_utils.collect_pyd_modules import collect_pyd_modules
 
 
 def test_collect_pyd_submodules_no_site_packages(monkeypatch):
@@ -14,7 +14,7 @@ def test_collect_pyd_submodules_no_site_packages(monkeypatch):
     monkeypatch.setattr("python_build_utils.collect_pyd_modules.get_venv_site_packages", mock_get_venv_site_packages)
 
     runner = CliRunner()
-    result = runner.invoke(collect_pyd_submodules, ["--venv_path", ""])
+    result = runner.invoke(collect_pyd_modules, ["--venv_path", ""])
     assert "Could not locate site-packages in the current environment." in result.output
 
 
@@ -34,7 +34,7 @@ def test_collect_pyd_submodules_with_pyd_files(monkeypatch, tmp_path):
     (tmp_path / "subdir" / "module2.pyd").touch()
 
     runner = CliRunner()
-    result = runner.invoke(collect_pyd_submodules, ["--venv_path", str(tmp_path)])
+    result = runner.invoke(collect_pyd_modules, ["--venv_path", str(tmp_path)])
     assert "Collecting pyd in" in result.output
     assert "Found the following .pyd submodules:" in result.output
     assert "- module1" in result.output

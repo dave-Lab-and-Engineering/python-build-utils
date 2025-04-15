@@ -21,6 +21,7 @@ import sys
 from typing import Any
 
 import click
+import pipdeptree
 
 from . import __version__
 
@@ -119,7 +120,7 @@ def get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
 
-    click.echo("Running pipdeptree version {pipdeptree.__version__}")
+    click.echo(f"Running pipdeptree version {pipdeptree}")
 
     stdout = run_safe_subprocess(command)
     return json.loads(stdout)

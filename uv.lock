@@ -774,6 +774,10 @@ name = "python-build-utils"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+]
+
+[package.optional-dependencies]
+all = [
     { name = "pipdeptree" },
 ]
 
@@ -787,6 +791,7 @@ dev = [
     { name = "mkdocstrings", extra = ["python"] },
     { name = "mkdocstrings-python" },
     { name = "mypy" },
+    { name = "pipdeptree" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -801,8 +806,9 @@ uv = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.8" },
-    { name = "pipdeptree", specifier = ">=2.26.0" },
+    { name = "pipdeptree", marker = "extra == 'all'", specifier = ">=2.26.0" },
 ]
+provides-extras = ["all"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -814,6 +820,7 @@ dev = [
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.26.1" },
     { name = "mkdocstrings-python", specifier = ">=1.16.0" },
     { name = "mypy", specifier = ">=0.991" },
+    { name = "pipdeptree", specifier = ">=2.26.0" },
     { name = "pre-commit", specifier = ">=2.20.0" },
     { name = "pytest", specifier = ">=7.2.0" },
     { name = "pytest-cov", specifier = ">=6.0.0" },

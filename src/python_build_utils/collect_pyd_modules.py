@@ -55,7 +55,7 @@ from . import __version__
 @click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
 )
-def collect_pyd_submodules(venv_path: str | None = None, regex: str | None = None, output: str | None = None) -> None:
+def collect_pyd_modules(venv_path: str | None = None, regex: str | None = None, output: str | None = None) -> None:
     """
     Collects  a list of `.pyd` submodules found in the venv
 
