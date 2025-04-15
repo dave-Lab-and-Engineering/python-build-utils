@@ -1,6 +1,6 @@
 """
 This script provides a command-line interface (CLI) tool to clean up `.pyd` and `.c` build modules
-from a Python virtual environment. It allows filtering of files to be removed using an optional
+from a Python src directory. It allows filtering of files to be removed using an optional
 regular expression.
 
 Functions:
@@ -37,15 +37,14 @@ from pathlib import Path
 import click
 
 from . import __version__
-from .collect_pyd_modules import get_venv_site_packages
 
 
-@click.command(name="clean-pyd-modules", help="Clean all .pyd/.c build modules from a virtual environment.")
+@click.command(name="clean-pyd-modules", help="Clean all .pyd/.c build modules in src path.")
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
-    "--venv-path",
-    default=None,
-    help="Path to the virtual environment to scan for .pyd modules. Defaults to the current environment.",
+    "--src-path",
+    default="src",
+    help="Path to the src folder to scan for .pyd modules. Defaults to 'src' in the current folder.",
 )
 @click.option(
     "--regex",
@@ -53,7 +52,7 @@ from .collect_pyd_modules import get_venv_site_packages
     default=None,
     help="Optional regular expression to filter .pyd modules by name.",
 )
-def clean_pyd_modules(venv_path: str | None = None, regex: str | None = None) -> None:
+def clean_pyd_modules(src_path: str | None = None, regex: str | None = None) -> None:
     """
     Clean all  *.pyd/.c files in a virtual environment. A regex filter can be applied.
 
@@ -65,18 +64,35 @@ def clean_pyd_modules(venv_path: str | None = None, regex: str | None = None) ->
         * Removes all .pyd submodules found under the specified virtual environment's site-packages.
         * Also, all .c files are removed.
     """
-    venv_site_packages = get_venv_site_packages(venv_path)
-
-    if not venv_site_packages:
-        click.echo("Could not locate site-packages in the specified environment.")
-        return
+    src_path = get_src_path(src_path)
 
     for extension in ["*.pyd", "*.c"]:
-        click.echo(f"Cleaning the {extension} files with '{regex}' filter in '{venv_site_packages}'...")
-        clean_by_extensions(venv_site_packages=venv_site_packages, regex=regex, extension=extension)
+        click.echo(f"Cleaning the {extension} files with '{regex}' filter in '{src_path}'...")
+        clean_by_extensions(src_path=src_path, regex=regex, extension=extension)
 
 
-def clean_by_extensions(venv_site_packages: Path, regex: str | None, extension: str) -> None:
+def get_src_path(src_path: str | None = None) -> Path | None:
+    """
+    Get the site-packages directory for the given virtual environment path or the current environment.
+
+    Args:
+        venv_path (str | None): Path to the virtual environment. If None, uses the current environment.
+
+    Returns:
+        Path | None: The path to the site-packages directory, or None if not found.
+    """
+    if src_path is not None:
+        src = Path(src_path).resolve()
+        if not src.exists() or not src.is_dir():
+            click.echo(f"Path '{src}' does not exist or is not a directory.")
+            return None
+        return src
+    else:
+        # Get the site-packages directory from the current virtual environment
+        return Path(".").resolve() / "src"
+
+
+def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> None:
     """
     Removes files with a specified extension from a virtual environment's site-packages directory,
     optionally filtering them by a regex pattern.
@@ -97,15 +113,15 @@ def clean_by_extensions(venv_site_packages: Path, regex: str | None, extension: 
         - If a regex filter is provided, only files matching the regex are removed.
     """
 
-    file_candidates = list(venv_site_packages.rglob(extension))
+    file_candidates = list(src_path.rglob(extension))
 
     if not file_candidates:
-        click.echo(f"No {extension} files found in {venv_site_packages}.")
+        click.echo(f"No {extension} files found in {src_path}.")
         return None
 
     clean_any = False
     for file_to_clean in file_candidates:
-        relative_path = file_to_clean.relative_to(venv_site_packages).as_posix()
+        relative_path = file_to_clean.relative_to(src_path).as_posix()
         if regex is not None and not re.search(regex, relative_path, re.IGNORECASE):
             continue
         click.echo(f"Removing {file_to_clean}")
@@ -116,4 +132,4 @@ def clean_by_extensions(venv_site_packages: Path, regex: str | None, extension: 
         else:
             clean_any = True
     if not clean_any:
-        click.echo(f"No {extension} files with '{regex}' filter found in {venv_site_packages}.")
+        click.echo(f"No {extension} files with '{regex}' filter found in {src_path}.")

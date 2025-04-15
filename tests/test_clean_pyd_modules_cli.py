@@ -1,49 +1,55 @@
 from unittest.mock import patch
 
-import pytest
-from click.testing import CliRunner
-
-from python_build_utils.clean_pyd_modules import clean_pyd_modules
+from python_build_utils.clean_pyd_modules import clean_by_extensions
 
 
-@pytest.fixture
-def mock_site_packages_path(tmp_path):
-    """Fixture to create a temporary site-packages directory."""
-    site_packages = tmp_path / "site-packages"
-    site_packages.mkdir()
-    return site_packages
+@patch("python_build_utils.clean_pyd_modules.click.echo")
+def test_clean_by_extensions_no_matching_regex(mock_echo, mock_src_packages):
+    """Test when no files match the provided regex."""
+    # Create mock files
+    file1 = mock_src_packages / "module1.pyd"
+    file2 = mock_src_packages / "module2.pyd"
+    file1.touch()
+    file2.touch()
+
+    clean_by_extensions(src_path=mock_src_packages, regex="non_matching_pattern", extension="*.pyd")
+
+    mock_echo.assert_called_with(f"No *.pyd files with 'non_matching_pattern' filter found in {mock_src_packages}.")
+    assert file1.exists()
+    assert file2.exists()
 
 
-@patch("python_build_utils.clean_pyd_modules.get_venv_site_packages")
-def test_clean_pyd_modules_no_site_packages(mock_get_venv_site_packages):
-    """Test when site-packages cannot be located."""
-    mock_get_venv_site_packages.return_value = None
+@patch("python_build_utils.clean_pyd_modules.click.echo")
+def test_clean_by_extensions_no_files_with_extension(mock_echo, mock_src_packages):
+    """Test when no files with the specified extension exist."""
+    # Create mock files with different extensions
+    file1 = mock_src_packages / "module1.txt"
+    file2 = mock_src_packages / "module2.log"
+    file1.touch()
+    file2.touch()
 
-    runner = CliRunner()
-    result = runner.invoke(clean_pyd_modules, ["--venv-path", "dummy_path"])
+    clean_by_extensions(src_path=mock_src_packages, regex=None, extension="*.pyd")
 
-    assert "Could not locate site-packages in the specified environment." in result.output
-    assert result.exit_code == 0
+    mock_echo.assert_called_with(f"No *.pyd files found in {mock_src_packages}.")
+    assert file1.exists()
+    assert file2.exists()
 
 
-@patch("python_build_utils.clean_pyd_modules.clean_by_extensions")
-@patch("python_build_utils.clean_pyd_modules.get_venv_site_packages")
-def test_clean_pyd_modules_with_extensions(
-    mock_get_venv_site_packages, mock_clean_by_extensions, mock_site_packages_path
-):
-    """Test cleaning .pyd and .c files."""
-    mock_get_venv_site_packages.return_value = mock_site_packages_path
+@patch("python_build_utils.clean_pyd_modules.click.echo")
+def test_clean_by_extensions_partial_regex_match(mock_echo, mock_src_packages):
+    """Test when some files match the regex and others do not."""
+    # Create mock files
+    file1 = mock_src_packages / "module1.pyd"
+    file2 = mock_src_packages / "test_module.pyd"
+    file3 = mock_src_packages / "another_test_module.pyd"
+    file1.touch()
+    file2.touch()
+    file3.touch()
 
-    runner = CliRunner()
-    result = runner.invoke(clean_pyd_modules, ["--venv-path", "dummy_path", "--regex", "test"])
+    clean_by_extensions(src_path=mock_src_packages, regex="test", extension="*.pyd")
 
-    assert f"Cleaning the *.pyd files with 'test' filter in '{mock_site_packages_path}'..." in result.output
-    assert f"Cleaning the *.c files with 'test' filter in '{mock_site_packages_path}'..." in result.output
-
-    # Corrected: match the keyword arguments the real code is using
-    mock_clean_by_extensions.assert_any_call(
-        venv_site_packages=mock_site_packages_path, regex="test", extension="*.pyd"
-    )
-    mock_clean_by_extensions.assert_any_call(venv_site_packages=mock_site_packages_path, regex="test", extension="*.c")
-
-    assert result.exit_code == 0
+    mock_echo.assert_any_call(f"Removing {file2}")
+    mock_echo.assert_any_call(f"Removing {file3}")
+    assert file1.exists()
+    assert not file2.exists()
+    assert not file3.exists()

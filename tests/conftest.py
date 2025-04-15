@@ -4,6 +4,16 @@ import pytest
 
 
 @pytest.fixture
+def mock_src_packages(tmp_path):
+    """
+    Fixture to create a temporary mock virtual environment site-packages directory.
+    """
+    src_packages = tmp_path / "src"
+    src_packages.mkdir(parents=True, exist_ok=True)
+    return src_packages
+
+
+@pytest.fixture
 def mock_venv_site_packages(tmp_path):
     """
     Fixture to create a temporary mock virtual environment site-packages directory.

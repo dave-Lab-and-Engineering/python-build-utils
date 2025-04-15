@@ -26,12 +26,40 @@ Options:
   --help         Show this message and exit.
 
 Commands:
+  clean-pyd-modules     Clean all .pyd/.c build modules from a virtual...
   collect-dependencies  Collect and display dependencies for one or more...
   collect-pyd-modules   Collect and display .pyd submodules from a...
-  pyd2wheel             Create a wheel from a compiled python *.pyd file.
+  pyd2wheel             Create a Python wheel file from a compiled .pyd...
   remove-tarballs       Remove tarball files from dist.
-  rename-wheel-files    Rename wheel files in the dist folder.
+  rename-wheel-files    Rename wheel files in a distribution directory by...
 ```
+
+### Cli-tool `clean-pyd-modules --help`
+```text
+Usage: clean-pyd-modules [OPTIONS]
+
+  Clean all .pyd/.c build modules from a virtual environment.
+
+Options:
+  -v, --version     Show the version and exit.
+  --venv-path TEXT  Path to the virtual environment to scan for .pyd modules.
+                    Defaults to the current environment.
+  -r, --regex TEXT  Optional regular expression to filter .pyd modules by
+                    name.
+```
+
+#### Example of using clean-pyd-modules
+
+After cythonizing your projet, all the *.pyd files may remain in your src folder. If you want to remove those
+you can do
+
+```shell
+clean-pyd-modules --regex dave 
+```
+
+The regex can be used to filter the files using a regular expression. Matching is done with case.   
+
+
 
 ### Cli-tool `rename-wheel-files --help`
 
