@@ -159,7 +159,10 @@ preview = true
 
 [tool.deptry.ignore]
 # Ignore pipdeptree as it is used as a CLI tool, not imported in the codebase
-ignored_dependencies = ["pipdeptree"]
+ignored_dependencies = [
+    "pipdeptree",
+    "python_build_utils",
+]
 
 [tool.coverage.report]
 skip_empty = true
