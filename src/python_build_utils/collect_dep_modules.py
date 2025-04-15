@@ -119,6 +119,8 @@ def get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
 
+    click.echo("Running pipdeptree version {pipdeptree.__version__}")
+
     stdout = run_safe_subprocess(command)
     return json.loads(stdout)
 
