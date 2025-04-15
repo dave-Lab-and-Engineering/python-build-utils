@@ -38,14 +38,15 @@ Commands:
 ```text
 Usage: clean-pyd-modules [OPTIONS]
 
-  Clean all .pyd/.c build modules from a virtual environment.
+  Clean all .pyd/.c build modules in src path.
 
 Options:
   -v, --version     Show the version and exit.
-  --venv-path TEXT  Path to the virtual environment to scan for .pyd modules.
-                    Defaults to the current environment.
+  --src-path TEXT   Path to the src folder to scan for .pyd modules. Defaults
+                    to 'src' in the current folder.
   -r, --regex TEXT  Optional regular expression to filter .pyd modules by
                     name.
+  --help            Show this message and exit.
 ```
 
 #### Example of using clean-pyd-modules

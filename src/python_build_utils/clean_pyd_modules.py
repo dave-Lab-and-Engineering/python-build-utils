@@ -66,9 +66,12 @@ def clean_pyd_modules(src_path: str | None = None, regex: str | None = None) -> 
     """
     src_path = get_src_path(src_path)
 
-    for extension in ["*.pyd", "*.c"]:
-        click.echo(f"Cleaning the {extension} files with '{regex}' filter in '{src_path}'...")
-        clean_by_extensions(src_path=src_path, regex=regex, extension=extension)
+    if src_path is None:
+        click.echo(f"Could not locate src path: {src_path}.")
+    else:
+        for extension in ["*.pyd", "*.c"]:
+            click.echo(f"Cleaning the {extension} files with '{regex}' filter in '{src_path}'...")
+            clean_by_extensions(src_path=src_path, regex=regex, extension=extension)
 
 
 def get_src_path(src_path: str | None = None) -> Path | None:
