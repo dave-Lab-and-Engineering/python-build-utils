@@ -1,18 +1,33 @@
 """
-This module provides a CLI tool to collect all dependencies of a given Python package
-using `pipdeptree`. The dependencies can be displayed in the console or written to an
-output file.
+This module provides functionality to collect `.pyd` submodules from a specified Python virtual environment.
+It includes a CLI command to filter and optionally write the list of `.pyd` submodules to a file.
 Functions:
-    collect_dependencies(package: str, output: str | None) -> None:
-        CLI command to collect and display/write dependencies of a specified package.
-    run_safe_subprocess(command: list) -> str:
-        Runs a subprocess safely and returns the output. Handles errors gracefully.
-    get_dependency_tree() -> list:
-        Executes `pipdeptree` to retrieve the dependency tree in JSON format.
-    find_package_node(dep_tree: list, package: str) -> dict | None:
-        Searches for a specific package node in the dependency tree.
-    collect_dependency_names(dependencies: list, collected=None) -> list:
-        Recursively collects the names of all dependencies from a given dependency list.
+    collect_pyd_submodules(output: str | None, regex: str | None = None, venv_path: str | None = None) -> None:
+        CLI command to collect `.pyd` submodules from a virtual environment, filter them using a regex,
+        and optionally write the results to a file.
+    get_venv_site_packages(venv_path: str | None = None) -> Path | None:
+        Determines the `site-packages` directory for a given virtual environment or the current environment.
+    collect_all_pyd_modules(venv_site_packages, regex: str | None = None) -> list:
+        Collects all `.pyd` submodules from the specified `site-packages` directory, optionally filtering them
+        using a regular expression.
+    extract_submodule_name(pyd_file: Path, venv_site_packages: Path) -> str:
+        Extracts the submodule name from a `.pyd` file path by removing platform-specific suffixes and converting
+        the path to a dotted module name.
+CLI Command:
+    collect-pyd-modules:
+        - Collects `.pyd` submodules from a virtual environment.
+        - Filters the submodules using an optional regular expression.
+        - Prints the results to the console and optionally writes them to a file.
+Dependencies:
+    - click: Used for creating the CLI command.
+    - pathlib.Path: Used for handling file paths.
+    - re: Used for regular expression matching.
+    - sys: Used for accessing the Python environment's `sys.path`.
+    - os: Used for path manipulation.
+    - The `get_venv_site_packages` function is used to locate the `site-packages` directory of the virtual environment.
+    - The `collect_all_pyd_modules` function recursively searches for `.pyd` files in the `site-packages` directory.
+    - The `extract_submodule_name` function ensures that the module names are in a consistent dotted format.
+
 """
 
 import os
@@ -39,7 +54,22 @@ from . import __version__
     "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
 )
 def collect_pyd_submodules(output: str | None, regex: str | None = None, venv_path: str | None = None) -> None:
-    """Collect all the dependencies of a given package using pipdeptree."""
+    """
+    Collects and optionally writes a list of `.pyd` submodules found in the specified virtual environment.
+    Args:
+        output (str | None): The file path where the list of `.pyd` submodules will be written.
+                             If None, the list will not be written to a file.
+        regex (str | None): An optional regular expression to filter the `.pyd` submodules.
+        venv_path (str | None): The path to the virtual environment. If None, the current environment is used.
+    Returns:
+        None: This function does not return a value. It prints the results to the console and optionally writes them to a file.
+    Side Effects:
+        - Prints messages to the console about the progress and results of the operation.
+        - Writes the list of `.pyd` submodules to the specified output file if `output` is provided.
+    Notes:
+        - The function uses `get_venv_site_packages` to locate the `site-packages` directory of the virtual environment.
+        - If no `.pyd` submodules are found, a message is printed to the console.
+    """
 
     venv_site_packages = get_venv_site_packages(venv_path)
 
@@ -86,7 +116,16 @@ def get_venv_site_packages(venv_path: str | None = None) -> Path | None:
 
 
 def collect_all_pyd_modules(venv_site_packages, regex: str | None = None) -> list:
-    """Collect all .pyd submodules for a given dependency in the current virtual environment."""
+    """
+    Collects all `.pyd` modules from the specified virtual environment's site-packages directory.
+    This function searches recursively for `.pyd` files within the given `venv_site_packages` directory,
+    extracts their corresponding module names, and optionally filters them using a regular expression.
+    Args:
+        venv_site_packages (Path): The path to the virtual environment's site-packages directory.
+        regex (str | None, optional): A regular expression to filter the module names. If `None`, no filtering is applied.
+    Returns:
+        list: A list of unique module names corresponding to the `.pyd` files found.
+    """
 
     pyd_files = list(venv_site_packages.rglob("*.pyd"))
 
