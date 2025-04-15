@@ -26,9 +26,11 @@ Options:
   --help         Show this message and exit.
 
 Commands:
-  pyd2wheel           Create a wheel from a compiled python *.pyd file.
-  remove-tarballs     Remove tarball files from dist.
-  rename-wheel-files  Rename wheel files in the dist folder.
+  collect-dependencies  Collect and display dependencies for one or more...
+  collect-pyd-modules   Collect and display .pyd submodules from a...
+  pyd2wheel             Create a wheel from a compiled python *.pyd file.
+  remove-tarballs       Remove tarball files from dist.
+  rename-wheel-files    Rename wheel files in the dist folder.
 ```
 
 ### Cli-tool `rename-wheel-files --help`
