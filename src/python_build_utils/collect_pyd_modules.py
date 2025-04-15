@@ -15,7 +15,10 @@ Functions:
         Recursively collects the names of all dependencies from a given dependency list.
 """
 
+import os
+import re
 import sys
+from pathlib import Path
 
 import click
 
@@ -38,13 +41,68 @@ from . import __version__
 def collect_pyd_submodules(output: str | None, regex: str | None = None, venv_path: str | None = None) -> None:
     """Collect all the dependencies of a given package using pipdeptree."""
 
-    search_paths = [venv_path] if venv_path is not None else sys.path
-
-    # get the site-packages directory from the venv in the paths
-    venv_site_packages = next((p for p in search_paths if "site-packages" in p), None)
+    if venv_path is not None:
+        venv_path = Path(venv_path).resolve()
+        if not venv_path.exists() or not venv_path.is_dir():
+            click.echo(f"Path '{venv_path}' does not exist or is not a directory.")
+            return
+        venv_site_packages = venv_path / "Lib" / "site-packages"
+    else:
+        # get the site-packages directory from current venv
+        venv_site_packages = next((p for p in sys.path if "site-packages" in p), None)
 
     if not venv_site_packages:
         click.echo("Could not locate site-packages in the current environment.")
         return []
 
     click.echo(f"Collecting pyd in '{venv_site_packages}'")
+    pyd_sub_modules = collect_all_pyd_modules(venv_site_packages=venv_site_packages, regex=regex)
+
+    if not pyd_sub_modules:
+        click.echo(" (No dependencies found)")
+    else:
+        # Print the list of pyd_sub_modules to the screen
+        click.echo("Found the following .pyd submodules:")
+        click.echo("\n".join(f"- {module}" for module in pyd_sub_modules))
+
+        # Write dependencies to file if output is provided
+        if output:
+            with open(output, "w") as f:
+                f.write("\n".join(pyd_sub_modules))
+            click.echo(f"Dependencies written to {output}")
+
+
+def collect_all_pyd_modules(venv_site_packages, regex: str | None = None) -> list:
+    """Collect all .pyd submodules for a given dependency in the current virtual environment."""
+
+    pyd_files = list(venv_site_packages.rglob("*.pyd"))
+
+    submodules = []
+    for file in pyd_files:
+        module_name = extract_submodule_name(pyd_file=file, venv_site_packages=venv_site_packages)
+
+        submodules.append(module_name)
+
+    return submodules
+
+
+def extract_submodule_name(pyd_file: Path, venv_site_packages: Path) -> str:
+    """
+    Extract the submodule name from a .pyd file path by removing the platform-specific suffix
+    and the path leading to the module.
+
+    Args:
+        pyd_file (Path): The full path to the .pyd file.
+        venv_site_packages (Path): The site-packages directory of the virtual environment.
+
+    Returns:
+        str: The submodule name in the format 'module.submodule'.
+    """
+    # Get the relative path from the site-packages directory
+    relative_path = pyd_file.relative_to(venv_site_packages)
+
+    # Remove the platform-specific suffix (e.g., cp312-win_amd64.pyd)
+    module_name = re.sub(r"\.cp\d+.*\.pyd$", "", str(relative_path))
+
+    # Convert the path to a dotted module name
+    return module_name.replace(os.sep, ".")
