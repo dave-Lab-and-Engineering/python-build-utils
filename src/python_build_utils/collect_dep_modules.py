@@ -16,8 +16,11 @@ Functions:
 """
 
 import json
+import os
+import re
 import subprocess
 import sys
+from pathlib import Path
 
 import click
 
@@ -30,7 +33,9 @@ from . import __version__
 @click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
 )
-def collect_dependencies(package: str, output: str | None) -> None:
+def collect_dependencies(
+    package: str, output: str | None, regex: str | None = None, venv_path: str | None = None
+) -> None:
     """Collect all the dependencies of a given package using pipdeptree."""
     if not package:
         click.echo("Please provide a package name using --package.")
@@ -51,15 +56,68 @@ def collect_dependencies(package: str, output: str | None) -> None:
     if not dependencies:
         click.echo(" (No dependencies found)")
     else:
+        # print dependencies in a tree format to screen
         print_deps(package_node["dependencies"])
 
+        # submodules = collect_cythonized_submodules(dependencies, regex=regex, venv_path=venv_path)
+
+        # write dependencies to file if output is provided
         if output:
             with open(output, "w") as f:
                 f.write("\n".join(dependencies))
             click.echo(f"Dependencies written s float list so {output}")
 
 
-def print_deps(deps, level=1):
+def collect_cythonized_submodules(deps: list, regex: str | None = None, venv_path: str | None = None) -> list:
+    """Collect submodules from the dependencies list."""
+    submodules = []
+    for dep in deps:
+        collect_submodels = False
+        if regex is not None:
+            match = re.search(dep, regex)
+            if match:
+                collect_submodels = True
+        else:
+            collect_submodels = True
+
+        if collect_submodels:
+            all_submodules = collect_pyd_modules(dep, venv_path=venv_path)
+            if all_submodules:
+                submodules.extend(all_submodules)
+            else:
+                click.echo(f"No submodules found for {dep}.")
+
+    return submodules
+
+
+def collect_pyd_modules(dep: str, venv_path=None) -> list:
+    """Collect all .pyd submodules for a given dependency in the current virtual environment."""
+
+    paths = [venv_path] if venv_path is not None else sys.path
+
+    venv_site_packages = next((p for p in paths if "site-packages" in p), None)
+
+    if not venv_site_packages:
+        click.echo("Could not locate site-packages in the current environment.")
+        return []
+
+    dep_path = Path(venv_site_packages) / dep
+    if not dep_path.exists():
+        click.echo(f"No installed directory found for dependency '{dep}' in site-packages.")
+        return []
+
+    pyd_files = list(dep_path.rglob("*.pyd"))
+
+    submodules = []
+    for file in pyd_files:
+        relative_path = file.relative_to(venv_site_packages)
+        module_name = str(relative_path.with_suffix("")).replace(os.sep, ".")
+        submodules.append(module_name)
+
+    return submodules
+
+
+def print_deps(deps: list, level=1):
     """Recursively print dependencies in a tree format."""
     for dep in deps:
         dep_name = dep["key"]
