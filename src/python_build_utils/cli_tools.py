@@ -14,6 +14,10 @@ Commands:
 import click
 
 from . import __version__
+from .clean_pyd_modules import clean_pyd_modules
+from .collect_dep_modules import collect_dependencies
+from .collect_pyd_modules import collect_pyd_modules
+from .pyd2wheel import pyd2wheel
 from .remove_tarballs import remove_tarballs
 from .rename_wheel_files import rename_wheel_files
 
@@ -24,8 +28,9 @@ def cli() -> None:
     """A collection of CLI tools for Python build utilities."""
 
 
+cli.add_command(pyd2wheel)
+cli.add_command(collect_pyd_modules)
+cli.add_command(clean_pyd_modules)
+cli.add_command(collect_dependencies)
 cli.add_command(rename_wheel_files)
 cli.add_command(remove_tarballs)
-
-if __name__ == "__main__":
-    cli()

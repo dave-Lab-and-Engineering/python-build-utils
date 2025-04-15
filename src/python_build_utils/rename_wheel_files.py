@@ -11,52 +11,48 @@ import click
 from . import __version__
 
 
-@click.command(name="rename-wheel-files")
+@click.command(
+    name="rename-wheel-files",
+    help="Rename wheel files in a distribution directory by replacing the default 'py3-none-any' tag with a custom one.",
+)
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
-@click.option("--dist_dir", default="dist", help="Directory containing wheel files. Default is 'dist'")
-@click.option("--python_version_tag", help="Explicitly specify the python version tag. Default is cp{major}{minor}")
-@click.option("--platform_tag", help="Explicitly specify the platform tag. Default is sysconfig.get_platform()")
+@click.option("--dist-dir", default="dist", help="Directory containing wheel files. Defaults to 'dist'.")
 @click.option(
-    "--wheel_tag",
+    "--python-version-tag",
+    help="Python version tag to include in the new file name (e.g., cp310). Defaults to 'cp{major}{minor}' of the current Python.",
+)
+@click.option(
+    "--platform-tag",
+    help="Platform tag to include in the new file name. Defaults to the current platform value from sysconfig.",
+)
+@click.option(
+    "--wheel-tag",
     help=textwrap.dedent("""
-    Explicitly specify the total wheel tag.
-    Default is {python_version_tag}-{python_version_tag}-{platform_tag}
-    """),
+        Full custom wheel tag to replace 'py3-none-any'.
+        If provided, this is used directly, ignoring the other tag options.
+        Default format is: {python_version_tag}-{python_version_tag}-{platform_tag}
+    """).strip(),
 )
 def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str, wheel_tag: str) -> None:
-    """Rename wheel files in the dist folder.
-
-    This function renames wheel files in the given distribution directory by
-    replacing the "py3-none-any" tag with a custom build version tag. The
-    build version tag is constructed using the provided `python_version_tag`,
-    `platform_tag`, and `wheel_tag`. If `wheel_tag` is provided, it is used
-    directly as the build version tag. Otherwise, the build version tag is
-    constructed using the `python_version_tag` and `platform_tag`.
+    """
+    Renames wheel files in a given distribution directory by replacing the
+    'py3-none-any' tag with a custom wheel tag.
 
     Args:
+        dist_dir (str): Directory containing the wheel files. Defaults to 'dist'.
+        python_version_tag (str): Python version tag (e.g., cp39). If not provided, defaults to 'cp{major}{minor}'.
+        platform_tag (str): Platform tag (e.g., win_amd64). If not provided, uses the current platform.
+        wheel_tag (str): Full custom wheel tag. If provided, this is used directly.
 
-        dist_dir (str): The directory containing the wheel files to be renamed.
-        Default is 'dist'.
-
-        python_version_tag (str): The Python version tag to be included in the
-        new file name. Default is cp{major}{minor}.
-
-        platform_tag (str): The platform tag to be included in the new file
-        name. Default is sysconfig.get_platform().
-
-        wheel_tag (str): The custom wheel tag to be used as the build version
-        tag. If this is provided, it is used directly as the build version tag
-        and the other tags are ignored. If this is not provided, the build
-        tag is constructed using the `python_version_tag` and `platform_tag` as
-        described above.
-
-    Returns:
-        None
+    Behavior:
+        - If --wheel-tag is provided, it is used for renaming.
+        - Otherwise, constructs a wheel tag based on --python-version-tag and --platform-tag.
+        - Renames all files in the directory matching '*py3-none-any.whl'.
+        - Displays renaming actions or warnings if no files found.
 
     Example:
-        rename_wheel_files("dist", "cp39", "win_amd64", "")
+        rename-wheel-files --dist-dir dist --python-version-tag cp39 --platform-tag win_amd64
     """
-
     if wheel_tag:
         build_version_tag = wheel_tag
     else:
@@ -68,17 +64,17 @@ def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str
 
     dist_dir = dist_dir.rstrip("/")
 
-    found_files = False
+    wheel_files = glob.glob(f"{dist_dir}/*py3-none-any.whl")
 
-    for wheel_file in glob.glob(f"{dist_dir}/*py3-none-any.whl"):
-        found_files = True
+    if not wheel_files:
+        click.echo(f"No matching wheel files found in '{dist_dir}'")
+        return
+
+    for wheel_file in wheel_files:
         new_file = wheel_file.replace("py3-none-any.whl", f"{build_version_tag}.whl")
         try:
             os.rename(wheel_file, new_file)
         except FileExistsError as e:
-            click.echo(f"Error {e}")
+            click.echo(f"Error: {e}")
         else:
-            click.echo(f"Renamed {wheel_file} -> {new_file}")
-
-    if not found_files:
-        click.echo(f"No wheel files found in {dist_dir}")
+            click.echo(f"Renamed: {wheel_file} → {new_file}")

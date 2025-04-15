@@ -33,7 +33,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "click>=8.1.8",
+    "click>=8.1.8",  
+]
+
+# Adding them here ensure that pyd are rebuild
+[project.optional-dependencies]
+all = [
+    "pipdeptree>=2.26.0", # Used in the collect_deps_package CLI tool for collecting the dependencies
 ]
 
 [project.urls]
@@ -55,6 +61,7 @@ dev = [
     "mkdocs-material>=8.5.10",
     "mkdocstrings[python]>=0.26.1",
     "mkdocstrings-python>=1.16.0",
+    "pipdeptree>=2.26.0",
 ]
 uv = [
     "uv>=0.5.29",
@@ -69,6 +76,9 @@ python-build-utils = "python_build_utils.cli_tools:cli"
 rename-wheel-files = "python_build_utils.cli_tools:rename_wheel_files"
 pyd2wheel = "python_build_utils.cli_tools:pyd2wheel"
 remove-tarballs = "python_build_utils.cli_tools:remove_tarballs"
+collect-dependencies = "python_build_utils.cli_tools:collect_dependencies"
+collect-pyd-modules = "python_build_utils.cli_tools:collect_pyd_modules"
+clean-pyd-modules = "python_build_utils.cli_tools:clean_pyd_modules"
 
 
 # ========================================================================================
@@ -88,9 +98,6 @@ warn_unused_ignores = true
 show_error_codes = true
 
 # === ruff ===
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
 
 [tool.flake8]
 max-line-length = 120
@@ -141,6 +148,8 @@ ignore = [
     "E501",
     # DoNotAssignLambda
     "E731",
+    # `subprocess` call: check for execution of untrusted input 
+    "S603",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -149,12 +158,40 @@ ignore = [
 [tool.ruff.format]
 preview = true
 
+[tool.deptry.ignore]
+# Ignore pipdeptree as it is used as a CLI tool, not imported in the codebase
+ignored_dependencies = [
+    "python_build_utils",
+]
+
 [tool.coverage.report]
 skip_empty = true
 
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = [
+    "tests/*",  # Exclude all files in the tests directory
+]
+
+# === pytest  ===
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=python-build-utils",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--verbose",
+    "--import-mode=importlib",
+]
+testpaths = [
+    "tests",
+]
+norecursedirs = [
+    "dist",
+    "build",
+    ".tox",
+]
+
 
 # ========================================================================================
 # 🔹 TOX

@@ -23,47 +23,59 @@ from . import __version__
 from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundError
 
 
-@click.command(name="pyd2wheel")
+@click.command(name="pyd2wheel", help="Create a Python wheel file from a compiled .pyd file.")
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
-@click.argument("pyd_file", type=click.Path(exists=True))
-@click.option("--package_version", help="The version of the package.", default=None)
-@click.option("--abi_tag", help="The ABI tag of the package. Default is 'none'.", default=None)
+@click.argument(
+    "pyd_file",
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option(
+    "--package-version",
+    help="Version of the package. If not provided, the version is extracted from the file name.",
+    default=None,
+)
+@click.option(
+    "--abi-tag",
+    help="ABI tag for the wheel. Defaults to 'none'.",
+    default=None,
+)
 def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path | None:
-    """Create a wheel from a compiled python *.pyd file."""
-
+    """Convert a compiled .pyd file into a Python wheel (.whl) file."""
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
 
 def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path | None:
     """
-    Creates a wheel from a .pyd file.
+    Creates a Python wheel from a compiled .pyd file.
 
     Args:
-        pyd_file (Path): The path to the .pyd file.
-        package_version (str | None, optional): The version of the package. If not provided, it will be extracted
-            from the filename. Defaults to None.
-        abi_tag (str | None, optional): The ABI tag for the wheel. If not provided, defaults to "none".
+        pyd_file (Path): Path to the .pyd file.
+        package_version (str | None, optional): Package version to use. If None, version is extracted from the filename.
+        abi_tag (str | None, optional): ABI tag to use in the wheel. Defaults to 'none'.
 
     Returns:
-        Path: The path to the created wheel file.
+        Path | None: Path to the created wheel file, or None if an error occurs.
     """
     pyd_file = Path(pyd_file)
     try:
         name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
     except (PydFileFormatError, PydFileSuffixError) as e:
-        click.echo(e, err=True)
+        click.secho(f"Error: {e}", err=True, fg="red")
         return None
 
     try:
         package_version = _get_package_version(package_version, version_from_filename)
     except VersionNotFoundError as e:
-        click.echo(e, err=True)
+        click.secho(f"Error: {e}", err=True, fg="red")
         return None
 
     if abi_tag is None:
         abi_tag = "none"
 
+    click.echo(f"{'-' * 80}")
+    click.echo("Wheel Metadata:")
     _display_wheel_info(name, package_version, python_version, platform, abi_tag)
+    click.echo(f"{'-' * 80}")
 
     wheel_file_name = f"{name}-{package_version}-{python_version}-{abi_tag}-{platform}.whl"
     root_folder = create_temp_directory(pyd_file)
@@ -74,7 +86,8 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
     _create_record_file(root_folder, dist_info)
 
     wheel_file_path = _create_wheel_archive(pyd_file, wheel_file_name, root_folder)
-    click.echo(f"created wheel file: {wheel_file_path}")
+
+    click.secho(f"✅ Created wheel file: {wheel_file_path}", fg="green")
     click.echo(f"{'-' * 80}")
 
     shutil.rmtree(root_folder)
