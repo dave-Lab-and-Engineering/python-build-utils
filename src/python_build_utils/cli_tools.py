@@ -15,6 +15,7 @@ import click
 
 from python_build_utils import __version__
 from python_build_utils.collect_dep_modules import collect_dependencies
+from python_build_utils.collect_pyd_modules import collect_pyd_submodules
 from python_build_utils.remove_tarballs import remove_tarballs
 from python_build_utils.rename_wheel_files import rename_wheel_files
 
@@ -25,6 +26,7 @@ def cli() -> None:
     """A collection of CLI tools for Python build utilities."""
 
 
+cli.add_command(collect_pyd_submodules)
 cli.add_command(collect_dependencies)
 cli.add_command(rename_wheel_files)
 cli.add_command(remove_tarballs)
