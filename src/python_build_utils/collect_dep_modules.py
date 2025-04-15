@@ -18,6 +18,7 @@ Functions:
 import json
 import subprocess
 import sys
+from typing import Any
 
 import click
 
@@ -80,7 +81,7 @@ def collect_dependencies(package: tuple[str] | None, output: str | None) -> None
             click.echo(f"Dependencies written as plain list to  {output}")
 
 
-def print_deps(deps: list, level=1) -> None:
+def print_deps(deps: list, level: int = 1) -> None:
     """
     Recursively prints a list of dependencies in a hierarchical format.
 
@@ -114,7 +115,7 @@ def run_safe_subprocess(command: list) -> str:
         return result.stdout  # return moved to else block
 
 
-def get_dependency_tree() -> list:
+def get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
 
@@ -122,7 +123,7 @@ def get_dependency_tree() -> list:
     return json.loads(stdout)
 
 
-def find_package_node(dep_tree: list, package: tuple[str] | None) -> dict | None:
+def find_package_node(dep_tree: list, package: tuple[str] | None) -> list | None:
     """Find the package node in the dependency tree."""
     package_nodes = []
     if not package:
@@ -139,7 +140,7 @@ def find_package_node(dep_tree: list, package: tuple[str] | None) -> dict | None
     return package_nodes
 
 
-def collect_dependency_names(dependencies: list, collected=None) -> list:
+def collect_dependency_names(dependencies: list, collected: list | None = None) -> list:
     """Recursively collect dependency names."""
     if collected is None:
         collected = []
