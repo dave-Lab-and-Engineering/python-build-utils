@@ -51,20 +51,21 @@ def collect_dependencies(package: str, output: str | None) -> None:
     if not dependencies:
         click.echo(" (No dependencies found)")
     else:
-        for dep in dependencies:
-            click.echo(f"- {dep}")
+        print_deps(package_node["dependencies"])
 
-    if output:
-        with open(output, "w") as f:
-            f.write("\n".join(dependencies))
-        click.echo(f"Dependencies written to {output}")
+        if output:
+            with open(output, "w") as f:
+                f.write("\n".join(dependencies))
+            click.echo(f"Dependencies written s float list so {output}")
 
 
-def validate_command(command: list) -> None:
-    """Raise an error if the command contains unsafe short options."""
-    if any(arg.startswith("-") and not arg.startswith("--") for arg in command[1:]):
-        click.echo("Unsafe short option detected.")
-        sys.exit(1)
+def print_deps(deps, level=1):
+    """Recursively print dependencies in a tree format."""
+    for dep in deps:
+        dep_name = dep["key"]
+        dep_version = dep["installed_version"]
+        click.echo("  " * level + f"- {dep_name} ({dep_version})")
+        print_deps(dep.get("dependencies", []), level + 1)
 
 
 def run_safe_subprocess(command: list) -> str:
@@ -82,8 +83,6 @@ def run_safe_subprocess(command: list) -> str:
 def get_dependency_tree() -> list:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
-
-    validate_command(command)
 
     stdout = run_safe_subprocess(command)
     return json.loads(stdout)
