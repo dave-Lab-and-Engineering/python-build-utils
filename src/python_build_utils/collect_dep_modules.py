@@ -30,8 +30,23 @@ from . import __version__
 @click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional output file to write the dependencies list"
 )
-def collect_dependencies(package: str, output: str | None, regex: str | None = None) -> None:
-    """Collect all the dependencies of a given package using pipdeptree."""
+def collect_dependencies(package: str, output: str | None) -> None:
+    """
+    Collects and processes the dependencies of a specified package.
+    Args:
+        package (str): The name of the package for which dependencies are to be collected.
+        output (str | None): The file path to write the dependencies to. If None, dependencies are not written to a file.
+    Returns:
+        None: This function does not return a value. It outputs information to the console and optionally writes to a file.
+    Behavior:
+        - If the `package` argument is not provided, the function prompts the user to specify a package.
+        - Retrieves the dependency tree of the current environment and identifies the specified package.
+        - If the package is not found, a message is displayed to the user.
+        - Collects the names of all dependencies for the specified package.
+        - Displays the dependencies in a tree format on the console.
+        - If the `output` argument is provided, writes the list of dependencies to the specified file.
+    """
+
     if not package:
         click.echo("Please provide a package name using --package.")
         return
@@ -62,7 +77,20 @@ def collect_dependencies(package: str, output: str | None, regex: str | None = N
 
 
 def print_deps(deps: list, level=1):
-    """Recursively print dependencies in a tree format."""
+    """
+    Recursively prints a list of dependencies in a hierarchical format.
+
+    Args:
+        deps (list): A list of dictionaries representing dependencies. Each dictionary
+                     should contain the keys "key" (dependency name) and "installed_version"
+                     (version of the dependency). Optionally, it can include a "dependencies"
+                     key with a nested list of dependencies.
+        level (int, optional): The current indentation level for printing. Defaults to 1.
+
+    Returns:
+        None
+    """
+
     for dep in deps:
         dep_name = dep["key"]
         dep_version = dep["installed_version"]
