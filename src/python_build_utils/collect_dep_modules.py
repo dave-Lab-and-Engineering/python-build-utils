@@ -57,24 +57,8 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
         * Displays dependencies in a tree format on the console.
         * Writes a plain list of dependencies to the given file if --output is provided.
     """
-    # pipdeptree is only required for this tool
-    try:
-        import pipdeptree  # type: ignore[import]
-    except ModuleNotFoundError:
-        logger.exception(
-            "pipdeptree is not installed. Please install it to use this tool. Do:\n"
-            ""
-            "   pip install pipdeptree\n"
-            ""
-            "or\n"
-            ""
-            "   pip install python-build-utils[all]\n"
-        )
-        sys.exit(1)
-    else:
-        logger.debug(f"Imported {pipdeptree.__name__}")
 
-    logger.debug("Collecting dependencies...")
+    logger.info("Python Build Utilities — Dependency Collector starting up.")
 
     deps = collect_package_dependencies(package)
 
@@ -96,7 +80,7 @@ def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
     dep_tree = _get_dependency_tree()
     package_nodes = _find_package_node(dep_tree, package)
     if not package_nodes:
-        logger.warning(f"Package '{package}' not found in the environment.")
+        logger.warning(f"Package(s) {package} not found in the environment.")
         return []
 
     all_dependencies = []
@@ -113,7 +97,7 @@ def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
     return all_dependencies
 
 
-def _get_deps_tree(deps: list, level: int = 1, deps_tree: str = "") -> str:
+def _get_deps_tree(deps: list[dict], level: int = 1, deps_tree: str = "") -> str:
     """
     Recursively prints a list of dependencies in a hierarchical format.
 
@@ -138,7 +122,7 @@ def _get_deps_tree(deps: list, level: int = 1, deps_tree: str = "") -> str:
     return deps_tree
 
 
-def _run_safe_subprocess(command: list) -> str:
+def _run_safe_subprocess(command: list[str]) -> str:
     """Runs a subprocess safely and returns the output."""
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)  # nosec B603
@@ -152,6 +136,23 @@ def _run_safe_subprocess(command: list) -> str:
 
 def _get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
+    # pipdeptree is only required for this tool
+    try:
+        import pipdeptree  # type: ignore[import]
+    except ModuleNotFoundError:
+        logger.exception(
+            "pipdeptree is not installed. Please install it to use this tool. Do:\n"
+            ""
+            "   pip install pipdeptree\n"
+            ""
+            "or\n"
+            ""
+            "   pip install python-build-utils[all]\n"
+        )
+        sys.exit(1)
+    else:
+        logger.debug(f"Imported {pipdeptree.__name__}")
+
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
 
     stdout = _run_safe_subprocess(command)
