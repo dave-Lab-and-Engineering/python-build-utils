@@ -119,62 +119,65 @@ Options:
 
 ### rename-wheel-files
 
-Usage: rename-wheel-files [OPTIONS]
+```text
+Usage: python-build-utils rename-wheel-files [OPTIONS]                                                                                                                         
 
-  Rename wheel files in a distribution directory by replacing 'py3-none-any' with a custom tag.
+  Rename wheel files in a distribution directory by replacing the default
+  'py3-none-any' tag with a custom one.
 
 Options:
-  -v, --version              Show the version and exit.
-  --dist-dir TEXT            Directory containing wheel files. Defaults to 'dist'.
-  --python-version-tag TEXT  Python version tag (e.g. cp310). Defaults to the current Python.
-  --platform-tag TEXT        Platform tag. Defaults to the current platform value.
+  --dist-dir TEXT            Directory containing wheel files. Defaults to
+                             'dist'.
+  --python-version-tag TEXT  Python version tag to include in the new file
+                             name (e.g., cp310). Defaults to
+                             'cp{major}{minor}' of the current Python.
+  --platform-tag TEXT        Platform tag to include in the new file name.
+                             Defaults to the current platform value from
+                             sysconfig.
   --wheel-tag TEXT           Full custom wheel tag to replace 'py3-none-any'.
+                             If provided, this is used directly, ignoring the
+                             other tag options. Default format is: {python_ver
+                             sion_tag}-{python_version_tag}-{platform_tag}
   --help                     Show this message and exit.
+```
 
-Example:
-
-rename-wheel-files
 
 ---
 
 ### remove-tarballs
 
-Usage: remove-tarballs [OPTIONS]
+```text
+Usage: python-build-utils remove-tarballs [OPTIONS]
 
   Remove tarball files from dist.
 
+  This function removes tarball files from the given distribution directory.
+
+  Args:     dist_dir (str): The directory containing the tarball files to be removed.
+
+  Returns:     None
+
+  Example:     remove_tarballs("dist")
+
 Options:
-  -v, --version    Show the version and exit.
-  --dist_dir TEXT  Directory containing tarball files. Defaults to 'dist'.
+  --dist_dir TEXT  Directory containing wheel the files. Default is 'dist'
   --help           Show this message and exit.
-
-Example:
-
-remove-tarballs
+```
 
 ---
 
 ### pyd2wheel
 
-Usage: pyd2wheel [OPTIONS] PYD_FILE
+```text
+Usage: python-build-utils pyd2wheel [OPTIONS] PYD_FILE
 
   Create a Python wheel file from a compiled .pyd file.
 
 Options:
-  -v, --version           Show the version and exit.
-  --package-version TEXT  Version of the package. If omitted, the version is extracted from the filename.
+  --package-version TEXT  Version of the package. If not provided, the version
+                          is extracted from the file name.
   --abi-tag TEXT          ABI tag for the wheel. Defaults to 'none'.
   --help                  Show this message and exit.
-
-Example (CLI)
-
-pyd2wheel .\mybinary.cp310-win_amd64.pyd --package_version 1.0.0
-
-Example (Python)
-
-from python_build_utils import pyd2wheel
-pyd2wheel("mybinary.cp310-win_amd64.pyd", package_version="1.0.0")
-
-The wheel is created in the same directory as the .pyd file.
+```
 
 ---
