@@ -19,12 +19,10 @@ from pathlib import Path
 
 import click
 
-from . import __version__
 from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundError
 
 
 @click.command(name="pyd2wheel", help="Create a Python wheel file from a compiled .pyd file.")
-@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.argument(
     "pyd_file",
     type=click.Path(exists=True, path_type=Path),

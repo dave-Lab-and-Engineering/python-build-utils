@@ -25,7 +25,7 @@ from .remove_tarballs import remove_tarballs
 from .rename_wheel_files import rename_wheel_files
 
 logger = initialize_logging()
-logger.info("Python Build Utilities CLI initialized.")
+logger.info("🚀 Python Build Utilities CLI — ready to build, package, and manage your Python projects.")
 
 
 @click.group()

@@ -22,15 +22,11 @@ import sys
 from typing import Any
 
 import click
-import pipdeptree
-
-from . import __version__
 
 logger = logging.getLogger(__name__)
 
 
 @click.command(name="collect-dependencies", help="Collect and display dependencies for one or more Python packages.")
-@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
     "--package",
     "-p",
@@ -61,6 +57,23 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
         * Displays dependencies in a tree format on the console.
         * Writes a plain list of dependencies to the given file if --output is provided.
     """
+    # pipdeptree is only required for this tool
+    try:
+        import pipdeptree  # type: ignore[import]
+    except ModuleNotFoundError:
+        logger.exception(
+            "pipdeptree is not installed. Please install it to use this tool. Do:\n"
+            ""
+            "   pip install pipdeptree\n"
+            ""
+            "or\n"
+            ""
+            "   pip install python-build-utils[all]\n"
+        )
+        sys.exit(1)
+    else:
+        logger.debug(f"Imported {pipdeptree.__name__}")
+
     logger.debug("Collecting dependencies...")
 
     deps = collect_package_dependencies(package)
@@ -94,7 +107,7 @@ def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
         all_dependencies.extend(dependencies)
         package_tree = get_deps_tree(package_dependencies, deps_tree=package_tree)
 
-    logger.debug("Represenation of the dependencies:")
+    logger.debug("Representation of the dependencies:")
     logger.debug(package_tree)
 
     return all_dependencies
@@ -140,8 +153,6 @@ def run_safe_subprocess(command: list) -> str:
 def get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
-
-    logger.debug(f"Running pipdeptree version {pipdeptree}")
 
     stdout = run_safe_subprocess(command)
     return json.loads(stdout)
