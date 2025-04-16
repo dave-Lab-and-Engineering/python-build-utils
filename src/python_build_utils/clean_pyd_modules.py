@@ -31,16 +31,16 @@ Usage:
         python clean_pyd_modules.py --venv-path /path/to/venv --regex "pattern"
 """
 
+import logging
 import re
 from pathlib import Path
 
 import click
 
-from . import __version__
+logger = logging.getLogger(__name__)
 
 
 @click.command(name="clean-pyd-modules", help="Clean all .pyd/.c build modules in src path.")
-@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
     "--src-path",
     default="src",
@@ -52,7 +52,8 @@ from . import __version__
     default=None,
     help="Optional regular expression to filter .pyd modules by name.",
 )
-def clean_pyd_modules(src_path: str | None = None, regex: str | None = None) -> None:
+@click.pass_context
+def clean_pyd_modules(ctx: click.Context, src_path: str | None = None, regex: str | None = None) -> None:
     """
     Clean all  *.pyd/.c files in a virtual environment. A regex filter can be applied.
 
@@ -64,17 +65,17 @@ def clean_pyd_modules(src_path: str | None = None, regex: str | None = None) -> 
         * Removes all .pyd submodules found under the specified virtual environment's site-packages.
         * Also, all .c files are removed.
     """
-    src_path_to_search = get_src_path(src_path)
+    src_path_to_search = _get_src_path(src_path)
 
     if src_path_to_search is None:
-        click.echo(f"Could not locate src path: {src_path_to_search}.")
+        logger.error(f"Could not locate src path: {src_path_to_search}.")
     else:
         for extension in ["*.pyd", "*.c"]:
-            click.echo(f"Cleaning the {extension} files with '{regex}' filter in '{src_path}'...")
+            logger.info(f"Cleaning the {extension} files with '{regex}' filter in '{src_path}'...")
             clean_by_extensions(src_path=src_path_to_search, regex=regex, extension=extension)
 
 
-def get_src_path(src_path: str | None = None) -> Path | None:
+def _get_src_path(src_path: str | None = None) -> Path | None:
     """
     Get the site-packages directory for the given virtual environment path or the current environment.
 
@@ -87,7 +88,7 @@ def get_src_path(src_path: str | None = None) -> Path | None:
     if src_path is not None:
         src = Path(src_path).resolve()
         if not src.exists() or not src.is_dir():
-            click.echo(f"Path '{src}' does not exist or is not a directory.")
+            logger.error(f"Path '{src}' does not exist or is not a directory.")
             return None
         return src
     else:
@@ -108,7 +109,6 @@ def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> No
         None: This function does not return a value.
     Side Effects:
         - Deletes matching files from the file system.
-        - Outputs messages to the console using `click.echo`.
     Raises:
         Exception: If an error occurs while attempting to delete a file, an error message is displayed.
     Notes:
@@ -119,7 +119,7 @@ def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> No
     file_candidates = list(src_path.rglob(extension))
 
     if not file_candidates:
-        click.echo(f"No {extension} files found in {src_path}.")
+        logger.error(f"No {extension} files found in {src_path}.")
         return None
 
     clean_any = False
@@ -127,12 +127,12 @@ def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> No
         relative_path = file_to_clean.relative_to(src_path).as_posix()
         if regex is not None and not re.search(regex, relative_path, re.IGNORECASE):
             continue
-        click.echo(f"Removing {file_to_clean}")
+        logger.info(f"Removing {file_to_clean}")
         try:
             file_to_clean.unlink()
         except Exception as e:
-            click.echo(f"Error removing {file_to_clean}: {e}", err=True)
+            logger.warning(f"Error removing {file_to_clean}: {e}", err=True)
         else:
             clean_any = True
     if not clean_any:
-        click.echo(f"No {extension} files with '{regex}' filter found in {src_path}.")
+        logger.info(f"No {extension} files with '{regex}' filter found in {src_path}.")

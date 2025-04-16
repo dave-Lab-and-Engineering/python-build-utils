@@ -37,23 +37,22 @@ A collection of CLI tools for managing Python build artifacts, dependencies, and
 Check available commands:
 
 ```text
-python-build-utils --help
-
 Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
 
   A collection of CLI tools for Python build utilities.
 
 Options:
-  -v, --version  Show the version and exit.
+  --version      Show the version and exit.
+  -v, --verbose  Increase verbosity level. Use -v for info, -vv for debug.
   --help         Show this message and exit.
 
 Commands:
-  clean-pyd-modules     Clean all .pyd/.c build modules from a virtual environment.
-  collect-dependencies  Collect and display dependencies for one or more packages.
-  collect-pyd-modules   Collect and display .pyd submodules from a virtual environment.
-  pyd2wheel             Create a Python wheel file from a compiled .pyd file.
+  clean-pyd-modules     Clean all .pyd/.c build modules in src path.
+  collect-dependencies  Collect and display dependencies for one or more...
+  collect-pyd-modules   Collect and display .pyd submodules from a...
+  pyd2wheel             Create a Python wheel file from a compiled .pyd...
   remove-tarballs       Remove tarball files from dist.
-  rename-wheel-files    Rename wheel files in a distribution directory by tag.
+  rename-wheel-files    Rename wheel files in a distribution directory by...
 ```
 
 ---
@@ -61,52 +60,60 @@ Commands:
 ### clean-pyd-modules
 
 ```text
-python-build-utils clean-pyd-modules --help 
-Usage: clean-pyd-modules [OPTIONS]
+Usage: python-build-utils clean-pyd-modules [OPTIONS]
 
   Clean all .pyd/.c build modules in src path.
 
 Options:
-  -v, --version     Show the version and exit.
-  --src-path TEXT   Path to the src folder to scan for .pyd modules. Defaults to 'src'.
-  -r, --regex TEXT  Optional regex to filter .pyd modules by name.
+  --src-path TEXT   Path to the src folder to scan for .pyd modules. Defaults
+                    to 'src' in the current folder.
+  -r, --regex TEXT  Optional regular expression to filter .pyd modules by
+                    name.
   --help            Show this message and exit.
 ```
 
 Example:
 
-clean-pyd-modules --regex dave
+```shell
+python-build-utils clean-pyd-modules --regex dave
+```
 
 Removes .pyd and .c files from the src/ folder filtered by name.
 
 ---
 
 ### collect-dependencies
-
-Usage: collect-dependencies [OPTIONS]
+```text
+Usage: python-build-utils collect-dependencies [OPTIONS]
 
   Collect and display dependencies for one or more Python packages.
 
 Options:
-  -v, --version       Show the version and exit.
-  -p, --package TEXT  Name of the Python package(s) to collect dependencies for. Can be given multiple times.
-  -o, --output PATH   Optional file path to write the list of dependencies.
+  -p, --package TEXT  Name of the Python package to collect dependencies for.
+                      Can be given multiple times. If omitted, dependencies
+                      for the entire environment are collected.
+  -o, --output PATH   Optional file path to write the list of dependencies to.
   --help              Show this message and exit.
+```
 
 ---
 
 ### collect-pyd-modules
 
-Usage: collect-pyd-modules [OPTIONS]
+```text
+Usage: python-build-utils collect-pyd-modules [OPTIONS]
 
   Collect and display .pyd submodules from a virtual environment.
 
 Options:
-  -v, --version      Show the version and exit.
-  --venv-path TEXT   Path to the virtual environment. Defaults to the current.
-  -r, --regex TEXT   Optional regex to filter .pyd modules by name.
-  -o, --output PATH  Optional file path to write the list of found .pyd modules.
+  --venv-path TEXT   Path to the virtual environment to scan for .pyd modules.
+                     Defaults to the current environment.
+  -r, --regex TEXT   Optional regular expression to filter .pyd modules by
+                     name.
+  -o, --output PATH  Optional file path to write the list of found .pyd
+                     modules.
   --help             Show this message and exit.
+```
 
 ---
 

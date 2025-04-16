@@ -1,12 +1,15 @@
 """Rename wheel files in the dist folder of your python build directory to include platform and python version tags."""
 
 import glob
+import logging
 import os
 import sys
 import sysconfig
 import textwrap
 
 import click
+
+logger = logging.getLogger(__name__)
 
 
 @click.command(
@@ -30,7 +33,10 @@ import click
         Default format is: {python_version_tag}-{python_version_tag}-{platform_tag}
     """).strip(),
 )
-def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str, wheel_tag: str) -> None:
+@click.pass_context
+def rename_wheel_files(
+    ctx: click.Context, dist_dir: str, python_version_tag: str, platform_tag: str, wheel_tag: str
+) -> None:
     """
     Renames wheel files in a given distribution directory by replacing the
     'py3-none-any' tag with a custom wheel tag.
@@ -64,14 +70,14 @@ def rename_wheel_files(dist_dir: str, python_version_tag: str, platform_tag: str
     wheel_files = glob.glob(f"{dist_dir}/*py3-none-any.whl")
 
     if not wheel_files:
-        click.echo(f"No matching wheel files found in '{dist_dir}'")
+        logger.info(f"No matching wheel files found in '{dist_dir}'")
         return
 
     for wheel_file in wheel_files:
         new_file = wheel_file.replace("py3-none-any.whl", f"{build_version_tag}.whl")
         try:
             os.rename(wheel_file, new_file)
-        except FileExistsError as e:
-            click.echo(f"Error: {e}")
+        except FileExistsError:
+            logger.exception("Error", err=True, fg="red")
         else:
-            click.echo(f"Renamed: {wheel_file} → {new_file}")
+            logger.info(f"Renamed: {wheel_file} → {new_file}")

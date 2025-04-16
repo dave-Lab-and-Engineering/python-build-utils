@@ -1,10 +1,13 @@
 """Remove the tar.gz files from the dist build folder."""
 
 import glob
+import logging
 import os
 import textwrap
 
 import click
+
+logger = logging.getLogger(__name__)
 
 
 @click.command(name="remove-tarballs")
@@ -16,7 +19,8 @@ import click
     Default is 'dist'
 """),
 )
-def remove_tarballs(dist_dir: str) -> None:
+@click.pass_context
+def remove_tarballs(ctx: click.Context, dist_dir: str) -> None:
     """Remove tarball files from dist.
 
     This function removes tarball files from the given distribution directory.
@@ -39,10 +43,10 @@ def remove_tarballs(dist_dir: str) -> None:
         found_files = True
         try:
             os.remove(tarball_file)
-        except FileNotFoundError as e:
-            click.echo(f"Error {e}")
+        except FileNotFoundError:
+            logger.exception("Error", err=True, fg="red")
         else:
-            click.echo(f"Removed {tarball_file}")
+            logger.info(f"Removed {tarball_file}")
 
     if not found_files:
-        click.echo(f"No tarball files found in {dist_dir}")
+        logger.info(f"No tarball files found in {dist_dir}")

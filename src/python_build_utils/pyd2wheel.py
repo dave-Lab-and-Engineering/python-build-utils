@@ -12,6 +12,7 @@ Functions:
 """
 
 import hashlib
+import logging
 import os
 import re
 import shutil
@@ -20,6 +21,8 @@ from pathlib import Path
 import click
 
 from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundError
+
+logger = logging.getLogger(__name__)
 
 
 @click.command(name="pyd2wheel", help="Create a Python wheel file from a compiled .pyd file.")
@@ -37,8 +40,12 @@ from .exceptions import PydFileFormatError, PydFileSuffixError, VersionNotFoundE
     help="ABI tag for the wheel. Defaults to 'none'.",
     default=None,
 )
-def pyd2wheel(pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None) -> Path | None:
+@click.pass_context
+def pyd2wheel(
+    ctx: click.Context, pyd_file: Path, package_version: str | None = None, abi_tag: str | None = None
+) -> Path | None:
     """Convert a compiled .pyd file into a Python wheel (.whl) file."""
+    logger.info(f"Converting {pyd_file} to wheel...")
     return convert_pyd_to_wheel(pyd_file, package_version, abi_tag)
 
 
@@ -57,23 +64,24 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
     pyd_file = Path(pyd_file)
     try:
         name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
-    except (PydFileFormatError, PydFileSuffixError) as e:
-        click.secho(f"Error: {e}", err=True, fg="red")
+    except (PydFileFormatError, PydFileSuffixError):
+        logger.exception("Error occurred while processing the .pyd file", err=True, fg="red")
         return None
 
     try:
         package_version = _get_package_version(package_version, version_from_filename)
-    except VersionNotFoundError as e:
-        click.secho(f"Error: {e}", err=True, fg="red")
+    except VersionNotFoundError:
+        logger.exception("Error occurred while processing the .pyd file", err=True, fg="red")
         return None
 
     if abi_tag is None:
         abi_tag = "none"
 
-    click.echo(f"{'-' * 80}")
-    click.echo("Wheel Metadata:")
-    _display_wheel_info(name, package_version, python_version, platform, abi_tag)
-    click.echo(f"{'-' * 80}")
+    logger.info(f"{'-' * 80}")
+    logger.info("Wheel Metadata:")
+    wheel_info = _get_wheel_info(name, package_version, python_version, platform, abi_tag)
+    logger.info(wheel_info)
+    logger.info(f"{'-' * 80}")
 
     wheel_file_name = f"{name}-{package_version}-{python_version}-{abi_tag}-{platform}.whl"
     root_folder = create_temp_directory(pyd_file)
@@ -85,8 +93,8 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
 
     wheel_file_path = _create_wheel_archive(pyd_file, wheel_file_name, root_folder)
 
-    click.secho(f"✅ Created wheel file: {wheel_file_path}", fg="green")
-    click.echo(f"{'-' * 80}")
+    logger.info(f"✅ Created wheel file: {wheel_file_path}")
+    logger.info(f"{'-' * 80}")
 
     shutil.rmtree(root_folder)
     return wheel_file_path
@@ -179,18 +187,21 @@ def _get_package_version(package_version: str | None, version_from_filename: str
     return package_version
 
 
-def _display_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> None:
+def _get_wheel_info(name: str, package_version: str, python_version: str, platform: str, abi_tag: str) -> str:
     """Display the wheel information."""
     field_width = 25
-    click.echo(f"{'=' * 80}")
-    click.echo(f"{'Field':<{field_width}}{'Value'}")
-    click.echo(f"{'-' * 80}")
-    click.echo(f"{'Name:':<{field_width}}{name}")
-    click.echo(f"{'Version:':<{field_width}}{package_version}")
-    click.echo(f"{'Python Version:':<{field_width}}{python_version}")
-    click.echo(f"{'Platform:':<{field_width}}{platform}")
-    click.echo(f"{'ABI Tag:':<{field_width}}{abi_tag}")
-    click.echo(f"{'-' * 80}")
+    wheel_info = ""
+    wheel_info += f"{'=' * 80}\n"
+    wheel_info += f"{'Field':<{field_width}}{'Value'}\n"
+    wheel_info += f"{'-' * 80}\n"
+    wheel_info += f"{'Name:':<{field_width}}{name}\n"
+    wheel_info += f"{'Version:':<{field_width}}{package_version}\n"
+    wheel_info += f"{'Python Version:':<{field_width}}{python_version}\n"
+    wheel_info += f"{'Platform:':<{field_width}}{platform}\n"
+    wheel_info += f"{'ABI Tag:':<{field_width}}{abi_tag}\n"
+    wheel_info += f"{'-' * 80}\n"
+
+    return wheel_info
 
 
 def create_temp_directory(pyd_file: Path) -> Path:
