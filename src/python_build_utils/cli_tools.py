@@ -46,3 +46,7 @@ cli.add_command(clean_pyd_modules)
 cli.add_command(collect_dependencies)
 cli.add_command(rename_wheel_files)
 cli.add_command(remove_tarballs)
+
+
+if __name__ == "__main__":
+    cli()

@@ -8,14 +8,11 @@ import textwrap
 
 import click
 
-from . import __version__
-
 
 @click.command(
     name="rename-wheel-files",
     help="Rename wheel files in a distribution directory by replacing the default 'py3-none-any' tag with a custom one.",
 )
-@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option("--dist-dir", default="dist", help="Directory containing wheel files. Defaults to 'dist'.")
 @click.option(
     "--python-version-tag",
