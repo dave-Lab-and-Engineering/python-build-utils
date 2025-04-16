@@ -20,3 +20,5 @@ except PackageNotFoundError:
     __version__ = "unknown"
 finally:
     del version, PackageNotFoundError
+
+LOGGER_NAME = "python_build_utils"

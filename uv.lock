@@ -774,6 +774,7 @@ name = "python-build-utils"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+    { name = "rich" },
 ]
 
 [package.optional-dependencies]
@@ -807,6 +808,7 @@ uv = [
 requires-dist = [
     { name = "click", specifier = ">=8.1.8" },
     { name = "pipdeptree", marker = "extra == 'all'", specifier = ">=2.26.0" },
+    { name = "rich", specifier = ">=13.9.4" },
 ]
 provides-extras = ["all"]
 

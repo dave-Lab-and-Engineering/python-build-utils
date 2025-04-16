@@ -11,21 +11,33 @@ Commands:
     remove_tarballs: Command to remove tarballs.
 """
 
+import logging
+
 import click
 
 from . import __version__
 from .clean_pyd_modules import clean_pyd_modules
+from .cli_logger import initialize_logging
 from .collect_dep_modules import collect_dependencies
 from .collect_pyd_modules import collect_pyd_modules
 from .pyd2wheel import pyd2wheel
 from .remove_tarballs import remove_tarballs
 from .rename_wheel_files import rename_wheel_files
 
+logger = initialize_logging()
+logger.info("Python Build Utilities CLI initialized.")
+
 
 @click.group()
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
-def cli() -> None:
+@click.option("--debug", is_flag=True, help="Enable debug logging.")
+def cli(debug: bool) -> None:
     """A collection of CLI tools for Python build utilities."""
+    if debug:
+        logger.setLevel(logging.DEBUG)
+        for handler in logger.handlers:
+            handler.setLevel(logging.DEBUG)
+        logger.debug("Debug mode is enabled.")
 
 
 cli.add_command(pyd2wheel)
