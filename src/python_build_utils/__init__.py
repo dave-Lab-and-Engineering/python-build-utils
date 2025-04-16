@@ -13,6 +13,9 @@ Cleanup:
 
 from importlib.metadata import PackageNotFoundError, version
 
+from .collect_dep_modules import collect_package_dependencies
+from .collect_pyd_modules import collect_pyd_modules_from_venv
+
 try:
     DIST_NAME = __name__
     __version__ = version(DIST_NAME)
@@ -22,3 +25,6 @@ finally:
     del version, PackageNotFoundError
 
 LOGGER_NAME = "python_build_utils"
+
+
+__all__ = ["collect_package_dependencies", "collect_pyd_modules_from_venv"]

@@ -93,8 +93,8 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
 
 
 def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
-    dep_tree = get_dependency_tree()
-    package_nodes = find_package_node(dep_tree, package)
+    dep_tree = _get_dependency_tree()
+    package_nodes = _find_package_node(dep_tree, package)
     if not package_nodes:
         logger.warning(f"Package '{package}' not found in the environment.")
         return []
@@ -103,9 +103,9 @@ def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
     package_tree = ""
     for package_node in package_nodes:
         package_dependencies = package_node.get("dependencies", [])
-        dependencies = collect_dependency_names(package_dependencies)
+        dependencies = _collect_dependency_names(package_dependencies)
         all_dependencies.extend(dependencies)
-        package_tree = get_deps_tree(package_dependencies, deps_tree=package_tree)
+        package_tree = _get_deps_tree(package_dependencies, deps_tree=package_tree)
 
     logger.debug("Representation of the dependencies:")
     logger.debug(package_tree)
@@ -113,7 +113,7 @@ def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
     return all_dependencies
 
 
-def get_deps_tree(deps: list, level: int = 1, deps_tree: str = "") -> str:
+def _get_deps_tree(deps: list, level: int = 1, deps_tree: str = "") -> str:
     """
     Recursively prints a list of dependencies in a hierarchical format.
 
@@ -133,12 +133,12 @@ def get_deps_tree(deps: list, level: int = 1, deps_tree: str = "") -> str:
         dep_name = dep["key"]
         dep_version = dep["installed_version"]
         deps_tree += "  " * level + f"- {dep_name} ({dep_version})\n"
-        deps_tree = get_deps_tree(dep.get("dependencies", []), level + 1, deps_tree=deps_tree)
+        deps_tree = _get_deps_tree(dep.get("dependencies", []), level + 1, deps_tree=deps_tree)
 
     return deps_tree
 
 
-def run_safe_subprocess(command: list) -> str:
+def _run_safe_subprocess(command: list) -> str:
     """Runs a subprocess safely and returns the output."""
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)  # nosec B603
@@ -150,15 +150,15 @@ def run_safe_subprocess(command: list) -> str:
         return result.stdout  # return moved to else block
 
 
-def get_dependency_tree() -> Any:
+def _get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
 
-    stdout = run_safe_subprocess(command)
+    stdout = _run_safe_subprocess(command)
     return json.loads(stdout)
 
 
-def find_package_node(dep_tree: list, package: tuple[str] | None) -> list | None:
+def _find_package_node(dep_tree: list, package: tuple[str] | None) -> list | None:
     """Find the package node in the dependency tree."""
     package_nodes = []
     if not package:
@@ -175,7 +175,7 @@ def find_package_node(dep_tree: list, package: tuple[str] | None) -> list | None
     return package_nodes
 
 
-def collect_dependency_names(dependencies: list, collected: list | None = None) -> list:
+def _collect_dependency_names(dependencies: list, collected: list | None = None) -> list:
     """Recursively collect dependency names."""
     if collected is None:
         collected = []
@@ -184,6 +184,6 @@ def collect_dependency_names(dependencies: list, collected: list | None = None) 
         dep_name = dep["package_name"]
         if dep_name not in collected:
             collected.append(dep_name)
-            collect_dependency_names(dep.get("dependencies", []), collected)
+            _collect_dependency_names(dep.get("dependencies", []), collected)
 
     return collected

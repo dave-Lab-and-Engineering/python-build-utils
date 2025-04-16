@@ -29,7 +29,7 @@ logger.info("🚀 Python Build Utilities CLI — ready to build, package, and ma
 
 
 @click.group()
-@click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
+@click.version_option(__version__, "--version", "-v", message="Version: %(version)s", help="Show the version and exit.")
 @click.option("--debug", is_flag=True, help="Enable debug logging.")
 def cli(debug: bool) -> None:
     """A collection of CLI tools for Python build utilities."""
