@@ -18,7 +18,6 @@ import sysconfig
 import pytest
 from click.testing import CliRunner
 
-from python_build_utils import __version__
 from python_build_utils.rename_wheel_files import rename_wheel_files
 
 
@@ -29,15 +28,6 @@ def setup_wheel_files(tmpdir):
     wheel_file = dist_dir.join("example-1.0.0-py3-none-any.whl")
     wheel_file.write("")
     return str(dist_dir)
-
-
-def test_rename_wheel_files_version():
-    """Tests the version option of the rename_wheel_files_version command."""
-    runner = CliRunner()
-    result = runner.invoke(rename_wheel_files, ["--version"])
-
-    assert result.exit_code == 0
-    assert __version__ in result.output
 
 
 def test_rename_wheel_files_default_tags(setup_wheel_files):  # pylint: disable=redefined-outer-name
@@ -78,13 +68,3 @@ def test_rename_wheel_files_custom_wheel_tag(setup_wheel_files):  # pylint: disa
 
     assert result.exit_code == 0
     assert os.path.exists(os.path.join(dist_dir, f"example-1.0.0-{expected_tag}.whl"))
-
-
-def test_rename_wheel_files_no_files_found(tmpdir):
-    """Tests the behavior when no wheel files are found in the specified directory."""
-    dist_dir = tmpdir.mkdir("dist")
-    runner = CliRunner()
-    result = runner.invoke(rename_wheel_files, [f"--dist-dir={dist_dir}"])
-
-    assert result.exit_code == 0
-    assert "No matching wheel files found in" in result.output

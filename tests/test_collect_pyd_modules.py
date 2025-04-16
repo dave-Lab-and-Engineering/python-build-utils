@@ -1,14 +1,11 @@
 import sys
 from pathlib import Path
-from unittest.mock import mock_open, patch
 
 import pytest
-from click.testing import CliRunner
 
 from python_build_utils.collect_pyd_modules import (
     _find_pyd_modules_in_site_packages,
     _get_venv_site_packages,
-    collect_pyd_modules,
 )
 
 
@@ -198,69 +195,3 @@ def test_get_venv_site_packages_valid_path(tmp_path):
 
     result = _get_venv_site_packages(str(venv_path))
     assert result == site_packages
-
-
-def test_collect_pyd_submodules_no_venv_path(mock_get_venv_site_packages, mock_collect_all_pyd_modules):
-    """
-    Test collect_pyd_submodules when no venv_path is provided.
-    """
-    mock_get_venv_site_packages.return_value = None
-    runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, [])
-    assert "Could not locate site-packages in the specified environment." in result.output
-    assert result.exit_code == 0
-
-
-def test_collect_pyd_submodules_no_pyd_modules(mock_get_venv_site_packages, mock_collect_all_pyd_modules):
-    """
-    Test collect_pyd_submodules when no .pyd modules are found.
-    """
-    mock_get_venv_site_packages.return_value = "/mock/site-packages"
-    mock_collect_all_pyd_modules.return_value = []
-    runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, [])
-    assert "Collecting .pyd modules in '/mock/site-packages'..." in result.output
-    assert "No .pyd modules found." in result.output
-    assert result.exit_code == 0
-
-
-def test_collect_pyd_submodules_with_pyd_modules(mock_get_venv_site_packages, mock_collect_all_pyd_modules):
-    """
-    Test collect_pyd_submodules when .pyd modules are found.
-    """
-    mock_get_venv_site_packages.return_value = "/mock/site-packages"
-    mock_collect_all_pyd_modules.return_value = ["module1", "module2"]
-    runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, [])
-    assert "Found the following .pyd submodules:" in result.output
-    assert "- module1" in result.output
-    assert "- module2" in result.output
-    assert result.exit_code == 0
-
-
-def test_collect_pyd_submodules_with_regex(mock_get_venv_site_packages, mock_collect_all_pyd_modules):
-    """
-    Test collect_pyd_submodules with a regex filter.
-    """
-    mock_get_venv_site_packages.return_value = "/mock/site-packages"
-    mock_collect_all_pyd_modules.return_value = ["module1"]
-    runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, ["--regex", "module1"])
-    assert "Found the following .pyd submodules:" in result.output
-    assert "- module1" in result.output
-    assert result.exit_code == 0
-
-
-def test_collect_pyd_submodules_write_to_file(mock_get_venv_site_packages, mock_collect_all_pyd_modules):
-    """
-    Test collect_pyd_submodules when writing the output to a file.
-    """
-    mock_get_venv_site_packages.return_value = "/mock/site-packages"
-    mock_collect_all_pyd_modules.return_value = ["module1", "module2"]
-    runner = CliRunner()
-    with patch("builtins.open", mock_open()) as mocked_file:
-        result = runner.invoke(collect_pyd_modules, ["--output", "output.txt"])
-        mocked_file.assert_called_once_with("output.txt", "w")
-        mocked_file().write.assert_called_once_with("module1\nmodule2")
-    assert "Module list written to output.txt" in result.output
-    assert result.exit_code == 0

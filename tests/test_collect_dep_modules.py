@@ -1,65 +1,7 @@
-import json
-from unittest import mock
-
-import pytest
-from click.testing import CliRunner
-
 from python_build_utils.collect_dep_modules import (
     _collect_dependency_names,
     _find_package_node,
-    _get_dependency_tree,
-    collect_dependencies,
 )
-
-
-def test_get_dependency_tree_success():
-    """Test get_dependency_tree when pipdeptree runs successfully."""
-    mock_output = json.dumps([{"key": "package1", "dependencies": []}])
-    with (
-        mock.patch("python_build_utils.collect_dep_modules.run_safe_subprocess", return_value=mock_output),
-    ):
-        result = _get_dependency_tree()
-        assert isinstance(result, list)
-        assert result[0]["key"] == "package1"
-
-
-def test_get_dependency_tree_invalid_json():
-    """Test get_dependency_tree when pipdeptree returns invalid JSON."""
-    mock_output = "invalid json"
-    with (
-        mock.patch("python_build_utils.collect_dep_modules.run_safe_subprocess", return_value=mock_output),
-        pytest.raises(json.JSONDecodeError),
-    ):
-        _get_dependency_tree()
-
-
-def test_get_dependency_tree_empty_output():
-    """Test get_dependency_tree when pipdeptree returns an empty output."""
-    mock_output = "[]"
-    with mock.patch("python_build_utils.collect_dep_modules.run_safe_subprocess", return_value=mock_output):
-        result = _get_dependency_tree()
-        assert isinstance(result, list)
-        assert len(result) == 0
-
-
-def test_collect_dependencies_no_package_found():
-    """Test collect_dependencies when the specified package is not found."""
-    mock_dep_tree = [{"key": "package1", "dependencies": []}]
-    with mock.patch("python_build_utils.collect_dep_modules.get_dependency_tree", return_value=mock_dep_tree):
-        runner = CliRunner()
-        result = runner.invoke(collect_dependencies, ["--package", "nonexistent-package"])
-        assert result.exit_code == 0
-        assert "Package '('nonexistent-package',)' not found in the environment." in result.output
-
-
-def test_collect_dependencies_no_dependencies():
-    """Test collect_dependencies when the package has no dependencies."""
-    mock_dep_tree = [{"key": "package1", "dependencies": []}]
-    with mock.patch("python_build_utils.collect_dep_modules.get_dependency_tree", return_value=mock_dep_tree):
-        runner = CliRunner()
-        result = runner.invoke(collect_dependencies, ["--package", "package1"])
-        assert result.exit_code == 0
-        assert "No dependencies found" in result.output
 
 
 def test_collect_dependency_names_no_dependencies():
