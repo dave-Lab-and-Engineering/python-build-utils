@@ -25,19 +25,27 @@ from .remove_tarballs import remove_tarballs
 from .rename_wheel_files import rename_wheel_files
 
 logger = initialize_logging()
-logger.info("🚀 Python Build Utilities CLI — ready to build, package, and manage your Python projects.")
 
 
 @click.group()
-@click.version_option(__version__, "--version", "-v", message="Version: %(version)s", help="Show the version and exit.")
-@click.option("--debug", is_flag=True, help="Enable debug logging.")
-def cli(debug: bool) -> None:
+@click.version_option(__version__, "--version", message="Version: %(version)s", help="Show the version and exit.")
+@click.option("-v", "--verbose", count=True, help="Increase verbosity level. Use -v for info, -vv for debug.")
+def cli(verbose: int) -> None:
     """A collection of CLI tools for Python build utilities."""
-    if debug:
-        logger.setLevel(logging.DEBUG)
-        for handler in logger.handlers:
-            handler.setLevel(logging.DEBUG)
-        logger.debug("Debug mode is enabled.")
+
+    if verbose >= 2:
+        log_level = logging.DEBUG
+    elif verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+
+    logger.setLevel(log_level)
+    for handler in logger.handlers:
+        handler.setLevel(log_level)
+
+    if log_level <= logging.INFO:
+        logger.info("🚀 Python Build Utilities CLI — ready to build, package, and manage your Python projects.")
 
 
 cli.add_command(pyd2wheel)

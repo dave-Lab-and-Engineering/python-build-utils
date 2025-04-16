@@ -7,16 +7,38 @@
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commits/main)
 [![License](https://img.shields.io/github/license/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
 
-Small collection of command line utilities to assist with building your python wheels
+Small collection of command line utilities to assist with building your Python wheels.
 
-- **Github repository**: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
-- **Documentation** <https://dave-lab-and-engineering.github.io/python-build-utils/>
+- GitHub repository: https://github.com/dave-Lab-and-Engineering/python-build-utils
+- Documentation: https://dave-lab-and-engineering.github.io/python-build-utils/
+
+---
+
+## Installation
+
+Install via PyPI:
+
+```shell
+pip install python-build-utils[all]
+```
+
+The optional [all] extra installs additional dependencies like pipdeptree, used by tools like collect-dependencies.
+
+---
 
 ## Description
 
-### Cli-tool `python-build-utils --help`
+A collection of CLI tools for managing Python build artifacts, dependencies, and wheel files.
+
+---
+
+## CLI Tools Overview
+
+Check available commands:
 
 ```text
+python-build-utils --help
+
 Usage: python-build-utils [OPTIONS] COMMAND [ARGS]...
 
   A collection of CLI tools for Python build utilities.
@@ -26,167 +48,126 @@ Options:
   --help         Show this message and exit.
 
 Commands:
-  clean-pyd-modules     Clean all .pyd/.c build modules from a virtual...
-  collect-dependencies  Collect and display dependencies for one or more...
-  collect-pyd-modules   Collect and display .pyd submodules from a...
-  pyd2wheel             Create a Python wheel file from a compiled .pyd...
+  clean-pyd-modules     Clean all .pyd/.c build modules from a virtual environment.
+  collect-dependencies  Collect and display dependencies for one or more packages.
+  collect-pyd-modules   Collect and display .pyd submodules from a virtual environment.
+  pyd2wheel             Create a Python wheel file from a compiled .pyd file.
   remove-tarballs       Remove tarball files from dist.
-  rename-wheel-files    Rename wheel files in a distribution directory by...
+  rename-wheel-files    Rename wheel files in a distribution directory by tag.
 ```
 
-### Cli-tool `clean-pyd-modules --help`
+---
+
+### clean-pyd-modules
+
 ```text
+python-build-utils clean-pyd-modules --help 
 Usage: clean-pyd-modules [OPTIONS]
 
   Clean all .pyd/.c build modules in src path.
 
 Options:
   -v, --version     Show the version and exit.
-  --src-path TEXT   Path to the src folder to scan for .pyd modules. Defaults
-                    to 'src' in the current folder.
-  -r, --regex TEXT  Optional regular expression to filter .pyd modules by
-                    name.
+  --src-path TEXT   Path to the src folder to scan for .pyd modules. Defaults to 'src'.
+  -r, --regex TEXT  Optional regex to filter .pyd modules by name.
   --help            Show this message and exit.
 ```
 
-#### Example of using clean-pyd-modules
+Example:
 
-After cythonizing your projet, all the *.pyd files may remain in your src folder. If you want to remove those
-you can do
+clean-pyd-modules --regex dave
 
-```shell
-clean-pyd-modules --regex dave 
-```
+Removes .pyd and .c files from the src/ folder filtered by name.
 
-This will clean all the *.pyd and *.c files in the src folder of the current directory, filtered by 'dave'
+---
 
+### collect-dependencies
 
-### Cli-tool `collect-dependencies --help`
-
-```text
 Usage: collect-dependencies [OPTIONS]
 
   Collect and display dependencies for one or more Python packages.
 
 Options:
   -v, --version       Show the version and exit.
-  -p, --package TEXT  Name of the Python package to collect dependencies for.
-                      Can be given multiple times. If omitted, dependencies
-                      for the entire environment are collected.
-  -o, --output PATH   Optional file path to write the list of dependencies to.
+  -p, --package TEXT  Name of the Python package(s) to collect dependencies for. Can be given multiple times.
+  -o, --output PATH   Optional file path to write the list of dependencies.
   --help              Show this message and exit.
-```
 
-### Cli-tool `collect-pyd-modules --help`
+---
 
-```text
+### collect-pyd-modules
+
 Usage: collect-pyd-modules [OPTIONS]
 
   Collect and display .pyd submodules from a virtual environment.
 
 Options:
   -v, --version      Show the version and exit.
-  --venv-path TEXT   Path to the virtual environment to scan for .pyd modules.
-                     Defaults to the current environment.
-  -r, --regex TEXT   Optional regular expression to filter .pyd modules by
-                     name.
-  -o, --output PATH  Optional file path to write the list of found .pyd
-                     modules.
+  --venv-path TEXT   Path to the virtual environment. Defaults to the current.
+  -r, --regex TEXT   Optional regex to filter .pyd modules by name.
+  -o, --output PATH  Optional file path to write the list of found .pyd modules.
   --help             Show this message and exit.
-```
 
+---
 
-### Cli-tool `rename-wheel-files --help`
+### rename-wheel-files
 
-```text
 Usage: rename-wheel-files [OPTIONS]
 
-  Rename wheel files in a distribution directory by replacing the default
-  'py3-none-any' tag with a custom one.
+  Rename wheel files in a distribution directory by replacing 'py3-none-any' with a custom tag.
 
 Options:
   -v, --version              Show the version and exit.
-  --dist-dir TEXT            Directory containing wheel files. Defaults to
-                             'dist'.
-  --python-version-tag TEXT  Python version tag to include in the new file
-                             name (e.g., cp310). Defaults to
-                             'cp{major}{minor}' of the current Python.
-  --platform-tag TEXT        Platform tag to include in the new file name.
-                             Defaults to the current platform value from
-                             sysconfig.
+  --dist-dir TEXT            Directory containing wheel files. Defaults to 'dist'.
+  --python-version-tag TEXT  Python version tag (e.g. cp310). Defaults to the current Python.
+  --platform-tag TEXT        Platform tag. Defaults to the current platform value.
   --wheel-tag TEXT           Full custom wheel tag to replace 'py3-none-any'.
-                             If provided, this is used directly, ignoring the
-                             other tag options. Default format is: {python_ver
-                             sion_tag}-{python_version_tag}-{platform_tag}
   --help                     Show this message and exit.
-```
 
-#### Example of using rename-wheel-file
+Example:
 
-From your project root folder, just run
-
-```shell
 rename-wheel-files
-```
 
-### Cli-tool `remove-tarballs --help`
+---
 
-```text
+### remove-tarballs
+
 Usage: remove-tarballs [OPTIONS]
 
   Remove tarball files from dist.
 
-  This function removes tarball files from the given distribution directory.
-
-  Args:     dist_dir (str): The directory containing the tarball files to be
-  removed.
-
-  Returns:     None
-
-  Example:     remove_tarballs("dist")
-
 Options:
   -v, --version    Show the version and exit.
-  --dist_dir TEXT  Directory containing wheel the files. Default is 'dist'
+  --dist_dir TEXT  Directory containing tarball files. Defaults to 'dist'.
   --help           Show this message and exit.
-```
 
-#### Example of using remove-tarballs
+Example:
 
-From your project root folder, just run
-
-```shell
 remove-tarballs
-```
 
-### Cli-tool `pyd2wheel --help`
+---
 
-``` text
+### pyd2wheel
+
 Usage: pyd2wheel [OPTIONS] PYD_FILE
 
   Create a Python wheel file from a compiled .pyd file.
 
 Options:
   -v, --version           Show the version and exit.
-  --package-version TEXT  Version of the package. If not provided, the version
-                          is extracted from the file name.
+  --package-version TEXT  Version of the package. If omitted, the version is extracted from the filename.
   --abi-tag TEXT          ABI tag for the wheel. Defaults to 'none'.
   --help                  Show this message and exit.
-```
 
-This is a tool to convert bare .pyd files to a wheel file such that they can be installed.
+Example (CLI)
 
-```shell
 pyd2wheel .\mybinary.cp310-win_amd64.pyd --package_version 1.0.0
-```
 
-or from python:
+Example (Python)
 
-```python
 from python_build_utils import pyd2wheel
 pyd2wheel("mybinary.cp310-win_amd64.pyd", package_version="1.0.0")
-```
 
-This will create a wheel file named in the same directory as the input file.
+The wheel is created in the same directory as the .pyd file.
 
-Note: The version argument is used only if the version is not already present in the filename (like in the example above).
+---
