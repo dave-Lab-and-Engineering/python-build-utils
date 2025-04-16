@@ -30,6 +30,7 @@ from . import __version__
 @click.version_option(__version__, "--version", "-v", message="%(version)s", help="Show the version and exit.")
 @click.option(
     "--package",
+    "-p",
     multiple=True,
     help=(
         "Name of the Python package to collect dependencies for. "

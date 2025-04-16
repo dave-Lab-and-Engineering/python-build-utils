@@ -69,21 +69,15 @@ Usage: collect-dependencies [OPTIONS]
   Collect and display dependencies for one or more Python packages.
 
 Options:
-  -v, --version      Show the version and exit.
-  --package TEXT     Name of the Python package to collect dependencies for.
-                     Can be given multiple times. If omitted, dependencies for
-                     the entire environment are collected.
-  -o, --output PATH  Optional file path to write the list of dependencies to.
-  --help             Show this message and exit.
+  -v, --version       Show the version and exit.
+  -p, --package TEXT  Name of the Python package to collect dependencies for.
+                      Can be given multiple times. If omitted, dependencies
+                      for the entire environment are collected.
+  -o, --output PATH   Optional file path to write the list of dependencies to.
+  --help              Show this message and exit.
 ```
 
-#### Example of using clean-pyd-modules
-
-```shell
-collect-dependencies 
-```
-
-### Cli-tool `collect-dependencies --help`
+### Cli-tool `collect-pyd-modules --help`
 
 ```text
 Usage: collect-pyd-modules [OPTIONS]
@@ -100,6 +94,7 @@ Options:
                      modules.
   --help             Show this message and exit.
 ```
+
 
 ### Cli-tool `rename-wheel-files --help`
 
