@@ -76,7 +76,28 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
     return deps
 
 
-def collect_package_dependencies(package: tuple[str] | None) -> list[str]:
+def collect_package_dependencies(package: str | tuple[str] | None) -> list[str]:
+    """
+    Collects the dependencies of a given package or packages in the current environment.
+
+    Args:
+        package (str | tuple[str] | None): The name of a single package as a string,
+            a tuple of package names, or None. If None, the dependencies for all packages in the environment
+            are collected.
+    Returns:
+        list[str]: A list of dependency names for the specified package(s).
+            Returns an empty list if the package(s) are not found in the environment.
+    Logs:
+        - A warning if the specified package(s) are not found in the environment.
+        - A debug message with a representation of the dependency tree for the package(s).
+    Notes:
+        - The function relies on helper functions `_get_dependency_tree`,
+          `_find_package_node`, `_collect_dependency_names`, and `_get_deps_tree`
+          to retrieve and process the dependency information.
+    """
+
+    if package and isinstance(package, str):
+        package = (package,)
     dep_tree = _get_dependency_tree()
     package_nodes = _find_package_node(dep_tree, package)
     if not package_nodes:
