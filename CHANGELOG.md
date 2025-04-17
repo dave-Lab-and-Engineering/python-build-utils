@@ -5,9 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.6] - 2025-04-16
+## [0.1.8] - 2025-04-17
 - Added logging functionality
 - Added function api for external use
+- collect-pyd module can now also include py modules:w
+- Changed api of collect_package_dependies to allow argument to be a string
 
 ## [0.1.5] - 2025-04-15
 - Added new command line utility collect-dependencies in order to generate a list of all package dependencies
