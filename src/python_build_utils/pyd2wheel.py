@@ -65,13 +65,13 @@ def convert_pyd_to_wheel(pyd_file: Path, package_version: str | None = None, abi
     try:
         name, version_from_filename, python_version, platform = _extract_pyd_file_info(pyd_file)
     except (PydFileFormatError, PydFileSuffixError):
-        logger.exception("Error occurred while processing the .pyd file", err=True, fg="red")
+        logger.exception("Error occurred while processing the .pyd file")
         return None
 
     try:
         package_version = _get_package_version(package_version, version_from_filename)
     except VersionNotFoundError:
-        logger.exception("Error occurred while processing the .pyd file", err=True, fg="red")
+        logger.exception("Error occurred while processing the .pyd file")
         return None
 
     if abi_tag is None:

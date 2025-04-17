@@ -78,6 +78,6 @@ def rename_wheel_files(
         try:
             os.rename(wheel_file, new_file)
         except FileExistsError:
-            logger.exception("Error", err=True, fg="red")
+            logger.exception("Error")
         else:
             logger.info(f"Renamed: {wheel_file} → {new_file}")

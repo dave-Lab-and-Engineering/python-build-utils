@@ -44,7 +44,7 @@ def remove_tarballs(ctx: click.Context, dist_dir: str) -> None:
         try:
             os.remove(tarball_file)
         except FileNotFoundError:
-            logger.exception("Error", err=True, fg="red")
+            logger.exception("Error")
         else:
             logger.info(f"Removed {tarball_file}")
 

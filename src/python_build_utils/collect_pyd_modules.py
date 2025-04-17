@@ -37,7 +37,7 @@ def collect_pyd_modules(
     regex: str | None = None,
     collect_py: bool = False,
     output: str | None = None,
-) -> None:
+) -> list | None:
     """
     Collects a list of `.pyd` or `.py` submodules found in a virtual environment.
 
@@ -52,13 +52,16 @@ def collect_pyd_modules(
         * Applies regex filtering if provided.
         * Prints results to the console.
         * Optionally writes the list to the specified output file.
+
+    Returns:
+        list | None: List of found .pyd module names or None
     """
     # Get the site-packages directory of the virtual environment
     venv_site_packages = _get_venv_site_packages(venv_path)
 
     if not venv_site_packages:
         logger.error("Could not locate site-packages in the specified environment.")
-        return
+        return None
 
     logger.info(f"Collecting .pyd modules in '{venv_site_packages}'...")
 
@@ -70,7 +73,7 @@ def collect_pyd_modules(
     # If no modules were found, log that and return
     if not pyd_sub_modules:
         logger.info("No .pyd modules found.")
-        return []
+        return None
 
     # Output the list to stdout
     logger.info("Found the following .pyd submodules:")

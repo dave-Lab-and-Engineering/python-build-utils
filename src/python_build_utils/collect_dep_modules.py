@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
     "--output", "-o", type=click.Path(writable=True), help="Optional file path to write the list of dependencies to."
 )
 @click.pass_context
-def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output: str | None) -> None:
+def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output: str | None) -> list | None:
     """
     CLI command to collect dependencies for specified packages or the entire environment.
 
@@ -49,7 +49,7 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
         output (str | None): Optional path to write the dependency list.
 
     Returns:
-        list: A list of dependencies for the specified package(s).
+        list | None: A list of dependencies for the specified package(s).
 
     Behavior:
         * If no package is provided, collects dependencies for all packages in the environment.
@@ -96,10 +96,16 @@ def collect_package_dependencies(package: str | tuple[str] | None) -> list[str]:
           to retrieve and process the dependency information.
     """
 
-    if package and isinstance(package, str):
-        package = (package,)
+    # Normalize the package argument
+    if not package or package == "":
+        package_tuple: tuple[str] | None = None
+    elif isinstance(package, str):
+        package_tuple = (package,)
+    else:
+        package_tuple = package
+
     dep_tree = _get_dependency_tree()
-    package_nodes = _find_package_node(dep_tree, package)
+    package_nodes = _find_package_node(dep_tree, package_tuple)
     if not package_nodes:
         logger.warning(f"Package(s) {package} not found in the environment.")
         return []
@@ -159,7 +165,7 @@ def _get_dependency_tree() -> Any:
     """Run pipdeptree and return the dependency tree as JSON."""
     # pipdeptree is only required for this tool
     try:
-        import pipdeptree  # type: ignore[import]
+        import pipdeptree
     except ModuleNotFoundError:
         logger.exception(
             "pipdeptree is not installed. Please install it to use this tool. Do:\n"

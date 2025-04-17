@@ -131,7 +131,7 @@ def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> No
         try:
             file_to_clean.unlink()
         except Exception as e:
-            logger.warning(f"Error removing {file_to_clean}: {e}", err=True)
+            logger.warning(f"Error removing {file_to_clean}: {e}")
         else:
             clean_any = True
     if not clean_any:
