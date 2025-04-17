@@ -22,18 +22,29 @@ logger = logging.getLogger(__name__)
     help="Optional regular expression to filter .pyd modules by name.",
 )
 @click.option(
+    "--collect-py",
+    is_flag=True,
+    default=False,
+    help="If set, collect .py files instead of .pyd files.",
+)
+@click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional file path to write the list of found .pyd modules."
 )
 @click.pass_context
 def collect_pyd_modules(
-    ctx: click.Context, venv_path: str | None = None, regex: str | None = None, output: str | None = None
+    ctx: click.Context,
+    venv_path: str | None = None,
+    regex: str | None = None,
+    collect_py: bool = False,
+    output: str | None = None,
 ) -> None:
     """
-    Collects a list of `.pyd` submodules found in a virtual environment.
+    Collects a list of `.pyd` or `.py` submodules found in a virtual environment.
 
     Args:
         venv_path (str | None): Path to the virtual environment. If None, the current environment is used.
         regex (str | None): Optional regex pattern to filter module names.
+        collect_py (bool): If True, collect .py instead of .pyd files.
         output (str | None): File path to write the list of .pyd submodules. If None, output is printed only.
 
     Behavior:
@@ -52,7 +63,9 @@ def collect_pyd_modules(
     logger.info(f"Collecting .pyd modules in '{venv_site_packages}'...")
 
     # Collect the modules
-    pyd_sub_modules = _find_pyd_modules_in_site_packages(venv_site_packages=venv_site_packages, regex=regex)
+    pyd_sub_modules = _find_modules_in_site_packages(
+        venv_site_packages=venv_site_packages, regex=regex, collect_py=collect_py
+    )
 
     # If no modules were found, log that and return
     if not pyd_sub_modules:
@@ -89,7 +102,7 @@ def collect_pyd_modules_from_venv(venv_path: str | None = None, regex: str | Non
         logger.error(msg)
         raise ValueError(msg)
 
-    return _find_pyd_modules_in_site_packages(venv_site_packages=venv_site_packages, regex=regex)
+    return _find_modules_in_site_packages(venv_site_packages=venv_site_packages, regex=regex)
 
 
 def _get_venv_site_packages(venv_path: str | None = None) -> Path | None:
@@ -113,7 +126,9 @@ def _get_venv_site_packages(venv_path: str | None = None) -> Path | None:
         return next((Path(p) for p in sys.path if "site-packages" in p), None)
 
 
-def _find_pyd_modules_in_site_packages(venv_site_packages: Path, regex: str | None = None) -> list:
+def _find_modules_in_site_packages(
+    venv_site_packages: Path, regex: str | None = None, collect_py: bool = False
+) -> list:
     """
     Collects all `.pyd` modules from the specified virtual environment's site-packages directory.
     This function searches recursively for `.pyd` files within the given `venv_site_packages` directory,
@@ -122,15 +137,19 @@ def _find_pyd_modules_in_site_packages(venv_site_packages: Path, regex: str | No
     Args:
         venv_site_packages (Path): The path to the virtual environment's site-packages directory.
         regex (str | None, optional): A regular expression to filter the module names. If `None`, no filtering is applied.
+        collect_py (bool): If True, collect .py instead of .pyd files.
 
     Returns:
         list: A list of unique module names corresponding to the `.pyd` files found.
     """
-    pyd_files = list(venv_site_packages.rglob("*.pyd"))
+
+    extension = ".py" if collect_py else ".pyd"
+
+    pyd_files = list(venv_site_packages.rglob(f"*{extension}"))
 
     submodules = []
     for file in pyd_files:
-        module_name = _extract_submodule_name(pyd_file=file, venv_site_packages=venv_site_packages)
+        module_name = _extract_submodule_name(module_file=file, venv_site_packages=venv_site_packages)
 
         if regex is not None and not re.search(regex, module_name, re.IGNORECASE):
             continue
@@ -144,26 +163,26 @@ def _find_pyd_modules_in_site_packages(venv_site_packages: Path, regex: str | No
     return submodules
 
 
-def _extract_submodule_name(pyd_file: Path, venv_site_packages: Path) -> str:
+def _extract_submodule_name(module_file: Path, venv_site_packages: Path) -> str:
     """
-    Extract the submodule name from a .pyd file path by removing the platform-specific suffix
+    Extract the submodule name from a .pyd/.py file path by removing the platform-specific suffix
     and the path leading to the module.
 
     Args:
-        pyd_file (Path): The full path to the .pyd file.
+        module_file (Path): The full path to the .pyd file.
         venv_site_packages (Path): The site-packages directory of the virtual environment.
 
     Returns:
         str: The submodule name in the format 'module.submodule'.
     """
     # Get the relative path from the site-packages directory
-    relative_path = pyd_file.relative_to(venv_site_packages)
+    relative_path = module_file.relative_to(venv_site_packages)
 
     # Remove the platform-specific suffix (e.g., cp312-win_amd64.pyd)
-    module_name = re.sub(r"\.cp\d+.*\.pyd$", "", str(relative_path))
+    module_name = re.sub(r"\.cp\d+.*\.(pyd|py)$", "", str(relative_path))
 
     # Remove the suffix .pyd if it exists
-    module_name = re.sub(r".pyd$", "", str(module_name))
+    module_name = re.sub(r".(pyd|py)$", "", str(module_name))
 
     # Convert the path to a dotted module name
     return module_name.replace(os.sep, ".")

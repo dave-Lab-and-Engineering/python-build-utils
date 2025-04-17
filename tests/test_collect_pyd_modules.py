@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from python_build_utils.collect_pyd_modules import (
-    _find_pyd_modules_in_site_packages,
+    _find_modules_in_site_packages,
     _get_venv_site_packages,
 )
 
@@ -23,7 +23,7 @@ def test_collect_all_pyd_modules_no_files(mock_venv_site_packages):
     """
     Test that collect_all_pyd_modules returns an empty list when no .pyd files are present.
     """
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert result == []
 
 
@@ -36,7 +36,7 @@ def test_collect_all_pyd_modules_with_files(mock_venv_site_packages):
     (mock_venv_site_packages / "subdir" / "module2.pyd").mkdir(parents=True, exist_ok=True)
     (mock_venv_site_packages / "subdir" / "module2.pyd").touch()
 
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert "module1" in result
     assert "subdir.module2" in result
 
@@ -50,7 +50,7 @@ def test_collect_all_pyd_modules_with_regex(mock_venv_site_packages):
     (mock_venv_site_packages / "module2.pyd").touch()
 
     regex = r"module1"
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages, regex=regex)
+    result = _find_modules_in_site_packages(mock_venv_site_packages, regex=regex)
     assert "module1" in result
     assert "module2" not in result
 
@@ -63,7 +63,7 @@ def test_collect_all_pyd_modules_remove_init(mock_venv_site_packages):
     (mock_venv_site_packages / "package" / "__init__.pyd").mkdir(parents=True, exist_ok=True)
     (mock_venv_site_packages / "package" / "__init__.pyd").touch()
 
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert "package" in result
     assert "__init__" not in result
 
@@ -73,7 +73,7 @@ def test_collect_all_pyd_modules_invalid_path():
     Test that collect_all_pyd_modules raises an exception or returns an empty list for an invalid path.
     """
     invalid_path = Path("/invalid/path/to/site-packages")
-    result = _find_pyd_modules_in_site_packages(invalid_path)
+    result = _find_modules_in_site_packages(invalid_path)
     assert result == []
 
 
@@ -86,7 +86,7 @@ def test_collect_all_pyd_modules_case_insensitive_regex(mock_venv_site_packages)
     (mock_venv_site_packages / "module2.pyd").touch()
 
     regex = r"(?i)module1"  # Case-insensitive regex
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages, regex=regex)
+    result = _find_modules_in_site_packages(mock_venv_site_packages, regex=regex)
     assert "Module1" in result
     assert "module2" not in result
 
@@ -100,7 +100,7 @@ def test_collect_all_pyd_modules_nested_directories(mock_venv_site_packages):
     nested_dir.mkdir(parents=True, exist_ok=True)
     (nested_dir / "module.pyd").touch()
 
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert "package.subpackage.module" in result
 
 
@@ -112,7 +112,7 @@ def test_collect_all_pyd_modules_no_pyd_extension(mock_venv_site_packages):
     (mock_venv_site_packages / "module1.txt").touch()
     (mock_venv_site_packages / "module2.py").touch()
 
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert result == []
 
 
@@ -124,7 +124,7 @@ def test_collect_all_pyd_modules_with_platform_specific_suffix(mock_venv_site_pa
     (mock_venv_site_packages / "module1.cp310-win_amd64.pyd").touch()
     (mock_venv_site_packages / "module2.cp39-win_amd64.pyd").touch()
 
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert "module1" in result
     assert "module2" in result
 
@@ -133,7 +133,7 @@ def test_collect_all_pyd_modules_empty_directory(mock_venv_site_packages):
     """
     Test that collect_all_pyd_modules returns an empty list when the directory is empty.
     """
-    result = _find_pyd_modules_in_site_packages(mock_venv_site_packages)
+    result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert result == []
 
     def test_get_venv_site_packages_valid_path(tmp_path):
