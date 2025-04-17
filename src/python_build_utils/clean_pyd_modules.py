@@ -119,7 +119,7 @@ def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> No
     file_candidates = list(src_path.rglob(extension))
 
     if not file_candidates:
-        logger.error(f"No {extension} files found in {src_path}.")
+        logger.info(f"No {extension} files found in {src_path}.")
         return None
 
     clean_any = False
