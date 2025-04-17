@@ -85,13 +85,16 @@ def collect_pyd_modules(
     return pyd_sub_modules  # Return the list of found modules for use in other contexts
 
 
-def collect_pyd_modules_from_venv(venv_path: str | None = None, regex: str | None = None) -> list:
+def collect_pyd_modules_from_venv(
+    venv_path: str | None = None, regex: str | None = None, collect_py: bool = False
+) -> list:
     """
     Public API to collect a list of `.pyd` submodules found in a virtual environment.
 
     Args:
         venv_path (str | None): Path to the virtual environment. If None, the current environment is used.
         regex (str | None): Optional regex pattern to filter module names.
+        collect_py (bool): If True, collect .py instead of .pyd files.
 
     Returns:
         list: List of found .pyd module names.
@@ -102,7 +105,7 @@ def collect_pyd_modules_from_venv(venv_path: str | None = None, regex: str | Non
         logger.error(msg)
         raise ValueError(msg)
 
-    return _find_modules_in_site_packages(venv_site_packages=venv_site_packages, regex=regex)
+    return _find_modules_in_site_packages(venv_site_packages=venv_site_packages, regex=regex, collect_py=collect_py)
 
 
 def _get_venv_site_packages(venv_path: str | None = None) -> Path | None:

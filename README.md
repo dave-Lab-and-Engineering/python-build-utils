@@ -110,6 +110,7 @@ Options:
                      Defaults to the current environment.
   -r, --regex TEXT   Optional regular expression to filter .pyd modules by
                      name.
+  --collect-py       If set, collect .py files instead of .pyd files.
   -o, --output PATH  Optional file path to write the list of found .pyd
                      modules.
   --help             Show this message and exit.
