@@ -814,15 +814,20 @@ name = "python-build-utils"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
-    { name = "cython" },
     { name = "rich" },
 ]
 
 [package.optional-dependencies]
 all = [
+    { name = "cython" },
+    { name = "pipdeptree" },
+    { name = "setuptools" },
+]
+dep = [
     { name = "pipdeptree" },
 ]
 setup = [
+    { name = "cython" },
     { name = "setuptools" },
 ]
 
@@ -851,12 +856,15 @@ uv = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.8" },
-    { name = "cython", specifier = ">=3.0.12" },
+    { name = "cython", marker = "extra == 'all'", specifier = ">=3.0.12" },
+    { name = "cython", marker = "extra == 'setup'", specifier = ">=3.0.12" },
     { name = "pipdeptree", marker = "extra == 'all'", specifier = ">=2.26.0" },
+    { name = "pipdeptree", marker = "extra == 'dep'", specifier = ">=2.26.0" },
     { name = "rich", specifier = ">=13.9.4" },
+    { name = "setuptools", marker = "extra == 'all'", specifier = ">=79.0.0" },
     { name = "setuptools", marker = "extra == 'setup'", specifier = ">=79.0.0" },
 ]
-provides-extras = ["all", "setup"]
+provides-extras = ["all", "dep", "setup"]
 
 [package.metadata.requires-dev]
 dev = [
