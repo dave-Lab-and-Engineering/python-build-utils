@@ -40,7 +40,55 @@ import os
 from setuptools import setup
 
 
-def cythonized_setup(module_name):
+def cythonized_setup(module_name) -> None:
+    """
+    Set up a Python package with optional Cython compilation.
+
+    This function configures the setup process for a Python package, optionally compiling
+    Python source files into C extensions using Cython, based on the `CYTHON_BUILD`
+    environment variable.
+
+    If Cython compilation is not enabled, the package is installed as a pure Python package.
+
+    Parameters
+    ----------
+    module_name : str
+        The name of the Python module or package to be set up.
+
+    Environment Variables
+    ---------------------
+    CYTHON_BUILD : str or int
+        If set to a truthy value, enables Cython compilation for the package.
+
+    Behavior
+    --------
+    - If `CYTHON_BUILD` is set:
+        - Uses Cython to compile all `.py` files under the `src/{module_name}` directory
+        and its subdirectories into C extensions.
+        - Disables docstrings and code comments in the generated Cython code.
+    - If `CYTHON_BUILD` is not set:
+        - No Cython compilation is performed; the package is treated as a pure Python package.
+
+    Notes
+    -----
+    - The function uses `setuptools.setup` to configure the package installation.
+    - The `package_data` and `exclude_package_data` arguments ensure that compiled `.pyd`
+    files are included while excluding source `.py` and `.c` files.
+    - Cython must be installed if `CYTHON_BUILD` is enabled.
+
+    Raises
+    ------
+    ImportError
+        If `CYTHON_BUILD` is set but Cython is not installed.
+
+    Example
+    -------
+    To enable Cython compilation, set the `CYTHON_BUILD` environment variable:
+
+    ```bash
+    export CYTHON_BUILD=1
+    """
+
     requires_cython = os.environ.get("CYTHON_BUILD", 0)
     # requires_cython = True
     print("requires_cython:", requires_cython)
