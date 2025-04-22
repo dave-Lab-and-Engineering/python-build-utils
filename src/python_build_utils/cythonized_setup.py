@@ -40,7 +40,7 @@ import os
 from setuptools import setup
 
 
-def cythonized_setup(module_name) -> None:
+def cythonized_setup(module_name: str) -> None:
     """
     Set up a Python package with optional Cython compilation.
 
