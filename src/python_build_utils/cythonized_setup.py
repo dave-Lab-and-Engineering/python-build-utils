@@ -1,4 +1,9 @@
 # This file replaces parts of setup.py with a Cythonized version.
+# USe:
+# from python_build_utils.cythonized_setup import cythonized_setup
+
+# if __name__ == "__main__":
+#     cythonized_setup("your_module_name")
 
 import glob
 import os
