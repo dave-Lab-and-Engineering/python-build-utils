@@ -39,8 +39,10 @@ import os
 
 from setuptools import setup
 
+from .clean_pyd_modules import clean_cython_build_artifacts
 
-def cythonized_setup(module_name: str) -> None:
+
+def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
     """
     Set up a Python package with optional Cython compilation.
 
@@ -113,3 +115,6 @@ def cythonized_setup(module_name: str) -> None:
         exclude_package_data={module_name: ["**/*.py", "**/*.c", "**/**/*.py", "**/**/*.c"]},
         ext_modules=ext_modules,
     )
+
+    if requires_cython and clean_afterwards:
+        clean_cython_build_artifacts(src_path="src", regex=module_name)

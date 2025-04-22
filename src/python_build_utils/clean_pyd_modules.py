@@ -65,6 +65,10 @@ def clean_pyd_modules(ctx: click.Context, src_path: str | None = None, regex: st
         * Removes all .pyd submodules found under the specified virtual environment's site-packages.
         * Also, all .c files are removed.
     """
+    clean_cython_build_artifacts(src_path=src_path, regex=regex)
+
+
+def clean_cython_build_artifacts(src_path: str | None = None, regex: str | None = None) -> None:
     src_path_to_search = _get_src_path(src_path)
 
     if src_path_to_search is None:
