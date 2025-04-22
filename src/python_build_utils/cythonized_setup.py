@@ -36,17 +36,19 @@ None
 
 import glob
 import os
+from typing import TYPE_CHECKING
 
 from setuptools import setup
 
-from .clean_pyd_modules import clean_cython_build_artifacts
+if TYPE_CHECKING:
+    pass
 
 CYTHON_REQUIRED_MESSAGE = (
     "Cython is required for building this package with Cython extensions. Please install Cython and try again."
 )
 
 
-def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
+def cythonized_setup(module_name: str) -> None:
     """
     Set up a Python package with optional Cython compilation.
 
@@ -96,12 +98,11 @@ def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
     """
 
     requires_cython = os.environ.get("CYTHON_BUILD", 0)
-    # requires_cython = True
     print("requires_cython:", requires_cython)
     if requires_cython:
         try:
-            from Cython.Build import cythonize  # type: ignore[import-not-found]
-            from Cython.Compiler import Options  # type: ignore[import-not-found]
+            from Cython.Build import cythonize
+            from Cython.Compiler import Options
         except ImportError as e:
             raise ImportError(CYTHON_REQUIRED_MESSAGE) from e
 
@@ -122,6 +123,3 @@ def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
         exclude_package_data={module_name: ["**/*.py", "**/*.c", "**/**/*.py", "**/**/*.c"]},
         ext_modules=ext_modules,
     )
-
-    if requires_cython and clean_afterwards:
-        clean_cython_build_artifacts(src_path="src", regex=module_name)

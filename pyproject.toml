@@ -100,6 +100,8 @@ check_untyped_defs = true
 warn_return_any = true
 warn_unused_ignores = true
 show_error_codes = true
+ignore_missing_imports = true
+
 
 # === ruff ===
 
@@ -158,9 +160,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
-
-[tool.ruff.lint.dependency.mappings]
-Cython = "cython"
+"src/python_build_utils/cythonized_setup.py" = []
 
 [tool.ruff.format]
 preview = true
@@ -170,6 +170,10 @@ preview = true
 ignored_dependencies = [
     "python_build_utils",
 ]
+
+[tool.deptry.package_module_name_map]
+cython = "Cython"
+setuptools = "setuptools"
 
 [tool.coverage.report]
 skip_empty = true
