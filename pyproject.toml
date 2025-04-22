@@ -41,6 +41,17 @@ dependencies = [
 [project.optional-dependencies]
 all = [
     "pipdeptree>=2.26.0", # Used in the collect_deps_package CLI tool for collecting the dependencies
+    "setuptools>=79.0.0",
+    "cython>=3.0.12",
+]
+
+dep = [
+    "pipdeptree>=2.26.0", # Used in the collect_deps_package CLI tool for collecting the dependencies
+]
+
+setup = [
+    "setuptools>=79.0.0",
+    "cython>=3.0.12",
 ]
 
 [project.urls]
