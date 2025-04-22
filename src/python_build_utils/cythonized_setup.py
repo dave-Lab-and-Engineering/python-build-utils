@@ -41,6 +41,10 @@ from setuptools import setup
 
 from .clean_pyd_modules import clean_cython_build_artifacts
 
+CYTHON_REQUIRED_MESSAGE = (
+    "Cython is required for building this package with Cython extensions. Please install Cython and try again."
+)
+
 
 def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
     """
@@ -95,8 +99,11 @@ def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
     # requires_cython = True
     print("requires_cython:", requires_cython)
     if requires_cython:
-        from Cython.Build import cythonize
-        from Cython.Compiler import Options
+        try:
+            from Cython.Build import cythonize  # type: ignore[import]
+            from Cython.Compiler import Options  # type: ignore[import]
+        except ImportError as e:
+            raise ImportError(CYTHON_REQUIRED_MESSAGE) from e
 
         Options.docstrings = False
         Options.emit_code_comments = False
