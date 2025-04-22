@@ -100,8 +100,8 @@ def cythonized_setup(module_name: str, clean_afterwards: bool = True) -> None:
     print("requires_cython:", requires_cython)
     if requires_cython:
         try:
-            from Cython.Build import cythonize  # type: ignore[import]
-            from Cython.Compiler import Options  # type: ignore[import]
+            from Cython.Build import cythonize  # type: ignore[import-not-found]
+            from Cython.Compiler import Options  # type: ignore[import-not-found]
         except ImportError as e:
             raise ImportError(CYTHON_REQUIRED_MESSAGE) from e
 
