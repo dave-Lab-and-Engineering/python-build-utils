@@ -159,7 +159,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
 
-[tool.ruff.dependency.mappings]
+[tool.ruff.lint.dependency.mappings]
 Cython = "cython"
 
 [tool.ruff.format]
