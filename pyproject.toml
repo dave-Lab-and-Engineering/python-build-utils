@@ -158,7 +158,9 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
-"src/python_build_utils/cythonized_setup.py" = ["DEP001", "DEP002"]
+
+[tool.ruff.dependency.mappings]
+Cython = "cython"
 
 [tool.ruff.format]
 preview = true
