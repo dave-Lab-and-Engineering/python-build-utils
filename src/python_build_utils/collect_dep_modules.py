@@ -19,6 +19,7 @@ import json
 import logging
 import subprocess
 import sys
+from importlib.metadata import PackageNotFoundError, distribution
 from typing import Any
 
 import click
@@ -124,6 +125,21 @@ def collect_package_dependencies(package: str | tuple[str] | None) -> list[str]:
     return all_dependencies
 
 
+def _get_import_names(dist_name: str) -> list[str]:
+    """
+    Gets the top-level import names for a given distribution name.
+    Falls back to the distribution name itself if not available.
+    """
+    try:
+        dist = distribution(dist_name)
+        top_level_text = dist.read_text("top_level.txt")
+        if top_level_text:
+            return [line.strip() for line in top_level_text.splitlines() if line.strip()]
+    except (PackageNotFoundError, FileNotFoundError):
+        pass
+    return [dist_name]
+
+
 def _get_deps_tree(deps: list[dict], level: int = 1, deps_tree: str = "") -> str:
     """
     Recursively prints a list of dependencies in a hierarchical format.
@@ -204,14 +220,18 @@ def _find_package_node(dep_tree: list, package: tuple[str] | None) -> list | Non
 
 
 def _collect_dependency_names(dependencies: list, collected: list | None = None) -> list:
-    """Recursively collect dependency names."""
+    """Recursively collect import names using top_level.txt from metadata."""
     if collected is None:
         collected = []
 
     for dep in dependencies:
-        dep_name = dep["package_name"]
-        if dep_name not in collected:
-            collected.append(dep_name)
-            _collect_dependency_names(dep.get("dependencies", []), collected)
+        dist_name = dep["package_name"]
+        import_names = _get_import_names(dist_name)
+
+        for name in import_names:
+            if name not in collected:
+                collected.append(name)
+
+        _collect_dependency_names(dep.get("dependencies", []), collected)
 
     return collected
