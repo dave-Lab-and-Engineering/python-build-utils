@@ -17,6 +17,7 @@ Functions:
 
 import json
 import logging
+import re
 import subprocess
 import sys
 from importlib.metadata import PackageNotFoundError, distribution
@@ -38,16 +39,25 @@ logger = logging.getLogger(__name__)
     ),
 )
 @click.option(
+    "--regex",
+    "-r",
+    default=None,
+    help="Optional regular expression to filter modules by name.",
+)
+@click.option(
     "--output", "-o", type=click.Path(writable=True), help="Optional file path to write the list of dependencies to."
 )
 @click.pass_context
-def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output: str | None) -> list | None:
+def collect_dependencies(
+    ctx: click.Context, package: tuple[str] | None, output: str | None, regex: str | None = None
+) -> list | None:
     """
     CLI command to collect dependencies for specified packages or the entire environment.
 
     Args:
         package (tuple[str]): Names of packages to collect dependencies for. If empty, collects for all installed packages.
         output (str | None): Optional path to write the dependency list.
+        regex (str | None): Optional regex pattern to filter module names.
 
     Returns:
         list | None: A list of dependencies for the specified package(s).
@@ -61,7 +71,7 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
 
     logger.info("Python Build Utilities — Dependency Collector starting up.")
 
-    deps = collect_package_dependencies(package)
+    deps = collect_package_dependencies(package, regex)
 
     if not deps:
         logger.info("No dependencies found.")
@@ -77,7 +87,7 @@ def collect_dependencies(ctx: click.Context, package: tuple[str] | None, output:
     return deps
 
 
-def collect_package_dependencies(package: str | tuple[str] | None) -> list[str]:
+def collect_package_dependencies(package: str | tuple[str] | None, regex: str | None = None) -> list[str]:
     """
     Collects the dependencies of a given package or packages in the current environment.
 
@@ -85,6 +95,7 @@ def collect_package_dependencies(package: str | tuple[str] | None) -> list[str]:
         package (str | tuple[str] | None): The name of a single package as a string,
             a tuple of package names, or None. If None, the dependencies for all packages in the environment
             are collected.
+        regex (str| None): Optional regular expression to filter modules by name.
     Returns:
         list[str]: A list of dependency names for the specified package(s).
             Returns an empty list if the package(s) are not found in the environment.
@@ -118,6 +129,10 @@ def collect_package_dependencies(package: str | tuple[str] | None) -> list[str]:
         dependencies = _collect_dependency_names(package_dependencies)
         all_dependencies.extend(dependencies)
         package_tree = _get_deps_tree(package_dependencies, deps_tree=package_tree)
+
+    if regex:
+        pattern = re.compile(regex, re.IGNORECASE)
+        all_dependencies = [p for p in all_dependencies if pattern.search(p)]
 
     logger.debug("Representation of the dependencies:")
     logger.debug(package_tree)
