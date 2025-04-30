@@ -6,6 +6,9 @@ import pytest
 
 from python_build_utils.clean_pyd_modules import clean_by_extensions
 
+logger = logging.getLogger("python_build_utils.clean_pyd_modules")
+logger.setLevel(logging.INFO)
+
 
 @pytest.fixture
 def mock_src_path(tmp_path):
