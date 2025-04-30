@@ -8,7 +8,7 @@ import subprocess
 import sys
 from importlib.metadata import PackageNotFoundError, distribution
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import click
 
@@ -139,7 +139,7 @@ def _get_dependency_tree() -> list[dict[str, Any]]:
 
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
     stdout = _run_safe_subprocess(command)
-    return json.loads(stdout)
+    return cast(list[dict[str, Any]], json.loads(stdout))
 
 
 def _find_package_node(
