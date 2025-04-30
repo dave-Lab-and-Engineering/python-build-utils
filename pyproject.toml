@@ -55,6 +55,7 @@ dev = [
   "mkdocstrings-python>=1.16.0",
   "pipdeptree>=2.26.0",
   "codecov>=2.1.13",
+  "setuptools>=79.0.0",
 ]
 uv = ["uv>=0.5.29"]
 
