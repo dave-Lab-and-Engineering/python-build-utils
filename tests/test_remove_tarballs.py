@@ -43,28 +43,19 @@ def test_remove_tarballs(setup_test_environment: Path) -> None:
 
     assert list(dist_dir.glob("*.tar.gz"))
 
-    result = runner.invoke(remove_tarballs, ["--dist_dir", str(dist_dir)])
+    result = runner.invoke(remove_tarballs, ["--dist-dir", str(dist_dir)])
 
     assert result.exit_code == 0
     assert not list(dist_dir.glob("*.tar.gz"))
 
 
 def test_remove_tarballs_no_files(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    """Test `remove_tarballs` behavior when no tarball files are present.
+    """Test `remove_tarballs` behavior when no tarball files are present."""
+    from python_build_utils.remove_tarballs import remove_tarballs  # zorg dat deze import correct is
 
-    Args:
-        tmp_path: Temporary directory provided by pytest.
-        caplog: Fixture for capturing log output.
-
-    """
-    dist_dir = tmp_path / "dist"
-    dist_dir.mkdir()
     runner = CliRunner()
-
-    assert not list(dist_dir.glob("*.tar.gz"))
-
     with caplog.at_level(logging.INFO):
-        result = runner.invoke(remove_tarballs, ["--dist_dir", str(dist_dir)])
+        result = runner.invoke(remove_tarballs, ["--dist-dir", str(tmp_path)])
 
     assert result.exit_code == 0
-    assert "No tarball files found in" in caplog.text
+    assert any("No .tar.gz files found" in r.message for r in caplog.records)

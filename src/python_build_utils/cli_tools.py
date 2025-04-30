@@ -29,7 +29,7 @@ from .rename_wheel_files import rename_wheel_files
 logger = initialize_logging()
 
 
-@click.group(invoke_without_command=True)
+@click.group(help="Register CLI tools for Python build utilities.", invoke_without_command=True)
 @click.version_option(
     __version__,
     "--version",
@@ -43,7 +43,7 @@ logger = initialize_logging()
     help="Increase verbosity level. Use -v for info, -vv for debug.",
 )
 def cli(verbose: int) -> None:
-    """Register CLI commands and set the appropriate logging level.
+    """Register CLI tools for Python build utilities.
 
     This function is the entrypoint for the CLI. It adjusts the logging level based
     on verbosity flags and registers all available subcommands.

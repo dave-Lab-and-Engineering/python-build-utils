@@ -116,12 +116,16 @@ def test_collect_pyd_modules_site_packages_not_found(
     assert any("Could not locate site-packages" in r.message for r in caplog.records)
 
 
-def test_collect_pyd_modules_invalid_path(tmp_path: Path) -> None:
+def test_collect_pyd_modules_invalid_path(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     """Gracefully handle nonexistent venv-path argument."""
     invalid_path = tmp_path / "does_not_exist"
-
     runner = CliRunner()
-    result = runner.invoke(collect_pyd_modules, ["--venv-path", str(invalid_path)])
+
+    with caplog.at_level("ERROR"):
+        result = runner.invoke(collect_pyd_modules, ["--venv-path", str(invalid_path)])
 
     assert result.exit_code == 0
-    assert "does not exist" in result.output
+    assert any("does not exist" in record.message for record in caplog.records)

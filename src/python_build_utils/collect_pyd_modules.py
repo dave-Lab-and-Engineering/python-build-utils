@@ -1,6 +1,7 @@
 """Collect .pyd or .py submodules from a virtual environment."""
 
 import logging
+import os
 import re
 import sys
 from pathlib import Path
@@ -138,7 +139,14 @@ def _extract_submodule_name(module_file: Path, venv_site_packages: Path) -> str:
     """Convert a file path to a dotted submodule name, normalized for .py/.pyd endings."""
     relative_path = module_file.relative_to(venv_site_packages)
     module_name = re.sub(r"\.cp\d+.*\.(pyd|py)$", "", str(relative_path))
+
+    # Remove the suffix .pyd if it exists
     module_name = re.sub(r"\.(pyd|py)$", "", module_name)
-    module_name = relative_path.as_posix().replace("/", ".")
-    module_name = re.sub(r"\.__init__$", "", module_name)
-    return module_name.rstrip(".")
+
+    # Convert the path to a dotted module name
+    module_name = module_name.replace(os.sep, ".")
+
+    if module_name.endswith(".__init__"):
+        module_name = re.sub(r"\.__init__$", "", module_name)
+
+    return module_name

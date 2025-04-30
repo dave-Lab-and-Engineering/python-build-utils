@@ -118,21 +118,25 @@ def test_no_matching_files(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> 
     assert any("No matching wheel files" in record.message for record in caplog.records)
 
 
-def test_file_exists_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+def test_file_exists_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    create_dummy_wheel: Callable[[Path, str], Path],
+) -> None:
     """Test behavior when target wheel file already exists."""
     (tmp_path / "example-1.0-custom.whl").touch()
     create_dummy_wheel(tmp_path, "example-1.0-py3-none-any.whl")
 
-    error_message = "Mocked"
-
     def mock_rename(_: Path, __: Path) -> NoReturn:
-        raise FileExistsError(error_message)
+        msg = "Mocked"
+        raise FileExistsError(msg)
 
     monkeypatch.setattr(os, "rename", mock_rename)
 
     runner = CliRunner()
-    with caplog.at_level(logging.ERROR):
+    with caplog.at_level(logging.WARNING):  # <-- hier aangepast
         result = runner.invoke(rename_wheel_files, ["--dist-dir", str(tmp_path), "--wheel-tag", "custom"])
 
     assert result.exit_code == 0
-    assert any("Error" in message for message in caplog.messages)
+    assert any("File already exists" in record.message for record in caplog.records)
