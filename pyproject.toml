@@ -101,7 +101,6 @@ ignore = [
   "ANN401",
   "SLF001",
   "ARG001",
-  "DEP002",
 ]
 
 [tool.ruff.lint.isort]
@@ -115,6 +114,8 @@ lines-after-imports = 2
 
 [tool.deptry.ignore]
 ignored_dependencies = ["python_build_utils"]
+DEP002 = ["pipdeptree"]
+
 
 [tool.deptry.package_module_name_map]
 cython = "Cython"
