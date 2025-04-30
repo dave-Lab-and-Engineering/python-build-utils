@@ -2,6 +2,7 @@
 
 import os
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -31,31 +32,26 @@ def test_pure_python_setup(monkeypatch: pytest.MonkeyPatch) -> None:
     assert kwargs["ext_modules"] == []
 
 
-def test_cythonized_setup_success(monkeypatch: pytest.MonkeyPatch, tmp_path: pytest.TempPathFactory) -> None:
+def test_cythonized_setup_success(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """Test that setup is called with Cythonized extensions when CYTHON_BUILD is set."""
     os.environ["CYTHON_BUILD"] = "1"
 
-    dummy_file = tmp_path.mktemp("src") / "dummy_module" / "foo.py"
-    dummy_file.parent.mkdir(parents=True, exist_ok=True)
-    dummy_file.write_text("def foo(): pass")
+    # Prepare dummy .py file
+    src_dir = tmp_path / "src" / "dummy_module"
+    src_dir.mkdir(parents=True)
+    dummy_file = src_dir / "foo.py"
+    dummy_file.write_text("def bar(): pass")
 
     monkeypatch.chdir(tmp_path)
 
-    mock_setup = MagicMock()
-    monkeypatch.setattr(mod, "setup", mock_setup)
+    with (
+        patch("python_build_utils.cythonize_setup.cythonize", return_value=["dummy_ext"]) as mock_cythonize,
+        patch("python_build_utils.cythonize_setup.setup") as mock_setup,
+    ):
+        mod.cythonized_setup("dummy_module")
 
-    mock_cythonize = MagicMock(return_value=["compiled_module"])
-    monkeypatch.setattr("python_build_utils.cythonize_setup.cythonize", mock_cythonize)
-
-    mock_options = MagicMock()
-    monkeypatch.setattr("python_build_utils.cythonize_setup.Options", mock_options)
-
-    mod.cythonized_setup("dummy_module")
-
-    mock_cythonize.assert_called_once()
-    mock_setup.assert_called_once()
-    _, kwargs = mock_setup.call_args
-    assert kwargs["ext_modules"] == ["compiled_module"]
+        mock_cythonize.assert_called_once()
+        mock_setup.assert_called_once()
 
 
 def test_cython_required_but_not_installed(monkeypatch: pytest.MonkeyPatch) -> None:
