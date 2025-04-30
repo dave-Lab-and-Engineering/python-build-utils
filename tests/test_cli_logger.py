@@ -15,15 +15,13 @@ from python_build_utils import LOGGER_NAME, cli_logger
 def test_initialize_logging_adds_handler_when_none_present() -> None:
     """Ensure a handler is added if no handlers are present on the logger."""
     logger = logging.getLogger(LOGGER_NAME)
+    logger.handlers.clear()  # Leegmaken!
 
-    with (
-        patch.object(logger, "hasHandlers", return_value=False),
-        patch.object(logger, "addHandler") as mock_add_handler,
-    ):
+    with patch.object(logger, "addHandler") as mock_add_handler:
         returned = cli_logger.initialize_logging()
 
-        assert mock_add_handler.called
-        assert returned is logger
+    assert mock_add_handler.called
+    assert returned is logger
 
 
 def test_initialize_logging_skips_add_handler_when_present() -> None:

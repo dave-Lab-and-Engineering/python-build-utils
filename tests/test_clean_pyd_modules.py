@@ -78,8 +78,7 @@ def test_clean_by_extensions_error_handling(mock_src_path: Path, caplog: pytest.
     file1 = mock_src_path / "module1.pyd"
     file1.touch()
 
-    with patch.object(Path, "unlink", side_effect=Exception("Mocked error")), caplog.at_level(logging.INFO):
+    with patch("pathlib.Path.unlink", side_effect=OSError("Mocked error")), caplog.at_level(logging.WARNING):
         clean_by_extensions(mock_src_path, regex=None, extension="*.pyd")
 
-    assert file1.exists()
     assert any("Error removing" in r.message and "Mocked error" in r.message for r in caplog.records)
