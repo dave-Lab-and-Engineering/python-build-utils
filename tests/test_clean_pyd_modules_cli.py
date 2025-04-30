@@ -1,5 +1,16 @@
-import logging
+"""CLI tests for the clean_pyd_modules tool in python_build_utils.
 
+Covers:
+- No files to clean
+- File removal behavior
+- Regex filtering
+- Invalid path handling
+"""
+
+import logging
+from pathlib import Path
+
+import pytest
 from click.testing import CliRunner
 
 from python_build_utils.clean_pyd_modules import clean_pyd_modules
@@ -9,7 +20,8 @@ logger = logging.getLogger("python_build_utils.clean_pyd_modules")
 logger.setLevel(logging.INFO)
 
 
-def test_clean_pyd_modules_no_files(tmp_path, caplog):
+def test_clean_pyd_modules_no_files(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """Test behavior when no .pyd or .c files are present."""
     runner = CliRunner()
     with caplog.at_level("INFO"):
         result = runner.invoke(clean_pyd_modules, ["--src-path", str(tmp_path)])
@@ -18,7 +30,8 @@ def test_clean_pyd_modules_no_files(tmp_path, caplog):
     assert any("No *.c files found" in r.message for r in caplog.records)
 
 
-def test_clean_pyd_modules_removes_files(tmp_path, caplog):
+def test_clean_pyd_modules_removes_files(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """Test that .pyd and .c files are removed as expected."""
     file1 = tmp_path / "test1.pyd"
     file2 = tmp_path / "test2.c"
     file1.write_text("dummy")
@@ -34,7 +47,8 @@ def test_clean_pyd_modules_removes_files(tmp_path, caplog):
     assert any("Removing" in r.message for r in caplog.records)
 
 
-def test_clean_pyd_modules_with_regex(tmp_path, caplog):
+def test_clean_pyd_modules_with_regex(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """Test that regex filtering only removes matching .pyd files."""
     (tmp_path / "match_this.pyd").write_text("dummy")
     (tmp_path / "skip_this.pyd").write_text("dummy")
 
@@ -48,7 +62,8 @@ def test_clean_pyd_modules_with_regex(tmp_path, caplog):
     assert any("Removing" in r.message for r in caplog.records)
 
 
-def test_clean_pyd_modules_invalid_path(tmp_path, caplog):
+def test_clean_pyd_modules_invalid_path(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """Test behavior when an invalid src-path is provided."""
     bad_path = tmp_path / "nonexistent"
     runner = CliRunner()
     with caplog.at_level("ERROR"):
