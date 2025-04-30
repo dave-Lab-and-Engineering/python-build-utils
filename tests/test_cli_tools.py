@@ -18,7 +18,7 @@ def test_cli_help() -> None:
     runner = CliRunner()
     result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
-    assert "A collection of CLI tools for Python build utilities." in result.output
+    assert "Register CLI tools for Python build utilities." in result.output
 
 
 def test_cli_version() -> None:

@@ -81,4 +81,4 @@ def clean_by_extensions(src_path: Path, regex: str | None, extension: str) -> No
             deleted_any = True
 
     if not deleted_any:
-        logger.info("No matching %s files found in %s with regex '%s'.", extension, src_path, regex)
+        logger.info("No %s files with '%s' filter found in %s", extension, regex, src_path)
