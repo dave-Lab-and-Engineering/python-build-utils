@@ -3,7 +3,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/releases/tag/0.1.1)
 [![PyPI Version](https://img.shields.io/pypi/v/python-build-utils)](https://pypi.org/project/python-build-utils/)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/dave-Lab-and-Engineering/python-build-utils/main.yml?branch=main)](https://github.com/dave-Lab-and-Engineering/python-build-utils/actions/workflows/main.yml)
-[![Coverage Status](https://coveralls.io/repos/github/dave-Lab-and-Engineering/python-build-utils/badge.svg)](https://coveralls.io/github/dave-Lab-and-Engineering/python-build-utils)
+[![codecov](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commits/main)
 [![License](https://img.shields.io/github/license/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
 

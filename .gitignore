@@ -144,3 +144,4 @@ cython_debug/
 examples/*.whl
 coverage.json
 *.txt
+/junit.xml

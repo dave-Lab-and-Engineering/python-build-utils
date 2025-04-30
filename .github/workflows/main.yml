@@ -49,9 +49,21 @@ jobs:
       - name: Check typing
         run: uv run mypy
 
-      - name: Upload coverage reports to Codecov with GitHub Action on Python 3.11
+      - name: Upload coverage reports to Codecov with GitHub Action on Python 3.12
         uses: codecov/codecov-action@v4
         if: ${{ matrix.python-version == '3.11' }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   check-docs:
     runs-on: ubuntu-latest

@@ -121,6 +121,19 @@ wheels = [
 ]
 
 [[package]]
+name = "codecov"
+version = "2.1.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "coverage" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2c/bb/594b26d2c85616be6195a64289c578662678afa4910cef2d3ce8417cf73e/codecov-2.1.13.tar.gz", hash = "sha256:2362b685633caeaf45b9951a9b76ce359cd3581dd515b430c6c3f5dfb4d92a8c", size = 21416 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/af/02/18785edcdf6266cdd6c6dc7635f1cbeefd9a5b4c3bb8aff8bd681e9dd095/codecov-2.1.13-py2.py3-none-any.whl", hash = "sha256:c2ca5e51bba9ebb43644c43d0690148a55086f7f5e6fd36170858fa4206744d5", size = 16512 },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -833,6 +846,7 @@ setup = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "codecov" },
     { name = "coverage", extra = ["toml"] },
     { name = "coveralls" },
     { name = "deptry" },
@@ -868,6 +882,7 @@ provides-extras = ["all", "dep", "setup"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "codecov", specifier = ">=2.1.13" },
     { name = "coverage", extras = ["toml"], specifier = ">=7.6.1" },
     { name = "coveralls", specifier = ">=4.0.1" },
     { name = "deptry", specifier = ">=0.22.0" },
