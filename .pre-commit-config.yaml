@@ -10,16 +10,16 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  # - repo: https://github.com/astral-sh/ruff-pre-commit
-  #   rev: "v0.9.7"
-  #   hooks:
-  #     - id: ruff
-  #       args: ["--exit-non-zero-on-fix"]
-  #     - id: ruff-format
-  #     - id: ruff
-  #       name: ruff-import-sorter
-  #       args: ["--select=I", "--fix"]
-  #       stages: [manual]  # only when done manually with 'pre-commit run ruff-import-sorter --all-files'
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.9.7"
+    hooks:
+      - id: ruff
+        args: ["--exit-non-zero-on-fix"]
+      - id: ruff-format
+      #- id: ruff
+      #  name: ruff-import-sorter
+      #  args: ["--select=I", "--fix"]
+      #  stages: [manual]  # only when done manually with 'pre-commit run ruff-import-sorter --all-files'
 
   # - repo: https://github.com/prettier/pre-commit
   #   rev: 57f39166b5a5a504d6808b87ab98d41ebf095b46
