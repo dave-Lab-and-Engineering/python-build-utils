@@ -92,6 +92,7 @@ Options:
   -p, --package TEXT  Name of the Python package to collect dependencies for.
                       Can be given multiple times. If omitted, dependencies
                       for the entire environment are collected.
+  -r, --regex TEXT    Optional regular expression to filter modules by name.
   -o, --output PATH   Optional file path to write the list of dependencies to.
   --help              Show this message and exit.
 ```
