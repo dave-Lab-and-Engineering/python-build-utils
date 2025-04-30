@@ -111,7 +111,7 @@ lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
-"src/python_build_utils/cythonized_setup.py" = []
+# "src/python_build_utils/cythonized_setup.py" = []
 
 
 [tool.deptry.ignore]
