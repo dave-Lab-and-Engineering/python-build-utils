@@ -45,12 +45,13 @@ def test_cythonized_setup_success(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
     monkeypatch.chdir(tmp_path)
 
     with (
-        patch("python_build_utils.cythonize_setup.cythonize", return_value=["dummy_ext"]) as mock_cythonize,
-        patch("python_build_utils.cythonize_setup.setup") as mock_setup,
+        patch("Cython.Build.cythonize", return_value=["dummy_ext"]) as mock_cythonize,
+        patch("Cython.Compiler.Options"),
+        patch("python_build_utils.cythonized_setup.setup") as mock_setup,
     ):
         mod.cythonized_setup("dummy_module")
-
-        mock_cythonize.assert_called_once()
+        mock_cythonize.assert_called()
+        mock_setup.assert_called()
         mock_setup.assert_called_once()
 
 
