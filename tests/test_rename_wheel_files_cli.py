@@ -17,16 +17,14 @@ from python_build_utils.rename_wheel_files import rename_wheel_files
 
 def test_rename_wheel_file_exists(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
     """Log a warning if the target wheel file already exists."""
-    wheel_dir = tmp_path
-    existing_wheel = wheel_dir / "example-1.0.0-py3-none-any.whl"
-    conflict_target = wheel_dir / "example-1.0.0-cp311-cp311-win_amd64.whl"
+    wheel_file = tmp_path / "example-1.0.0-py3-none-any.whl"
+    wheel_file.touch()
 
-    existing_wheel.touch()
-    conflict_target.touch()  # File already exists
-
-    runner = CliRunner()
-    with caplog.at_level("WARNING"):
-        result = runner.invoke(rename_wheel_files, ["--dist-dir", str(wheel_dir)])
+    # Simuleer FileExistsError bij rename
+    with patch.object(Path, "rename", side_effect=FileExistsError):
+        runner = CliRunner()
+        with caplog.at_level("WARNING"):
+            result = runner.invoke(rename_wheel_files, ["--dist-dir", str(tmp_path)])
 
     assert result.exit_code == 0
     assert any("already exists" in r.message for r in caplog.records)
