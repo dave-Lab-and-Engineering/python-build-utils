@@ -97,7 +97,10 @@ ignore = [
   "S603",  # `subprocess` call without `shell=True`
   "D203",  # blank line before class (conflicts with D211)
   "D213",  # multi-line docstring second line (conflicts with D212)
-  "COM812"
+  "COM812",
+  "ANN401",
+  "SLF001",
+  "ARG001",
 ]
 
 [tool.ruff.lint.isort]
