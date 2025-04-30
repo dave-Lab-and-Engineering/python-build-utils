@@ -132,7 +132,7 @@ def test_file_exists_error(
         msg = "Mocked"
         raise FileExistsError(msg)
 
-    monkeypatch.setattr(os, "rename", mock_rename)
+    monkeypatch.setattr("pathlib.Path.rename", mock_rename)
 
     runner = CliRunner()
     with caplog.at_level(logging.WARNING):  # <-- hier aangepast
