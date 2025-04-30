@@ -193,3 +193,10 @@ def test_get_import_names_top_level(monkeypatch: Any) -> None:
     monkeypatch.setattr("python_build_utils.collect_dep_modules.distribution", lambda _: dist_mock)
     result = mod._get_import_names("any")
     assert result == ["foo", "bar"]
+
+
+def test_get_dependency_tree_no_pipdeptree(monkeypatch: Any) -> None:
+    """Exit als pipdeptree ontbreekt (find_spec geeft None)."""
+    monkeypatch.setattr("importlib.util.find_spec", lambda name: None if name == "pipdeptree" else True)
+    with pytest.raises(SystemExit):
+        mod._get_dependency_tree()

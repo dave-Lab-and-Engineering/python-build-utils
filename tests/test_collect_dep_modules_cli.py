@@ -11,10 +11,12 @@ Includes:
 import json
 import subprocess
 import sys
+from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
+from click.testing import CliRunner
 
 import python_build_utils.collect_dep_modules as mod
 from python_build_utils.collect_dep_modules import (
@@ -185,3 +187,40 @@ def test_get_import_names_top_level(monkeypatch: Any) -> None:
     monkeypatch.setattr("python_build_utils.collect_dep_modules.distribution", lambda _: dist_mock)
     result = mod._get_import_names("any")
     assert result == ["foo", "bar"]
+
+
+def test_get_import_names_empty_top_level(monkeypatch: Any) -> None:
+    """Fallback op distributienaam als top_level.txt leeg of ontbreekt is."""
+    dist_mock = MagicMock()
+    dist_mock.read_text.return_value = ""
+    monkeypatch.setattr("python_build_utils.collect_dep_modules.distribution", lambda _: dist_mock)
+    result = mod._get_import_names("somepackage")
+    assert result == ["somepackage"]
+
+
+def test_collect_dependencies_write_to_file(tmp_path: Path) -> None:
+    """Write dependencies to File via -Output."""
+    output_path = tmp_path / "deps.txt"
+
+    with patch("python_build_utils.collect_dep_modules.collect_package_dependencies", return_value=["a", "b"]):
+        runner = CliRunner()
+        result = runner.invoke(mod.collect_dependencies, ["--output", str(output_path)])
+
+    assert result.exit_code == 0
+
+    content = output_path.read_text(encoding="utf-8")
+    assert "a" in content
+    assert "b" in content
+
+
+def test_collect_dependencies_cli_echo(capsys: Any) -> None:
+    """Print dependencies to stdout if --output is not given."""
+    with patch("python_build_utils.collect_dep_modules.collect_package_dependencies", return_value=["depA", "depB"]):
+        runner = CliRunner()
+        result = runner.invoke(mod.collect_dependencies, [])
+
+    assert result.exit_code == 0
+
+    captured = capsys.readouterr()
+    assert "depA" in captured.out
+    assert "depB" in captured.out
