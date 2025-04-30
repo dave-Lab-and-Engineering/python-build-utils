@@ -24,11 +24,10 @@ def remove_tarballs(dist_dir: str) -> None:
         logger.info("No .tar.gz files found in '%s'.", dist_path)
         return
 
-    # loop over paths
     for path in tarball_paths:
-        try:  # noqa: PERF203
+        try:
             path.unlink()
-        except FileNotFoundError:
+        except FileNotFoundError:  # noqa: PERF203
             logger.warning("File not found: %s", path)
         except OSError:
             logger.exception("Error removing file: %s", path)
