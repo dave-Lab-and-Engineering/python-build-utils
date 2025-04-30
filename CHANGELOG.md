@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2025-04-30
+- Coverage reporting now via codecov
+
 ## [0.2.5] - 2025-04-30
 - Added regular expression option for collect-dependencies module
 - Added more unit tests to increase coverage
