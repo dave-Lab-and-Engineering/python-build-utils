@@ -1,34 +1,22 @@
-"""
-This module provides a CLI tool to collect all dependencies of a given Python package
-using `pipdeptree`. The dependencies can be displayed in the console or written to an
-output file.
-Functions:
-    collect_dependencies(package: str, output: str | None) -> None:
-        CLI command to collect and display/write dependencies of a specified package.
-    run_safe_subprocess(command: list) -> str:
-        Runs a subprocess safely and returns the output. Handles errors gracefully.
-    get_dependency_tree() -> list:
-        Executes `pipdeptree` to retrieve the dependency tree in JSON format.
-    find_package_node(dep_tree: list, package: str) -> dict | None:
-        Searches for a specific package node in the dependency tree.
-    collect_dependency_names(dependencies: list, collected=None) -> list:
-        Recursively collects the names of all dependencies from a given dependency list.
-"""
+"""Collect dependencies of a package using pipdeptree."""
 
+import importlib.util
 import json
 import logging
 import re
 import subprocess
 import sys
 from importlib.metadata import PackageNotFoundError, distribution
+from pathlib import Path
 from typing import Any
 
 import click
 
+
 logger = logging.getLogger(__name__)
 
 
-@click.command(name="collect-dependencies", help="Collect and display dependencies for one or more Python packages.")
+@click.command(name="collect-dependencies", help="Collect and display dependencies for Python packages.")
 @click.option(
     "--package",
     "-p",
@@ -45,72 +33,41 @@ logger = logging.getLogger(__name__)
     help="Optional regular expression to filter modules by name.",
 )
 @click.option(
-    "--output", "-o", type=click.Path(writable=True), help="Optional file path to write the list of dependencies to."
+    "--output",
+    "-o",
+    type=click.Path(writable=True),
+    help="Optional file path to write the list of dependencies to.",
 )
-@click.pass_context
 def collect_dependencies(
-    ctx: click.Context, package: tuple[str] | None, output: str | None, regex: str | None = None
-) -> list | None:
-    """
-    CLI command to collect dependencies for specified packages or the entire environment.
-
-    Args:
-        package (tuple[str]): Names of packages to collect dependencies for. If empty, collects for all installed packages.
-        output (str | None): Optional path to write the dependency list.
-        regex (str | None): Optional regex pattern to filter module names.
-
-    Returns:
-        list | None: A list of dependencies for the specified package(s).
-
-    Behavior:
-        * If no package is provided, collects dependencies for all packages in the environment.
-        * If a package is not found, notifies the user.
-        * Displays dependencies in a tree format on the console.
-        * Writes a plain list of dependencies to the given file if --output is provided.
-    """
-
+    package: tuple[str, ...] | None,
+    output: str | None,
+    regex: str | None = None,
+) -> list[str] | None:
+    """Collect dependencies for specified packages or the entire environment."""
     logger.info("Python Build Utilities — Dependency Collector starting up.")
 
     deps = collect_package_dependencies(package, regex)
 
     if not deps:
         logger.info("No dependencies found.")
+        return None
+
+    if output:
+        output_path = Path(output)
+        with output_path.open("w", encoding="utf-8") as f:
+            f.write("\n".join(deps))
+        logger.info("Dependencies written to %s", output_path)
     else:
-        if output:
-            with open(output, "w") as f:
-                f.write("\n".join(deps))
-            logger.info(f"Dependencies written as plain list to {output}")
-        else:
-            for dep in deps:
-                click.echo(dep)
+        for dep in deps:
+            click.echo(dep)
 
     return deps
 
 
-def collect_package_dependencies(package: str | tuple[str] | None, regex: str | None = None) -> list[str]:
-    """
-    Collects the dependencies of a given package or packages in the current environment.
-
-    Args:
-        package (str | tuple[str] | None): The name of a single package as a string,
-            a tuple of package names, or None. If None, the dependencies for all packages in the environment
-            are collected.
-        regex (str| None): Optional regular expression to filter modules by name.
-    Returns:
-        list[str]: A list of dependency names for the specified package(s).
-            Returns an empty list if the package(s) are not found in the environment.
-    Logs:
-        - A warning if the specified package(s) are not found in the environment.
-        - A debug message with a representation of the dependency tree for the package(s).
-    Notes:
-        - The function relies on helper functions `_get_dependency_tree`,
-          `_find_package_node`, `_collect_dependency_names`, and `_get_deps_tree`
-          to retrieve and process the dependency information.
-    """
-
-    # Normalize the package argument
+def collect_package_dependencies(package: str | tuple[str, ...] | None, regex: str | None = None) -> list[str]:
+    """Collect the dependencies of given packages in the current environment."""
     if not package or package == "":
-        package_tuple: tuple[str] | None = None
+        package_tuple: tuple[str, ...] | None = None
     elif isinstance(package, str):
         package_tuple = (package,)
     else:
@@ -119,32 +76,28 @@ def collect_package_dependencies(package: str | tuple[str] | None, regex: str | 
     dep_tree = _get_dependency_tree()
     package_nodes = _find_package_node(dep_tree, package_tuple)
     if not package_nodes:
-        logger.warning(f"Package(s) {package} not found in the environment.")
+        logger.warning("Package(s) %s not found in the environment.", package)
         return []
 
-    all_dependencies = []
+    all_dependencies: list[str] = []
     package_tree = ""
+
     for package_node in package_nodes:
         package_dependencies = package_node.get("dependencies", [])
-        dependencies = _collect_dependency_names(package_dependencies)
-        all_dependencies.extend(dependencies)
+        deps = _collect_dependency_names(package_dependencies)
+        all_dependencies.extend(deps)
         package_tree = _get_deps_tree(package_dependencies, deps_tree=package_tree)
 
     if regex:
         pattern = re.compile(regex, re.IGNORECASE)
         all_dependencies = [p for p in all_dependencies if pattern.search(p)]
 
-    logger.debug("Representation of the dependencies:")
-    logger.debug(package_tree)
-
+    logger.debug("Dependency tree:\n%s", package_tree)
     return all_dependencies
 
 
 def _get_import_names(dist_name: str) -> list[str]:
-    """
-    Gets the top-level import names for a given distribution name.
-    Falls back to the distribution name itself if not available.
-    """
+    """Get top-level import names for a given installed distribution."""
     try:
         dist = distribution(dist_name)
         top_level_text = dist.read_text("top_level.txt")
@@ -155,98 +108,66 @@ def _get_import_names(dist_name: str) -> list[str]:
     return [dist_name]
 
 
-def _get_deps_tree(deps: list[dict], level: int = 1, deps_tree: str = "") -> str:
-    """
-    Recursively prints a list of dependencies in a hierarchical format.
-
-    Args:
-        deps (list): A list of dictionaries representing dependencies. Each dictionary
-                     should contain the keys "key" (dependency name) and "installed_version"
-                     (version of the dependency). Optionally, it can include a "dependencies"
-                     key with a nested list of dependencies.
-        level (int, optional): The current indentation level for printing. Defaults to 1.
-        deps_tree (str, optional): A string to accumulate the formatted dependencies. Defaults to an empty string.
-
-    Returns:
-        str: A string representation of the dependencies in a hierarchical format.
-    """
-
+def _get_deps_tree(deps: list[dict[str, Any]], level: int = 1, deps_tree: str = "") -> str:
+    """Return a formatted tree of dependencies."""
     for dep in deps:
         dep_name = dep["key"]
         dep_version = dep["installed_version"]
         deps_tree += "  " * level + f"- {dep_name} ({dep_version})\n"
-        deps_tree = _get_deps_tree(dep.get("dependencies", []), level + 1, deps_tree=deps_tree)
-
+        deps_tree = _get_deps_tree(dep.get("dependencies", []), level + 1, deps_tree)
     return deps_tree
 
 
 def _run_safe_subprocess(command: list[str]) -> str:
-    """Runs a subprocess safely and returns the output."""
+    """Run a subprocess and return stdout, exit if it fails."""
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)  # nosec B603
     except subprocess.CalledProcessError as e:
-        logger.warning("Subprocess failed.")
-        logger.warning(e)
+        logger.warning("Subprocess failed: %s", e)
         sys.exit(1)
-    else:
-        return result.stdout  # return moved to else block
+    return result.stdout
 
 
-def _get_dependency_tree() -> Any:
-    """Run pipdeptree and return the dependency tree as JSON."""
-    # pipdeptree is only required for this tool
-    try:
-        import pipdeptree
-    except ModuleNotFoundError:
+def _get_dependency_tree() -> list[dict[str, Any]]:
+    """Use pipdeptree to get the full dependency tree in JSON format."""
+    if importlib.util.find_spec("pipdeptree") is None:
         logger.exception(
-            "pipdeptree is not installed. Please install it to use this tool. Do:\n"
-            ""
-            "   pip install pipdeptree\n"
-            ""
-            "or\n"
-            ""
-            "   pip install python-build-utils[all]\n"
+            "pipdeptree is not installed. Please install it to use this tool.\n"
+            "Run: pip install pipdeptree or python-build-utils[all]",
         )
         sys.exit(1)
-    else:
-        logger.debug(f"Imported {pipdeptree.__name__}")
 
     command = [sys.executable, "-m", "pipdeptree", "--json-tree"]
-
     stdout = _run_safe_subprocess(command)
     return json.loads(stdout)
 
 
-def _find_package_node(dep_tree: list, package: tuple[str] | None) -> list | None:
-    """Find the package node in the dependency tree."""
-    package_nodes = []
+def _find_package_node(
+    dep_tree: list[dict[str, Any]],
+    package: str | tuple[str, ...] | None,
+) -> list[dict[str, Any]]:
+    """Find the package node(s) in the dependency tree."""
     if not package:
-        package_nodes = dep_tree
-    else:
-        if isinstance(package, str):
-            package = [package]
+        return dep_tree
 
-        for package_name in package:
-            for pkg in dep_tree:
-                if pkg["key"].lower() == package_name.lower():
-                    package_nodes.append(pkg)
+    if isinstance(package, str):
+        package = (package,)
 
-    return package_nodes
+    return [node for node in dep_tree if node["key"].lower() in {pkg.lower() for pkg in package}]
 
 
-def _collect_dependency_names(dependencies: list, collected: list | None = None) -> list:
-    """Recursively collect import names using top_level.txt from metadata."""
+def _collect_dependency_names(
+    dependencies: list[dict[str, Any]],
+    collected: set[str] | None = None,
+) -> list[str]:
+    """Recursively collect all import names from dependency nodes."""
     if collected is None:
-        collected = []
+        collected = set()
 
     for dep in dependencies:
         dist_name = dep["package_name"]
         import_names = _get_import_names(dist_name)
-
-        for name in import_names:
-            if name not in collected:
-                collected.append(name)
-
+        collected.update(import_names)
         _collect_dependency_names(dep.get("dependencies", []), collected)
 
-    return collected
+    return sorted(collected)

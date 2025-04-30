@@ -11,26 +11,20 @@ from python_build_utils.collect_pyd_modules import (
 
 @pytest.fixture
 def mock_venv_site_packages(tmp_path):
-    """
-    Fixture to create a temporary mock virtual environment site-packages directory.
-    """
+    """Fixture to create a temporary mock virtual environment site-packages directory."""
     site_packages = tmp_path / "site-packages"
     site_packages.mkdir(parents=True, exist_ok=True)
     return site_packages
 
 
 def test_collect_all_pyd_modules_no_files(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules returns an empty list when no .pyd files are present.
-    """
+    """Test that collect_all_pyd_modules returns an empty list when no .pyd files are present."""
     result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert result == []
 
 
 def test_collect_all_pyd_modules_with_files(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules correctly collects .pyd files.
-    """
+    """Test that collect_all_pyd_modules correctly collects .pyd files."""
     # Create mock .pyd files
     (mock_venv_site_packages / "module1.pyd").touch()
     (mock_venv_site_packages / "subdir" / "module2.pyd").mkdir(parents=True, exist_ok=True)
@@ -42,9 +36,7 @@ def test_collect_all_pyd_modules_with_files(mock_venv_site_packages):
 
 
 def test_collect_all_pyd_modules_with_regex(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules correctly filters .pyd files using a regex.
-    """
+    """Test that collect_all_pyd_modules correctly filters .pyd files using a regex."""
     # Create mock .pyd files
     (mock_venv_site_packages / "module1.pyd").touch()
     (mock_venv_site_packages / "module2.pyd").touch()
@@ -56,31 +48,24 @@ def test_collect_all_pyd_modules_with_regex(mock_venv_site_packages):
 
 
 def test_collect_all_pyd_modules_remove_init(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules removes .__init__ from module names.
-    """
-    # Create mock .pyd file with __init__ in the name
-    (mock_venv_site_packages / "package" / "__init__.pyd").mkdir(parents=True, exist_ok=True)
-    (mock_venv_site_packages / "package" / "__init__.pyd").touch()
+    """Test that __init__ modules are returned as their parent package name."""
+    init_file = mock_venv_site_packages / "package" / "__init__.pyd"
+    init_file.parent.mkdir(parents=True, exist_ok=True)
+    init_file.touch()
 
     result = _find_modules_in_site_packages(mock_venv_site_packages)
-    assert "package" in result
-    assert "__init__" not in result
+    assert "package" in result  # 'package/__init__.pyd' → 'package'
 
 
 def test_collect_all_pyd_modules_invalid_path():
-    """
-    Test that collect_all_pyd_modules raises an exception or returns an empty list for an invalid path.
-    """
+    """Test that collect_all_pyd_modules raises an exception or returns an empty list for an invalid path."""
     invalid_path = Path("/invalid/path/to/site-packages")
     result = _find_modules_in_site_packages(invalid_path)
     assert result == []
 
 
 def test_collect_all_pyd_modules_case_insensitive_regex(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules correctly filters .pyd files using a case-insensitive regex.
-    """
+    """Test that collect_all_pyd_modules correctly filters .pyd files using a case-insensitive regex."""
     # Create mock .pyd files
     (mock_venv_site_packages / "Module1.pyd").touch()
     (mock_venv_site_packages / "module2.pyd").touch()
@@ -92,9 +77,7 @@ def test_collect_all_pyd_modules_case_insensitive_regex(mock_venv_site_packages)
 
 
 def test_collect_all_pyd_modules_nested_directories(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules correctly collects .pyd files from deeply nested directories.
-    """
+    """Test that collect_all_pyd_modules correctly collects .pyd files from deeply nested directories."""
     # Create mock .pyd files in nested directories
     nested_dir = mock_venv_site_packages / "package" / "subpackage"
     nested_dir.mkdir(parents=True, exist_ok=True)
@@ -105,9 +88,7 @@ def test_collect_all_pyd_modules_nested_directories(mock_venv_site_packages):
 
 
 def test_collect_all_pyd_modules_no_pyd_extension(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules ignores files without the .pyd extension.
-    """
+    """Test that collect_all_pyd_modules ignores files without the .pyd extension."""
     # Create mock files with different extensions
     (mock_venv_site_packages / "module1.txt").touch()
     (mock_venv_site_packages / "module2.py").touch()
@@ -117,9 +98,7 @@ def test_collect_all_pyd_modules_no_pyd_extension(mock_venv_site_packages):
 
 
 def test_collect_all_pyd_modules_with_platform_specific_suffix(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules correctly removes platform-specific suffixes from module names.
-    """
+    """Test that collect_all_pyd_modules correctly removes platform-specific suffixes from module names."""
     # Create mock .pyd files with platform-specific suffixes
     (mock_venv_site_packages / "module1.cp310-win_amd64.pyd").touch()
     (mock_venv_site_packages / "module2.cp39-win_amd64.pyd").touch()
@@ -130,16 +109,12 @@ def test_collect_all_pyd_modules_with_platform_specific_suffix(mock_venv_site_pa
 
 
 def test_collect_all_pyd_modules_empty_directory(mock_venv_site_packages):
-    """
-    Test that collect_all_pyd_modules returns an empty list when the directory is empty.
-    """
+    """Test that collect_all_pyd_modules returns an empty list when the directory is empty."""
     result = _find_modules_in_site_packages(mock_venv_site_packages)
     assert result == []
 
     def test_get_venv_site_packages_valid_path(tmp_path):
-        """
-        Test that get_venv_site_packages returns the correct site-packages path for a valid virtual environment.
-        """
+        """Test that get_venv_site_packages returns the correct site-packages path for a valid virtual environment."""
         venv_path = tmp_path / "venv"
         site_packages = venv_path / "Lib" / "site-packages"
         site_packages.mkdir(parents=True, exist_ok=True)
@@ -149,18 +124,14 @@ def test_collect_all_pyd_modules_empty_directory(mock_venv_site_packages):
 
 
 def test_get_venv_site_packages_invalid_path():
-    """
-    Test that get_venv_site_packages returns None for an invalid virtual environment path.
-    """
+    """Test that get_venv_site_packages returns None for an invalid virtual environment path."""
     invalid_path = "/invalid/venv/path"
     result = _get_venv_site_packages(invalid_path)
     assert result is None
 
 
 def test_get_venv_site_packages_none_path(monkeypatch, tmp_path):
-    """
-    Test that get_venv_site_packages returns the site-packages path for the current environment when no path is provided.
-    """
+    """Test that get_venv_site_packages returns the site-packages path for the current environment when no path is provided."""
     site_packages = tmp_path / "site-packages"
     site_packages.mkdir(parents=True, exist_ok=True)
 
@@ -173,9 +144,7 @@ def test_get_venv_site_packages_none_path(monkeypatch, tmp_path):
 
 
 def test_get_venv_site_packages_no_site_packages(monkeypatch):
-    """
-    Test that get_venv_site_packages returns None when no site-packages directory is found in the current environment.
-    """
+    """Test that get_venv_site_packages returns None when no site-packages directory is found in the current environment."""
 
     def mock_sys_path():
         return ["/some/random/path"]
@@ -186,9 +155,7 @@ def test_get_venv_site_packages_no_site_packages(monkeypatch):
 
 
 def test_get_venv_site_packages_valid_path(tmp_path):
-    """
-    Test that get_venv_site_packages returns the correct site-packages path for a valid virtual environment.
-    """
+    """Test that get_venv_site_packages returns the correct site-packages path for a valid virtual environment."""
     venv_path = tmp_path / "venv"
     site_packages = venv_path / "Lib" / "site-packages"
     site_packages.mkdir(parents=True, exist_ok=True)

@@ -1,52 +1,35 @@
-"""Remove the tar.gz files from the dist build folder."""
+"""Remove .tar.gz source distribution files from a build directory."""
 
-import glob
 import logging
-import os
-import textwrap
+from pathlib import Path
 
 import click
+
 
 logger = logging.getLogger(__name__)
 
 
-@click.command(name="remove-tarballs")
+@click.command(name="remove-tarballs", help="Remove .tar.gz files from the given dist directory.")
 @click.option(
-    "--dist_dir",
+    "--dist-dir",
     default="dist",
-    help=textwrap.dedent("""
-    Directory containing wheel the files.
-    Default is 'dist'
-"""),
+    help="Directory containing the .tar.gz files. Defaults to 'dist'.",
 )
-@click.pass_context
-def remove_tarballs(ctx: click.Context, dist_dir: str) -> None:
-    """Remove tarball files from dist.
+def remove_tarballs(dist_dir: str) -> None:
+    """Remove all .tar.gz source distribution files from the specified directory."""
+    dist_path = Path(dist_dir.rstrip("/"))
+    tarball_paths = list(dist_path.glob("*.tar.gz"))
 
-    This function removes tarball files from the given distribution directory.
+    if not tarball_paths:
+        logger.info("No .tar.gz files found in '%s'.", dist_path)
+        return
 
-    Args:
-        dist_dir (str): The directory containing the tarball files to be removed.
-
-    Returns:
-        None
-
-    Example:
-        remove_tarballs("dist")
-    """
-
-    dist_dir = dist_dir.rstrip("/")
-
-    found_files = False
-
-    for tarball_file in glob.glob(f"{dist_dir}/*.tar.gz"):
-        found_files = True
-        try:
-            os.remove(tarball_file)
+    for path in tarball_paths:
+        try:  # noqa: PERF203
+            path.unlink()
         except FileNotFoundError:
-            logger.exception("Error")
+            logger.warning("File not found: %s", path)
+        except OSError:
+            logger.exception("Error removing file: %s", path)
         else:
-            logger.info(f"Removed {tarball_file}")
-
-    if not found_files:
-        logger.info(f"No tarball files found in {dist_dir}")
+            logger.info("🗑️ Removed: %s", path)
