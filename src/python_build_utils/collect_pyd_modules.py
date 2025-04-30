@@ -124,9 +124,6 @@ def _find_modules_in_site_packages(
     for file in files:
         module_name = _extract_submodule_name(file, venv_site_packages)
 
-        if module_name.endswith(".__init__") or module_name == "__init__":
-            continue
-
         if regex and not re.search(regex, module_name, re.IGNORECASE):
             continue
 

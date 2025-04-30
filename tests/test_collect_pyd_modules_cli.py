@@ -86,7 +86,7 @@ def test_collect_pyd_modules_py_mode(mock_venv_structure: Path) -> None:
 
 
 def test_collect_pyd_modules_output_file(mock_venv_structure: Path, tmp_path: Path) -> None:
-    """Write collected modules to an output file."""
+    """Test that collected modules are written to the output file and echoed."""
     output_file = tmp_path / "modules.txt"
 
     runner = CliRunner()
@@ -99,7 +99,7 @@ def test_collect_pyd_modules_output_file(mock_venv_structure: Path, tmp_path: Pa
     contents = output_file.read_text()
     assert "pkg.mod1" in contents
     assert "pkg.subpkg.mod2" in contents
-    assert f"Module list written to {output_file}" in result.output  # 🔧 deze regel toevoegen
+    assert f"Module list written to {output_file}" in result.output
 
 
 def test_collect_pyd_modules_site_packages_not_found(
@@ -150,3 +150,19 @@ def test_collect_pyd_modules_no_matches(mock_venv_structure: Path, caplog: pytes
 
     # Check that log line about "no matches" is present
     assert any("No matching modules found." in r.message for r in caplog.records)
+
+
+def test_extract_submodule_name_with_suffix_and_init(tmp_path: Path) -> None:
+    """Test that '__init__.cp311-win_amd64.pyd' is correctly normalized to package name."""
+    site_packages = tmp_path / "site-packages"
+    package_dir = site_packages / "my_package"
+    package_dir.mkdir(parents=True)
+
+    init_file = package_dir / "__init__.cp311-win_amd64.pyd"
+    init_file.touch()
+
+    from python_build_utils.collect_pyd_modules import _extract_submodule_name
+
+    result = _extract_submodule_name(init_file, site_packages)
+
+    assert result == "my_package"

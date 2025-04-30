@@ -200,3 +200,47 @@ def test_get_dependency_tree_no_pipdeptree(monkeypatch: Any) -> None:
     monkeypatch.setattr("importlib.util.find_spec", lambda name: None if name == "pipdeptree" else True)
     with pytest.raises(SystemExit):
         mod._get_dependency_tree()
+
+
+@patch("python_build_utils.collect_dep_modules._get_dependency_tree")
+@patch("python_build_utils.collect_dep_modules._get_import_names", side_effect=lambda name: [name])
+def test_collect_package_dependencies_deduplicates(mock_imports: Any, mock_tree: Any) -> None:
+    """Ensure duplicate dependencies are removed from the output."""
+    # Stel een dependency tree samen waarin 'common' twee keer voorkomt
+    dep_tree = [
+        {
+            "key": "rootpkg",
+            "package_name": "rootpkg",
+            "installed_version": "1.0",
+            "dependencies": [
+                {
+                    "key": "common",
+                    "package_name": "common",
+                    "installed_version": "1.1",
+                    "dependencies": [],
+                },
+                {
+                    "key": "subpkg",
+                    "package_name": "subpkg",
+                    "installed_version": "1.2",
+                    "dependencies": [
+                        {
+                            "key": "common",
+                            "package_name": "common",
+                            "installed_version": "1.1",
+                            "dependencies": [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ]
+
+    mock_tree.return_value = dep_tree
+
+    from python_build_utils.collect_dep_modules import collect_package_dependencies
+
+    result = collect_package_dependencies("rootpkg")
+    assert set(result) == {"common", "subpkg"}
+
+    assert result.count("common") == 1

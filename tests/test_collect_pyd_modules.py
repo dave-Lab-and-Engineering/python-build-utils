@@ -181,3 +181,18 @@ def test_extract_submodule_name_with_suffix_and_init(tmp_path: Path) -> None:
     result = _extract_submodule_name(file, site_packages)
 
     assert result == "mymodule"
+
+
+def test_extract_submodule_name_with_platform_suffix_and_init(tmp_path: Path) -> None:
+    """Test that '__init__.cpXXX.pyd' is correctly normalized to package name."""
+    site_packages = tmp_path / "site-packages"
+    package_dir = site_packages / "my_package"
+    package_dir.mkdir(parents=True)
+    init_file = package_dir / "__init__.cp311-win_amd64.pyd"
+    init_file.touch()
+
+    from python_build_utils.collect_pyd_modules import _extract_submodule_name
+
+    result = _extract_submodule_name(init_file, site_packages)
+
+    assert result == "my_package"
