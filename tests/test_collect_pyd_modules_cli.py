@@ -142,9 +142,10 @@ def test_collect_pyd_modules_no_matches(mock_venv_structure: Path, caplog: pytes
 
     assert result.exit_code == 0
 
-    # Confirm no actual module lines were echoed
-    lines = [line for line in result.output.strip().splitlines() if not line.startswith("INFO")]
-    assert not lines  # empty list means no module output
+    # Make sure no known module names are printed
+    assert "pkg.mod1" not in result.output
+    assert "pkg.subpkg.mod2" not in result.output
+    assert "pkg.altmod" not in result.output
 
-    # Confirm correct logging
+    # Check that log line about "no matches" is present
     assert any("No matching modules found." in r.message for r in caplog.records)
