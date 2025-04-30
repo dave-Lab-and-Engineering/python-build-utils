@@ -213,14 +213,12 @@ def test_collect_dependencies_write_to_file(tmp_path: Path) -> None:
     assert "b" in content
 
 
-def test_collect_dependencies_cli_echo(capsys: Any) -> None:
+def test_collect_dependencies_cli_echo() -> None:
     """Print dependencies to stdout if --output is not given."""
     with patch("python_build_utils.collect_dep_modules.collect_package_dependencies", return_value=["depA", "depB"]):
         runner = CliRunner()
         result = runner.invoke(mod.collect_dependencies, [])
 
     assert result.exit_code == 0
-
-    captured = capsys.readouterr()
-    assert "depA" in captured.out
-    assert "depB" in captured.out
+    assert "depA" in result.output
+    assert "depB" in result.output
