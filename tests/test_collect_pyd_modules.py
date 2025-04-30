@@ -166,3 +166,18 @@ def test_extract_submodule_name_strips_init(tmp_path: Path) -> None:
 
     result = _extract_submodule_name(file, site_packages)
     assert result == "mypkg"
+
+
+def test_extract_submodule_name_with_suffix_and_init(tmp_path: Path) -> None:
+    """Ensure __init__ with platform suffix is correctly normalized."""
+    site_packages = tmp_path / "site-packages"
+    pkg_dir = site_packages / "mymodule"
+    pkg_dir.mkdir(parents=True)
+    file = pkg_dir / "__init__.cp311-win_amd64.pyd"
+    file.touch()
+
+    from python_build_utils.collect_pyd_modules import _extract_submodule_name
+
+    result = _extract_submodule_name(file, site_packages)
+
+    assert result == "mymodule"

@@ -99,6 +99,7 @@ def test_collect_pyd_modules_output_file(mock_venv_structure: Path, tmp_path: Pa
     contents = output_file.read_text()
     assert "pkg.mod1" in contents
     assert "pkg.subpkg.mod2" in contents
+    assert f"Module list written to {output_file}" in result.output  # 🔧 deze regel toevoegen
 
 
 def test_collect_pyd_modules_site_packages_not_found(
