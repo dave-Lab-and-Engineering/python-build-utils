@@ -1,4 +1,12 @@
-"""CLI tests for `python_build_utils.collect_pyd_modules`."""
+"""CLI tests for `python_build_utils.collect_pyd_modules`.
+
+Covers scenarios like:
+- Default module collection
+- Regex filtering
+- Collection of `.py` modules
+- Writing to output file
+- Handling of invalid or missing site-packages path
+"""
 
 import logging
 from pathlib import Path
@@ -15,27 +23,30 @@ logger.setLevel(logging.INFO)
 
 @pytest.fixture
 def mock_venv_structure(tmp_path: Path) -> Path:
-    """Create a mock venv with site-packages and test files."""
+    """Create a mock venv directory structure with site-packages and files.
+
+    Args:
+        tmp_path: Temporary directory for the mock venv.
+
+    Returns:
+        Path: Root path of the mock venv.
+
+    """
     site_packages = tmp_path / "Lib" / "site-packages"
     site_packages.mkdir(parents=True)
 
-    # Create valid .pyd files
     (site_packages / "pkg").mkdir()
     (site_packages / "pkg" / "mod1.cp311-win_amd64.pyd").touch()
     (site_packages / "pkg" / "subpkg").mkdir()
     (site_packages / "pkg" / "subpkg" / "mod2.cp311-win_amd64.pyd").touch()
-
-    # __init__ file
     (site_packages / "pkg" / "__init__.cp311-win_amd64.pyd").touch()
-
-    # .py file (for --collect-py)
     (site_packages / "pkg" / "altmod.py").touch()
 
     return tmp_path
 
 
 def test_collect_pyd_modules_default(mock_venv_structure: Path) -> None:
-    """Test collection of .pyd modules with default settings."""
+    """Collect .pyd modules from the mock environment using default options."""
     runner = CliRunner()
     result = runner.invoke(collect_pyd_modules, ["--venv-path", str(mock_venv_structure)])
 
@@ -47,7 +58,7 @@ def test_collect_pyd_modules_default(mock_venv_structure: Path) -> None:
 
 
 def test_collect_pyd_modules_with_regex(mock_venv_structure: Path) -> None:
-    """Test collection of .pyd modules filtered by regex."""
+    """Collect .pyd modules filtered by a regex expression."""
     runner = CliRunner()
     result = runner.invoke(
         collect_pyd_modules,
@@ -61,7 +72,7 @@ def test_collect_pyd_modules_with_regex(mock_venv_structure: Path) -> None:
 
 
 def test_collect_pyd_modules_py_mode(mock_venv_structure: Path) -> None:
-    """Test collection of .py modules when using --collect-py."""
+    """Collect .py modules instead of .pyd when --collect-py is used."""
     runner = CliRunner()
     result = runner.invoke(
         collect_pyd_modules,
@@ -75,7 +86,7 @@ def test_collect_pyd_modules_py_mode(mock_venv_structure: Path) -> None:
 
 
 def test_collect_pyd_modules_output_file(mock_venv_structure: Path, tmp_path: Path) -> None:
-    """Test outputting collected modules to a specified file."""
+    """Write collected modules to an output file."""
     output_file = tmp_path / "modules.txt"
 
     runner = CliRunner()
@@ -94,7 +105,7 @@ def test_collect_pyd_modules_site_packages_not_found(
     monkeypatch: pytest.MonkeyPatch,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """Test behavior when site-packages directory is not found."""
+    """Fallback behavior when no site-packages directory is found."""
     monkeypatch.setattr("sys.path", [])
 
     runner = CliRunner()
@@ -106,7 +117,7 @@ def test_collect_pyd_modules_site_packages_not_found(
 
 
 def test_collect_pyd_modules_invalid_path(tmp_path: Path) -> None:
-    """Test behavior when provided venv-path does not exist."""
+    """Gracefully handle nonexistent venv-path argument."""
     invalid_path = tmp_path / "does_not_exist"
 
     runner = CliRunner()
