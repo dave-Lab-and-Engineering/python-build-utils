@@ -16,6 +16,16 @@ check: ## Run code quality tools.
 	@echo "🚀 Checking for obsolete dependencies: Running deptry"
 	@uv run deptry .
 
+
+sort: sort-imports fix-all-sorts
+
+sort-imports:
+	pre-commit run ruff --all-files --hook-stage manual
+
+fix-all-sorts:
+	ruff check src tests --select=RUF022 --fix
+
+
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"

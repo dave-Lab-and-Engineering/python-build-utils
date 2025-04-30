@@ -42,9 +42,10 @@ def rename_wheel_files(
     wheel_tag: str | None,
 ) -> None:
     """Rename all wheel files in dist-dir with a custom Python/platform tag."""
-    dist_path = Path(dist_dir).resolve()
+    dist_path = Path(dist_dir.rstrip("/")).resolve()
+
     if not dist_path.exists() or not dist_path.is_dir():
-        logger.error(f"Distribution directory '{dist_path}' does not exist.")
+        logger.error("Distribution directory '%s' does not exist.", dist_path)
         return
 
     if wheel_tag:
@@ -57,7 +58,7 @@ def rename_wheel_files(
     wheel_files = list(dist_path.glob("*py3-none-any.whl"))
 
     if not wheel_files:
-        logger.info(f"No matching wheel files found in '{dist_path}'.")
+        logger.info("No matching wheel files found in '%s'.", dist_path)
         return
 
     for wheel_file in wheel_files:
@@ -66,8 +67,8 @@ def rename_wheel_files(
 
         try:
             wheel_file.rename(new_path)
-            logger.info(f"📝 Renamed: {wheel_file.name} → {new_path.name}")
+            logger.info("📝 Renamed: %s → %s", wheel_file.name, new_path.name)
         except FileExistsError:
-            logger.warning(f"❌ File already exists: {new_path}")
-        except Exception as e:
-            logger.exception(f"Unexpected error while renaming '{wheel_file}': {e}")
+            logger.warning("❌ File already exists: %s", new_path)
+        except OSError:
+            logger.exception("Unexpected error while renaming: %s", wheel_file)
