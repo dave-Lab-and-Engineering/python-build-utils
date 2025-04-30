@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-import python_build_utils.cythonize_setup as mod
+import python_build_utils.cythonized_setup as mod
 
 
 @pytest.fixture(autouse=True)
