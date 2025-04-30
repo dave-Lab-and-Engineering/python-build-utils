@@ -95,8 +95,15 @@ def collect_package_dependencies(package: str | tuple[str, ...] | None, regex: s
     logger.debug("Dependency tree:\n%s", package_tree)
 
     # Deduplicate while preserving order
-    seen = set()
-    return [dep for dep in all_dependencies if not (dep in seen or seen.add(dep))]
+    seen: set[str] = set()
+    unique_dependencies: list[str] = []
+
+    for dep in all_dependencies:
+        if dep not in seen:
+            seen.add(dep)
+            unique_dependencies.append(dep)
+
+    return unique_dependencies
 
 
 def _get_import_names(dist_name: str) -> list[str]:
