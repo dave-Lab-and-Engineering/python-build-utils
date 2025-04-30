@@ -151,3 +151,18 @@ def test_get_venv_site_packages_no_site_packages(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(sys, "path", ["/some/random/path"])
     result = _get_venv_site_packages()
     assert result is None
+
+
+def test_extract_submodule_name_strips_init(tmp_path: Path) -> None:
+    """Ensure .__init__ suffix is removed correctly from dotted name."""
+    site_packages = tmp_path / "site-packages"
+    site_packages.mkdir()
+    pkg_dir = site_packages / "mypkg"
+    pkg_dir.mkdir()
+    file = pkg_dir / "__init__.pyd"
+    file.touch()
+
+    from python_build_utils.collect_pyd_modules import _extract_submodule_name
+
+    result = _extract_submodule_name(file, site_packages)
+    assert result == "mypkg"

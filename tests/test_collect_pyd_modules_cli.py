@@ -129,3 +129,22 @@ def test_collect_pyd_modules_invalid_path(
 
     assert result.exit_code == 0
     assert any("does not exist" in record.message for record in caplog.records)
+
+
+def test_collect_pyd_modules_no_matches(mock_venv_structure: Path, caplog: pytest.LogCaptureFixture) -> None:
+    """Log and return None when no modules match regex or extension."""
+    runner = CliRunner()
+
+    result = runner.invoke(
+        collect_pyd_modules,
+        ["--venv-path", str(mock_venv_structure), "--collect-py", "--regex", "doesnotmatch"],
+    )
+
+    assert result.exit_code == 0
+
+    # Confirm no actual module lines were echoed
+    lines = [line for line in result.output.strip().splitlines() if not line.startswith("INFO")]
+    assert not lines  # empty list means no module output
+
+    # Confirm correct logging
+    assert any("No matching modules found." in r.message for r in caplog.records)
