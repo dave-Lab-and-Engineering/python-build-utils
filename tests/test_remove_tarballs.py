@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import NoReturn
 
 import pytest
 from click.testing import CliRunner
@@ -59,3 +60,56 @@ def test_remove_tarballs_no_files(tmp_path: Path, caplog: pytest.LogCaptureFixtu
 
     assert result.exit_code == 0
     assert any("No .tar.gz files found" in r.message for r in caplog.records)
+
+
+# Voor test_remove_tarballs_file_not_found
+def test_remove_tarballs_file_not_found(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Test dat een FileNotFoundError netjes wordt gelogd."""
+    dist_dir = tmp_path / "dist"
+    dist_dir.mkdir()
+    tarball_path = dist_dir / "ghost.tar.gz"
+    tarball_path.write_text("dummy content")
+    tarball_path.unlink()
+
+    def fake_glob(self: Path, pattern: str) -> list[Path]:
+        return [tarball_path]
+
+    monkeypatch.setattr(Path, "glob", fake_glob)
+
+    runner = CliRunner()
+    with caplog.at_level(logging.WARNING):
+        result = runner.invoke(remove_tarballs, ["--dist-dir", str(dist_dir)])
+
+    assert result.exit_code == 0
+    assert any("File not found" in r.message for r in caplog.records)
+
+
+# Voor test_remove_tarballs_oserror
+def test_remove_tarballs_oserror(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Test dat een OSError netjes wordt gelogd met een traceback."""
+    dist_dir = tmp_path / "dist"
+    dist_dir.mkdir()
+    tarball_path = dist_dir / "unremovable.tar.gz"
+    tarball_path.write_text("dummy content")
+
+    def fake_glob(self: Path, pattern: str) -> list[Path]:
+        return [tarball_path]
+
+    error_message = "Permission denied"
+
+    def fake_unlink(self: Path) -> NoReturn:
+        raise OSError(error_message)
+
+    monkeypatch.setattr(Path, "glob", fake_glob)
+    monkeypatch.setattr(Path, "unlink", fake_unlink)
+
+    runner = CliRunner()
+    with caplog.at_level(logging.ERROR):
+        result = runner.invoke(remove_tarballs, ["--dist-dir", str(dist_dir)])
+
+    assert result.exit_code == 0
+    assert any("Error removing file" in r.message for r in caplog.records)
