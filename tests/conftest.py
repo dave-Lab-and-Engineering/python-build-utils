@@ -1,6 +1,9 @@
+import logging
 from unittest.mock import patch
 
 import pytest
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 @pytest.fixture
