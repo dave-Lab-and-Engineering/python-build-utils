@@ -9,6 +9,7 @@ Includes:
 """
 
 import json
+import logging
 import subprocess
 import sys
 from typing import Any
@@ -244,3 +245,58 @@ def test_collect_package_dependencies_deduplicates(mock_imports: Any, mock_tree:
     assert set(result) == {"common", "subpkg"}
 
     assert result.count("common") == 1
+
+
+def test_collect_dependencies_empty_string_package(monkeypatch: Any) -> None:
+    """Test fallback when empty string is passed as package."""
+    mock_tree = [
+        {
+            "key": "pkg",
+            "package_name": "pkg",
+            "installed_version": "1.0",
+            "dependencies": [
+                {
+                    "key": "dep1",
+                    "package_name": "dep1",
+                    "installed_version": "1.0",
+                    "dependencies": [],
+                }
+            ],
+        }
+    ]
+    monkeypatch.setattr(mod, "_get_dependency_tree", lambda: mock_tree)
+    monkeypatch.setattr(mod, "_get_import_names", lambda name: [name])
+    deps = mod.collect_package_dependencies("")
+    assert deps == ["dep1"]
+
+
+def test_dependency_tree_debug_logging(caplog: pytest.LogCaptureFixture) -> None:
+    """Ensure debug logging of dependency tree works."""
+    deps = [{"key": "dep1", "package_name": "dep1", "installed_version": "1.0", "dependencies": []}]
+    with (
+        patch(
+            "python_build_utils.collect_dep_modules._get_dependency_tree",
+            return_value=[{"key": "pkg", "package_name": "pkg", "installed_version": "1.0", "dependencies": deps}],
+        ),
+        patch("python_build_utils.collect_dep_modules._get_import_names", return_value=["dep1"]),
+        caplog.at_level(logging.DEBUG),
+    ):
+        mod.logger.setLevel(logging.DEBUG)  # <- Cruciaal voor caplog
+        _ = mod.collect_package_dependencies("pkg")
+        assert "Dependency tree:" in caplog.text
+        assert "- dep1 (1.0)" in caplog.text
+
+
+def test_duplicate_dependencies_are_skipped() -> None:
+    """Ensure already seen dependencies are not duplicated."""
+    deps = [
+        {
+            "package_name": "dup",
+            "dependencies": [
+                {"package_name": "dup", "dependencies": []},
+            ],
+        }
+    ]
+    with patch("python_build_utils.collect_dep_modules._get_import_names", lambda name: [name]):
+        result = mod._collect_dependency_names(deps)
+    assert result == ["dup"]

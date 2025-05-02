@@ -166,3 +166,28 @@ def test_extract_submodule_name_with_suffix_and_init(tmp_path: Path) -> None:
     result = _extract_submodule_name(init_file, site_packages)
 
     assert result == "my_package"
+
+
+def test_collect_pyd_modules_output_written_via_cli(tmp_path: Path) -> None:
+    """Ensure output file is written and echoed via CLI."""
+    site_packages = tmp_path / "Lib" / "site-packages" / "pkg"
+    site_packages.mkdir(parents=True)
+    (site_packages / "mod.cp311-win_amd64.pyd").touch()
+
+    output_file = tmp_path / "mods.txt"
+
+    from click.testing import CliRunner
+
+    from python_build_utils.collect_pyd_modules import collect_pyd_modules
+
+    runner = CliRunner()
+    result = runner.invoke(
+        collect_pyd_modules,
+        ["--venv-path", str(tmp_path), "--output", str(output_file)],
+    )
+
+    assert result.exit_code == 0
+    assert output_file.exists()
+    contents = output_file.read_text(encoding="utf-8")
+    assert "pkg.mod" in contents
+    assert f"Module list written to {output_file}" in result.output
