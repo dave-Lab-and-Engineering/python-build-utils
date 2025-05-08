@@ -168,16 +168,16 @@ def _find_package_node(
 
 def _collect_dependency_names(
     dependencies: list[dict[str, Any]],
-    collected: set[str] | None = None,
+    collected: list[str] | None = None,
 ) -> list[str]:
     """Recursively collect all import names from dependency nodes."""
     if collected is None:
-        collected = set()
+        collected = []
 
     for dep in dependencies:
         dist_name = dep["package_name"]
         import_names = _get_import_names(dist_name)
-        collected.update(import_names)
+        collected.extend(import_names)
         _collect_dependency_names(dep.get("dependencies", []), collected)
 
-    return sorted(collected)
+    return collected
