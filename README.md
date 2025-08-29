@@ -9,8 +9,8 @@
 
 Small collection of command line utilities to assist with building your Python wheels.
 
-- GitHub repository: https://github.com/dave-Lab-and-Engineering/python-build-utils
-- Documentation: https://dave-lab-and-engineering.github.io/python-build-utils/
+- GitHub repository: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
+- Documentation: <https://dave-lab-and-engineering.github.io/python-build-utils/>
 
 ---
 
