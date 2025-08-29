@@ -83,6 +83,7 @@ Removes .pyd and .c files from the src/ folder filtered by name.
 ---
 
 ### collect-dependencies
+
 ```text
 Usage: python-build-utils collect-dependencies [OPTIONS]
 
@@ -122,7 +123,7 @@ Options:
 ### rename-wheel-files
 
 ```text
-Usage: python-build-utils rename-wheel-files [OPTIONS]                                                                                                                         
+Usage: python-build-utils rename-wheel-files [OPTIONS]
 
   Rename wheel files in a distribution directory by replacing the default
   'py3-none-any' tag with a custom one.
@@ -142,7 +143,6 @@ Options:
                              sion_tag}-{python_version_tag}-{platform_tag}
   --help                     Show this message and exit.
 ```
-
 
 ---
 
@@ -183,3 +183,11 @@ Options:
 ```
 
 ---
+
+## Developers
+
+We use prettier in the pre-commit. To install pretier, run one time:
+
+```shell
+npm install --no-audit --no-fund
+```

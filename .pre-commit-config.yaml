@@ -1,10 +1,6 @@
-default_stages: [pre-commit, pre-push]
-files: ^(src|tests)/
-
 repos:
-  # 🔹 Basishooks: YAML, TOML, whitespace, merge conflicts
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v5.0.0"
+    rev: v4.4.0
     hooks:
       - id: check-case-conflict
       - id: check-merge-conflict
@@ -13,25 +9,19 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  # 🔹 Ruff: linting, formatting, import-sorting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.9.7"
+    rev: v0.6.3
     hooks:
-      # ✅ Alleen controleren (geen fix)
       - id: ruff
-        args: ["--no-fix"]
-
-      # ✅ Formatter (equivalent aan black)
+        args: [--exit-non-zero-on-fix]
       - id: ruff-format
 
-      # ✅ Alleen imports sorteren — handmatig aanroepen met: pre-commit run ruff-import-sorter --all-files
-      - id: ruff
-        name: ruff-import-sorter
-        args: ["--select=I", "--fix"]
-        stages: [manual]
-
-  # 🔹 Prettier (optioneel)
-  - repo: https://github.com/prettier/pre-commit
-    rev: 57f39166b5a5a504d6808b87ab98d41ebf095b46
+  - repo: local
     hooks:
       - id: prettier
+        name: prettier
+        entry: npx --no-install prettier --write
+        language: system
+        pass_filenames: true
+        types_or:
+          [javascript, jsx, ts, tsx, json, markdown, yaml, css, scss, html]

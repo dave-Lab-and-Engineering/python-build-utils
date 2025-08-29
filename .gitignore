@@ -145,3 +145,5 @@ examples/*.whl
 coverage.json
 *.txt
 /junit.xml
+/package-lock.json
+/node_modules
