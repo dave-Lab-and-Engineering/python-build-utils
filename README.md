@@ -186,7 +186,16 @@ Options:
 
 ## Developers
 
-We use prettier in the pre-commit. To install pretier, run one time:
+We use prettier in the pre-commit. To install pretier, this was done one time:
+
+```shell
+npm init -y
+npm install --save-dev prettier
+```
+
+This places the `package.json` file describing the prettier module included in this project.
+
+A develop wanting to run the code can then replicate this prettier by:
 
 ```shell
 npm install --no-audit --no-fund
