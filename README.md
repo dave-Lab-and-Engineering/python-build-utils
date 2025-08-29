@@ -22,7 +22,7 @@ Install via PyPI:
 pip install python-build-utils[all]
 ```
 
-The optional [all] extra installs additional dependencies like pipdeptree, used by tools like collect-dependencies.
+The optional `[all]` extra installs additional dependencies like `pipdeptree`, used by tools like `collect-dependencies`.
 
 ---
 
@@ -186,17 +186,21 @@ Options:
 
 ## Developers
 
-We use prettier in the pre-commit. To install pretier, this was done one time:
+We use **Prettier** as part of the pre-commit hooks to ensure consistent formatting.
+
+The initial setup (done once when introducing Prettier) was:
 
 ```shell
 npm init -y
 npm install --save-dev prettier
 ```
 
-This places the `package.json` file describing the prettier module included in this project.
+This created a `package.json` that pins the Prettier version used in this project.
 
-A develop wanting to run the code can then replicate this prettier by:
+For other developers who clone the repository, simply run:
 
 ```shell
 npm install --no-audit --no-fund
 ```
+
+This installs the same Prettier version defined in `package.json`, ensuring consistent formatting across all environments.
