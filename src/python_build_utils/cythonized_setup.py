@@ -45,7 +45,7 @@ def cythonized_setup(module_name: str) -> None:
             annotate=False,
         )
 
-        # Alleen bij cythonized build de bronbestanden uit de wheel weghalen
+        # Only remove the source files from the Wheel at Cythonized Build
         exclude_package_data = {
             module_name: [
                 "**/*.py", "**/*.c", "**/*.pxd", "**/*.pyi",
@@ -58,7 +58,7 @@ def cythonized_setup(module_name: str) -> None:
     setup(
         name=module_name,
         package_dir={"": "src"},
-        # Neem zowel .so (Linux) als .pyd (Windows) mee
+        # Include both .so (Linux) and .pyd (Windows)
         package_data={module_name: ["**/*.so", "**/*.pyd", "**/**/*.so", "**/**/*.pyd"]},
         exclude_package_data=exclude_package_data,
         ext_modules=ext_modules,
