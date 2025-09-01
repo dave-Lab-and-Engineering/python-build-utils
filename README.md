@@ -1,13 +1,13 @@
 # python-build-utils
 
-[![GitHub Release](https://img.shields.io/github/v/release/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/releases/tag/0.1.1)
+[![GitHub Release](https://img.shields.io/github/v/release/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/releases)
 [![PyPI Version](https://img.shields.io/pypi/v/python-build-utils)](https://pypi.org/project/python-build-utils/)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/dave-Lab-and-Engineering/python-build-utils/main.yml?branch=main)](https://github.com/dave-Lab-and-Engineering/python-build-utils/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils/branch/main/graph/badge.svg)](https://codecov.io/gh/dave-Lab-and-Engineering/python-build-utils)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/commits/main)
 [![License](https://img.shields.io/github/license/dave-Lab-and-Engineering/python-build-utils)](https://github.com/dave-Lab-and-Engineering/python-build-utils/blob/main/LICENSE)
 
-Small collection of command line utilities to assist with building your Python wheels.
+Small collection of command-line utilities to assist with building and packaging Python wheels.
 
 - GitHub repository: <https://github.com/dave-Lab-and-Engineering/python-build-utils>
 - Documentation: <https://dave-lab-and-engineering.github.io/python-build-utils/>
@@ -22,13 +22,15 @@ Install via PyPI:
 pip install python-build-utils[all]
 ```
 
-The optional `[all]` extra installs additional dependencies like `pipdeptree`, used by tools like `collect-dependencies`.
+The optional `[all]` extra installs additional dependencies like `pipdeptree`, used by tools such as `collect-dependencies`.
 
 ---
 
 ## Description
 
-A collection of CLI tools for managing Python build artifacts, dependencies, and wheel files.
+A curated set of CLI tools for managing Python build artifacts, dependencies, and wheel files.
+Recent change: **`clean-pyd-modules` now also cleans Linux/Unix `.so` extension modules** (besides Windows `.pyd`) and generated `*.c` files.
+Also, **`collect-pyd-modules`** can now discover multiple file types via `--ext` (e.g. `.pyd`, `.so`, `.py`).
 
 ---
 
@@ -47,12 +49,12 @@ Options:
   --help         Show this message and exit.
 
 Commands:
-  clean-pyd-modules     Clean all .pyd/.c build modules in src path.
-  collect-dependencies  Collect and display dependencies for one or more...
-  collect-pyd-modules   Collect and display .pyd submodules from a...
-  pyd2wheel             Create a Python wheel file from a compiled .pyd...
+  clean-pyd-modules     Clean compiled modules (.pyd/.so) and generated C files in src path.
+  collect-dependencies  Collect and display dependencies for one or more packages.
+  collect-pyd-modules   Collect and display compiled/source submodules from a virtual environment.
+  pyd2wheel             Create a Python wheel file from a compiled .pyd file.
   remove-tarballs       Remove tarball files from dist.
-  rename-wheel-files    Rename wheel files in a distribution directory by...
+  rename-wheel-files    Rename wheel files in a distribution directory by applying custom tags.
 ```
 
 ---
@@ -62,23 +64,31 @@ Commands:
 ```text
 Usage: python-build-utils clean-pyd-modules [OPTIONS]
 
-  Clean all .pyd/.c build modules in src path.
+  Clean all compiled modules and generated C files in the given src path.
+
+  Removes:
+    • Windows: *.pyd
+    • Linux/Unix: *.so
+    • Generated C sources: *.c
 
 Options:
-  --src-path TEXT   Path to the src folder to scan for .pyd modules. Defaults
-                    to 'src' in the current folder.
-  -r, --regex TEXT  Optional regular expression to filter .pyd modules by
-                    name.
+  --src-path TEXT   Path to the src folder to scan. Defaults to 'src' in the current folder.
+  -r, --regex TEXT  Optional regular expression to filter files by name (matched against relative paths).
   --help            Show this message and exit.
 ```
 
-Example:
+Examples:
 
 ```shell
-python-build-utils clean-pyd-modules --regex dave
-```
+# Clean every compiled artifact under ./src
+python-build-utils clean-pyd-modules
 
-Removes .pyd and .c files from the src/ folder filtered by name.
+# Clean only modules that match 'dave' anywhere in their relative path
+python-build-utils clean-pyd-modules --regex dave
+
+# Clean in a different source root
+python-build-utils clean-pyd-modules --src-path packages/core/src
+```
 
 ---
 
@@ -105,17 +115,38 @@ Options:
 ```text
 Usage: python-build-utils collect-pyd-modules [OPTIONS]
 
-  Collect and display .pyd submodules from a virtual environment.
+  Collect and display compiled (.pyd/.so) or source (.py) submodules from a virtual environment.
 
 Options:
-  --venv-path TEXT   Path to the virtual environment to scan for .pyd modules.
-                     Defaults to the current environment.
-  -r, --regex TEXT   Optional regular expression to filter .pyd modules by
-                     name.
-  --collect-py       If set, collect .py files instead of .pyd files.
-  -o, --output PATH  Optional file path to write the list of found .pyd
-                     modules.
+  --venv-path TEXT   Path to the virtual environment to scan. Defaults to the current environment.
+  -r, --regex TEXT   Optional regular expression to filter module names.
+  --collect-py       Deprecated: collect only .py files (equivalent to --ext=py).
+  --ext [pyd|so|py|compiled|all]
+                    Which file types to collect:
+                      pyd (.pyd), so (.so), py (.py),
+                      compiled (.pyd + .so), or all (compiled + .py).
+                    [default: pyd]
+  -o, --output PATH  Optional file path to write the list of found modules.
   --help             Show this message and exit.
+```
+
+Examples:
+
+```shell
+# Default behavior: collect .pyd modules (Windows-style builds)
+python-build-utils collect-pyd-modules --venv-path .venv
+
+# Collect Linux/Unix extension modules
+python-build-utils collect-pyd-modules --venv-path .venv --ext=so
+
+# Collect all compiled modules (both .pyd and .so)
+python-build-utils collect-pyd-modules --venv-path .venv --ext=compiled
+
+# Collect only .py modules (deprecated flag is still supported)
+python-build-utils collect-pyd-modules --venv-path .venv --collect-py
+
+# Write output to a file
+python-build-utils collect-pyd-modules --ext=compiled -o modules.txt
 ```
 
 ---
@@ -139,8 +170,8 @@ Options:
                              sysconfig.
   --wheel-tag TEXT           Full custom wheel tag to replace 'py3-none-any'.
                              If provided, this is used directly, ignoring the
-                             other tag options. Default format is: {python_ver
-                             sion_tag}-{python_version_tag}-{platform_tag}
+                             other tag options. Default format is:
+                             {python_version_tag}-{python_version_tag}-{platform_tag}
   --help                     Show this message and exit.
 ```
 
@@ -153,16 +184,8 @@ Usage: python-build-utils remove-tarballs [OPTIONS]
 
   Remove tarball files from dist.
 
-  This function removes tarball files from the given distribution directory.
-
-  Args:     dist_dir (str): The directory containing the tarball files to be removed.
-
-  Returns:     None
-
-  Example:     remove_tarballs("dist")
-
 Options:
-  --dist_dir TEXT  Directory containing wheel the files. Default is 'dist'
+  --dist_dir TEXT  Directory containing the files. Default is 'dist'
   --help           Show this message and exit.
 ```
 
