@@ -23,9 +23,11 @@ def setup_wheel_files(tmp_path: Path) -> Path:
     """Create a temporary directory with a sample wheel file for testing.
 
     Args:
+    ----
         tmp_path: Temporary path provided by pytest.
 
     Returns:
+    -------
         Path: Path to the directory containing the sample wheel file.
 
     """
@@ -40,7 +42,8 @@ def setup_wheel_files(tmp_path: Path) -> Path:
 def create_dummy_wheel() -> Callable[[Path, str], Path]:
     """Create a factory fixture for dummy wheel files.
 
-    Returns:
+    Returns
+    -------
         Callable: Function to create dummy wheel files.
 
     """

@@ -36,7 +36,7 @@ test: ## Test the code with pytest
 tox: ## Test the code with tox
 	@echo "🚀 Testing code: Running tox"
 	@uv sync --group dev
-	@uv run tox 
+	@uv run tox
 
 .PHONY: tox-parallel
 tox-parallel: ## Test the code with tox in parallel
@@ -84,7 +84,7 @@ docs-deploy: ## Build and serve the documentation
 .PHONY: examples
 examples: ## Run the examples
 	@echo "🚀 Example 1: converting dummy-0.1.1.py310-win_amd64.pyd"
-	pyd2wheel examples/dummy-0.1.1.py310-win_amd64.pyd 
+	pyd2wheel examples/dummy-0.1.1.py310-win_amd64.pyd
 	@echo
 	@echo "🚀 Example 2: converting DAVEcore.cp310-win_amd64.pyd"
 	pyd2wheel examples/DAVEcore.cp310-win_amd64.pyd --package_version 1.2.3

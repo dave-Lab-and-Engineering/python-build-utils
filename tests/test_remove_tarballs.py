@@ -19,9 +19,11 @@ def setup_test_environment(tmp_path: Path) -> Path:
     """Create a temporary dist directory with a dummy tarball file.
 
     Args:
+    ----
         tmp_path: Temporary directory path provided by pytest.
 
     Returns:
+    -------
         Path: Path to the created 'dist' directory containing a dummy tarball.
 
     """
@@ -36,6 +38,7 @@ def test_remove_tarballs(setup_test_environment: Path) -> None:
     """Test that `remove_tarballs` successfully removes existing tarball files.
 
     Args:
+    ----
         setup_test_environment: Fixture providing a directory with a dummy tarball.
 
     """

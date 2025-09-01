@@ -13,9 +13,11 @@ def setup_wheel_files(tmp_path: Path) -> callable:
     """Create a dummy .pyd file for testing.
 
     Args:
+    ----
         tmp_path: Temporary directory provided by pytest.
 
     Returns:
+    -------
         Callable[[str], str]: Function that creates a file and returns its path.
 
     """
@@ -41,6 +43,7 @@ def test_cli_make_wheels(setup_wheel_files: callable, dummy_file_name: str) -> N
     """Run pyd2wheel CLI on various filename formats.
 
     Args:
+    ----
         setup_wheel_files: Factory fixture for creating a .pyd file.
         dummy_file_name: Name of the dummy file to test.
 

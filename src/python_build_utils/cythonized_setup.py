@@ -1,5 +1,6 @@
 # cythonized_setup.py
 """Build Python package with optional Cython extensions."""
+
 from __future__ import annotations
 
 import logging
@@ -8,16 +9,17 @@ from pathlib import Path
 
 from setuptools import setup
 
+
 logger = logging.getLogger(__name__)
 
 CYTHON_REQUIRED_MESSAGE = (
-    "Cython is required for building this package with Cython extensions. "
-    "Please install Cython and try again."
+    "Cython is required for building this package with Cython extensions. Please install Cython and try again."
 )
 
+
 def cythonized_setup(module_name: str) -> None:
-    """
-    If CYTHON_BUILD is set/non-empty: compile all .py under src/{module_name} via Cython.
+    """If CYTHON_BUILD is set/non-empty: compile all .py under src/{module_name} via Cython.
+
     Otherwise: install as pure Python (keep .py files in the wheel).
     """
     should_use_cython = os.environ.get("CYTHON_BUILD", "").strip() != ""
@@ -48,8 +50,14 @@ def cythonized_setup(module_name: str) -> None:
         # Only remove the source files from the Wheel at Cythonized Build
         exclude_package_data = {
             module_name: [
-                "**/*.py", "**/*.c", "**/*.pxd", "**/*.pyi",
-                "**/**/*.py", "**/**/*.c", "**/**/*.pxd", "**/**/*.pyi",
+                "**/*.py",
+                "**/*.c",
+                "**/*.pxd",
+                "**/*.pyi",
+                "**/**/*.py",
+                "**/**/*.c",
+                "**/**/*.pxd",
+                "**/**/*.pyi",
             ]
         }
     else:
@@ -64,4 +72,3 @@ def cythonized_setup(module_name: str) -> None:
         ext_modules=ext_modules,
         zip_safe=False,
     )
-
