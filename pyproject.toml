@@ -24,10 +24,7 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = [
-  "click>=8.1.8",
-  "rich>=13.9.4",
-]
+dependencies = ["click>=8.1.8", "rich>=13.9.4"]
 
 [project.optional-dependencies]
 all = ["pipdeptree>=2.26.0", "setuptools>=79.0.0", "cython>=3.0.12"]
@@ -61,13 +58,11 @@ dev = [
 [project.scripts]
 python-build-utils = "python_build_utils.cli_tools:cli"
 
-
 # ========================================================================================
 # 🔹 FORMATTING & LINTING
 # ========================================================================================
 
 # === mypy ===
-
 [tool.mypy]
 files = ["src"]
 disallow_untyped_defs = true
@@ -85,18 +80,17 @@ line-length = 120
 target-version = "py310"
 fix = true
 
-
 [tool.ruff.format]
 preview = true
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  "E501",  # line too long
-  "E731",  # do not assign a lambda expression, use a def
-  "S603",  # `subprocess` call without `shell=True`
-  "D203",  # blank line before class (conflicts with D211)
-  "D213",  # multi-line docstring second line (conflicts with D212)
+  "E501",   # line too long
+  "E731",   # do not assign a lambda expression, use a def
+  "S603",   # subprocess call without shell=True (intentional)
+  "D203",   # blank line before class (conflicts with D211)
+  "D213",   # multi-line docstring second line (conflicts with D212)
   "COM812",
   "ANN401",
   "SLF001",
@@ -109,37 +103,42 @@ lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101"]
-# "src/python_build_utils/cythonized_setup.py" = []
 
-
+# === deptry ===
 [tool.deptry.ignore]
 ignored_dependencies = ["python_build_utils"]
 DEP002 = ["pipdeptree"]
-
 
 [tool.deptry.package_module_name_map]
 cython = "Cython"
 setuptools = "setuptools"
 
+# === coverage ===
 [tool.coverage.report]
 skip_empty = true
 
 [tool.coverage.run]
 branch = true
-source = ["src"]
+source = ["python_build_utils"] # <- match package name (underscore)
 omit = ["tests/*"]
 
+[tool.coverage.paths]
+source = ["src/python_build_utils", "*/site-packages/python_build_utils"]
+
+
+# === pytest ===
 [tool.pytest.ini_options]
 addopts = [
-  "--cov=python-build-utils",
+  "--cov=python_build_utils",  # <- underscore, geen streepje
   "--cov-report=term-missing",
   "--cov-report=html",
   "--verbose",
-  "--import-mode=importlib",
 ]
 testpaths = ["tests"]
 norecursedirs = ["dist", "build", ".tox"]
+pythonpath = ["src"]
 
+# === tox (met uv) ===
 [tool.tox]
 requires = ["tox>4", "tox-uv>=1.11.3"]
 isolated_build = true
@@ -150,7 +149,7 @@ description = "Invoke pytest to run automated tests under {env_name} with covera
 changedir = "{toxinidir}"
 allowlist_externals = ["pytest", "uv"]
 dependency_groups = ["dev"]
-commands = [["pytest", "--cov={toxinidir}", "--cov-report=xml", "--cov-report=html", "--cov-report=json:coverage.json"]]
+commands = [["pytest"]]
 
 [tool.tox.env.build]
 description = "Build the package using uv"
