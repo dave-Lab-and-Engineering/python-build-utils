@@ -73,6 +73,11 @@ cli.add_command(collect_dependencies)
 cli.add_command(rename_wheel_files)
 cli.add_command(remove_tarballs)
 
+# Aka with a different name without duplication
+collect_compiled_modules = collect_pyd_modules
+collect_compiled_modules.name = "collect-compiled-modules"
+cli.add_command(collect_compiled_modules)
+
 
 if __name__ == "__main__":
     cli()

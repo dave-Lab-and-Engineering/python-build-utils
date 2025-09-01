@@ -1,6 +1,10 @@
-"""CLI tool to clean up .pyd and .c build modules from a Python src directory.
+"""CLI tool to clean up compiled build modules from a Python src directory.
 
-This tool scans a specified source path and removes `.pyd` and `.c` build artifacts.
+This tool scans a specified source path and removes compiled artifacts:
+- Windows: `.pyd`
+- Linux/Unix: `.so`
+- Generated C sources: `.c`
+
 An optional regex filter can be used to restrict which files are removed.
 """
 
@@ -10,13 +14,16 @@ from pathlib import Path
 
 import click
 
-from .constants import PYD_EXTENSION
+from .constants import PYD_EXTENSION, SO_EXTENSION
 
 
 logger = logging.getLogger(__name__)
 
 
-@click.command(name="clean-pyd-modules", help="Clean all .pyd/.c build modules in the given src path.")
+@click.command(
+    name="clean-pyd-modules",
+    help="Clean all compiled modules (.pyd/.so) and generated C files (.c) in the given src path.",
+)
 @click.option(
     "--src-path",
     default="src",
@@ -26,10 +33,10 @@ logger = logging.getLogger(__name__)
     "--regex",
     "-r",
     default=None,
-    help="Optional regular expression to filter files by name.",
+    help="Optional regular expression to filter files by name (matched against relative paths).",
 )
 def clean_pyd_modules(src_path: str | None = None, regex: str | None = None) -> None:
-    """Remove compiled modules (.pyd/.c) in a given source path, optionally filtered by a regex."""
+    """Remove compiled modules (.pyd/.so) and generated C files (.c) in a given source path, optionally filtered by a regex."""
     clean_cython_build_artifacts(src_path=src_path, regex=regex)
 
 
@@ -41,7 +48,8 @@ def clean_cython_build_artifacts(src_path: str | None = None, regex: str | None 
         logger.error("Could not locate source path: %s", src_path)
         return
 
-    for extension in [f"*{PYD_EXTENSION}", "*.c"]:
+    # Remove platform-specific compiled modules and generated C sources
+    for extension in (f"*{PYD_EXTENSION}", f"*{SO_EXTENSION}", "*.c"):
         logger.info("Cleaning %s files with regex='%s' in '%s'...", extension, regex, resolved_src)
         clean_by_extensions(src_path=resolved_src, regex=regex, extension=extension)
 
