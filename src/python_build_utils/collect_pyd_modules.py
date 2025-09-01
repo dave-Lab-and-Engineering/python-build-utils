@@ -1,7 +1,6 @@
 """Collect compiled (.pyd/.so) or source (.py) submodules from a virtual environment."""
 
 import logging
-import os
 import re
 import sys
 from pathlib import Path
@@ -12,6 +11,14 @@ from .constants import PYD_EXTENSION, SO_EXTENSION
 
 
 logger = logging.getLogger(__name__)
+
+# Matches
+#   .cpNNN[-platform]    (bijv. .cp311-win_amd64)
+#   of .cpython-NNN[-...] (bijv. .cpython-312-x86_64-linux-gnu)
+_SUFFIX_WITH_ABI_PATTERN = re.compile(
+    r"(?:\.(?:cp\d+|cpython-\d+)[^/\\.]*)?\.(?:pyd|so|py)$",
+    re.IGNORECASE,
+)
 
 
 @click.command(
@@ -176,11 +183,20 @@ def _get_venv_site_packages(venv_path: str | None = None) -> Path | None:
 
 def _find_modules_in_site_packages(
     venv_site_packages: Path,
-    regex: str | None,
+    regex: str | None = None,
     *,
-    extensions: tuple[str, ...],
+    extensions: tuple[str, ...] | None = None,
 ) -> list[str]:
-    """Find all submodules in site-packages matching the extensions and optional regex."""
+    """Find all submodules in site-packages matching the extensions and optional regex.
+
+    Backwards-compatible defaults:
+      - regex=None
+      - extensions=None  -> defaults to ('.pyd',) to preserve old behavior
+    """
+    # Back-compat default: only .pyd if not specified
+    if extensions is None:
+        extensions = (PYD_EXTENSION,)
+
     files: list[Path] = []
     for ext in extensions:
         files.extend(venv_site_packages.rglob(f"*{ext}"))
@@ -198,42 +214,24 @@ def _find_modules_in_site_packages(
     return sorted(submodules)
 
 
-# Examples this should normalize:
-#   pkg/core.cpython-312-x86_64-linux-gnu.so           -> pkg.core
-#   pkg/ext.cp312-win_amd64.pyd                        -> pkg.ext
-#   pkg/sub/__init__.cpython-311-darwin.so             -> pkg.sub
-#   pkg/sub/__init__.pyd                               -> pkg.sub
-#   pkg/sub/module.py                                  -> pkg.sub.module
-_ABI_TAG_PATTERN = re.compile(
-    r"""
-    \.
-    (?:                 # typical variants:
-       cp\d+            # cp312, cp311, etc.
-      |cpython-\d+[^\./]*  # cpython-312, cpython-312-x86_64-linux-gnu, etc.
-    )
-    \.
-    (?:pyd|so)
-    $
-    """,
-    re.VERBOSE,
-)
-
-
 def _extract_submodule_name(module_file: Path, venv_site_packages: Path) -> str:
-    """Convert a file path to a dotted submodule name, normalizing for .py/.pyd/.so + ABI tags."""
+    """Convert a file path to a dotted submodule name, normalizing ABI tags and __init__.
+
+    Steps:
+    1) Strip optional ABI/platform tag + extension (e.g. ".cp311-win_amd64.pyd", ".cpython-312-...so", ".py").
+    2) Convert path separators to dots.
+    3) Map package __init__ to its package name.
+    """
     relative_path = module_file.relative_to(venv_site_packages)
     s = str(relative_path)
 
-    # 1) Remove ABI/platform tags like ".cp312-win_amd64.pyd" or ".cpython-312-x86_64-linux-gnu.so"
-    s = _ABI_TAG_PATTERN.sub("", s)
+    # 1) Strip optionele ABI-tag + extensie aan het eind
+    s = _SUFFIX_WITH_ABI_PATTERN.sub("", s)
 
-    # 2) Remove trailing file suffixes
-    s = re.sub(r"\.(pyd|so|py)$", "", s, flags=re.IGNORECASE)
+    # 2) Padseparators -> dots (kruisplatform robuust: vervang zowel '/' als '\')
+    s = s.replace("\\", ".").replace("/", ".")
 
-    # 3) Convert path separators to dots
-    s = s.replace(os.sep, ".")
-
-    # 4) Map package __init__ to its package name
+    # 3) '__init__' → pakketnaam
     if s.endswith(".__init__"):
         s = s[: -len(".__init__")]
 
