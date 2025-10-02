@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v6.0.0
     hooks:
       - id: check-case-conflict
       - id: check-merge-conflict
@@ -16,12 +16,10 @@ repos:
         args: [--exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: local
+  - repo: https://github.com/JoC0de/pre-commit-prettier
+    rev: v3.6.2
     hooks:
       - id: prettier
-        name: prettier
-        entry: npx --no-install prettier --write
-        language: system
-        pass_filenames: true
+        args: ["--write"]
         types_or:
           [javascript, jsx, ts, tsx, json, markdown, yaml, css, scss, html]
