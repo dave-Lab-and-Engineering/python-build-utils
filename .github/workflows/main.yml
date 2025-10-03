@@ -8,6 +8,11 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
+# Required for Codecov OIDC uploads and generally safe defaults
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -44,25 +49,44 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Show tool versions (debug)
+        run: |
+          python --version
+          uv --version
+
       - name: Run tests
         run: uv run python -m pytest tests --cov --cov-config=pyproject.toml --cov-report=xml --junitxml=junit.xml
 
       - name: Check typing
         run: uv run mypy
 
-      - name: Upload coverage reports to Codecov (only for 3.11)
-        if: ${{ matrix.python-version == '3.11' }}
+      # --- Codecov upload (only Python 3.11) ---
+      # Upload coverage only when it's NOT a fork PR (tokenless/OIDC upload).
+      - name: Upload coverage to Codecov (3.11, non-fork)
+        if: ${{ matrix.python-version == '3.11' && (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork) }}
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: true
+          # Uses GitHub OIDC; no token required for non-fork runs.
+          use_oidc: true
 
-      - name: Upload test results to Codecov (only for 3.11)
-        if: ${{ matrix.python-version == '3.11' && !cancelled() }}
+      # Save coverage as artifact on fork PRs (no upload attempt to avoid permission issues).
+      - name: Save coverage artifact (3.11, fork PR)
+        if: ${{ matrix.python-version == '3.11' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+
+      # Optional test results upload to Codecov (skip on forks to avoid tokenless failure).
+      - name: Upload test results to Codecov (3.11, non-fork)
+        if: ${{ matrix.python-version == '3.11' && (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork) && !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          # This action can work without a token on trusted runs; if you prefer token, you can add it here.
+          # token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
 
   check-docs:
     runs-on: ubuntu-latest
