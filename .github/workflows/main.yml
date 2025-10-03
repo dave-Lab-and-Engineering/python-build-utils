@@ -87,6 +87,7 @@ jobs:
           # This action can work without a token on trusted runs; if you prefer token, you can add it here.
           # token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+          use_oidc: true
 
   check-docs:
     runs-on: ubuntu-latest
