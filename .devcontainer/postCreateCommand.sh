@@ -13,5 +13,5 @@ fi
 
 uv --version
 
-uv sync
+uv sync --dev
 uv run pre-commit install --install-hooks --overwrite
