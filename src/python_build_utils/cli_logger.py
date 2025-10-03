@@ -11,7 +11,8 @@ from . import LOGGER_NAME
 def initialize_logging() -> Logger:
     """Initialize the central logger with a rich console handler.
 
-    Returns:
+    Returns
+    -------
         Logger: The configured logger instance with RichHandler.
 
     """

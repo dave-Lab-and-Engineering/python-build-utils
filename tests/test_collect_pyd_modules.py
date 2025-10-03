@@ -20,9 +20,11 @@ def mock_venv_site_packages(tmp_path: Path) -> Path:
     """Create a mock site-packages directory for testing.
 
     Args:
+    ----
         tmp_path: Temporary test directory provided by pytest.
 
     Returns:
+    -------
         Path: Path to the created mock site-packages.
 
     """

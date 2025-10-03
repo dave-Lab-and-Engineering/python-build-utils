@@ -37,13 +37,12 @@ jobs:
       - name: Deploy to GitHub Pages
         run: echo uv run mkdocs gh-deploy --force --remote-branch gh-pages
 #
-      #- name: Deploy to GitHub Pages
-      #  run: mkdocs gh-deploy --force --remote-branch gh-pages
+#- name: Deploy to GitHub Pages
+#  run: mkdocs gh-deploy --force --remote-branch gh-pages
 
-      #- name: Deploy to GitHub Pages
-      #  run: uv run mkdocs gh-deploy --force
-      # Note that GH_PAT is a secret that you need to create in your repository settings
-
+#- name: Deploy to GitHub Pages
+#  run: uv run mkdocs gh-deploy --force
+# Note that GH_PAT is a secret that you need to create in your repository settings
 
 #      - name: Deploy to GitHub Pages via github token
 #        env:
@@ -55,4 +54,3 @@ jobs:
 #          git config --global user.email "$GIT_EMAIL"
 #          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/dave-Lab-and-Engineering/python-build-utils.git
 #          uv run mkdocs gh-deploy --force --remote-branch gh-pages
-        

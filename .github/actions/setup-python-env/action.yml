@@ -9,7 +9,7 @@ inputs:
   uv-version:
     description: "uv version to use"
     required: true
-    default: "0.5.20"
+    default: "0.8.22"
 
 runs:
   using: "composite"
@@ -31,4 +31,3 @@ runs:
 
     # - name: Upload coverage to Codecov
     #   uses: codecov/codecov-action@v3
-

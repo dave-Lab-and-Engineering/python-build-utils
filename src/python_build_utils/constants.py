@@ -35,6 +35,7 @@ EXIT_DEPENDENCY_ERROR = 4
 WHEEL_EXTENSION = ".whl"
 SDIST_EXTENSION = ".tar.gz"
 PYD_EXTENSION = ".pyd"
+SO_EXTENSION = ".so"
 PYTHON_SOURCE_EXTENSIONS = [".py", ".pyi"]
 COMPILED_EXTENSIONS = [".pyd", ".so", ".dll", ".dylib"]
 
